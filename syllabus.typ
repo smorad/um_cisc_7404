@@ -11,14 +11,15 @@
   [Office Hours], [11:00-12:00 Mondays and Tuesdays],
   [Teaching Assistants], [TBD],
   [Grading], [
-    - Assignments: 70%
-    - Quizzes: 20%
+    - Assignments: 30%
+    - Quizzes: 30%
+    - Final Project: 30%
     - Participation: 10%
   ],
   [Late Work Policy], [
-    - -25% 0-1 days late
-    - -50% 1-2 days late
-    - -75% 2-3 days late
+    - -15% 0-1 days late
+    - -30% 1-2 days late
+    - -50% 2-3 days late
     - -100% 3+ days late
   ],
   [Prerequisites], [
@@ -28,20 +29,21 @@
     - Introduction to Deep Learning
   ],
   [Preliminary Lecture Schedule], [
-    - Week 1 (08.19): Introduction and Bandits
-    - Week 2 (08.26): Introduction to the Course
-    - Week 3 (09.02): Linear Regression (D2L 3.1, 3.6)
-    - Week 4 (09.09): Neural Networks (D2L 5.1, 5.2, 6.1)
-    - Week 5 (09.16): Backpropagation and Optimization (D2L 5.3, 12.1, 12.3-12.5)
-    - Week 6 (09.23): Classification (D2L 4.1, 4.2, 4.4)
-    - Week 7 (09.23): Training Tricks (D2L 5.1-5.5, 6.1-6.3, 12.1-12.10)
-    - Week 8 (09.30): Convolutional Neural Networks (D2L 7)
-    - Week 9 (10.14): Recurrent Neural Networks (D2L 9-10)
-    - Week 10 (10.21): Graph Neural Networks
-    - Week 11 (10.07): Autoencoders and Generative Models
-    - Week 12 (10.28): Attention and Transformers (D2L 11.1-11.7)
-    - Week 13 (11.04): Foundation Models (D2L 11.8-11.9)
-    - Week 14 (11.11): Reinforcement Learning (D2L 17)
+    - Week 1 (01.08): Introduction 
+    - Week 2 (01.15): Bandits (S&B 2)
+    - Week 3 (01.22): Markov Decision Processes (S&B 3) 
+    - Week 4 (02.12): Model-Based Value Iteration 
+    - Week 5 (02.19): Model-Free Value Iteration
+    - Week 6 (02.26): Q Learning
+    - Week 7 (03.05): Policy Gradient
+    - Week 8 (03.12): Actor-Critic (PPO + DDPG)
+    - Week 9 (03.19): Exploration (MaxEnt, Curiosity)
+    - Week 10 (03.26): Model-Based RL
+    - Week 11 (04.02): Offline RL
+    - Week 12 (04.09): Imitation Learning
+    - Week 13 (04.16): POMDPs
+    - Week 14 (04.23): LLMs and Direct Policy Optimization 
+    - Week 15 (11.30): Project Presentations
   ],
   [Preliminary Assignment Schedule], [
     - Week 3-4 (09.02 - 09.09): Linear Regression

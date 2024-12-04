@@ -29,7 +29,169 @@
     outline(title: none, indent: 1em, depth: 1)
 )
 
+= Course information
+
+==
+Prerequisites
+
+Lecture plan
+
+Structure
+
+Etc
+
 = Decision Making
+
+==
+What is decision making? (and problem solving)
+
+History of decision making
+
+Applications of decision making
+
+Difficult problems do not admit human designed algorithms
+
+Difference to neural networks
+
+
+==
+I thought for a while what to call this course #pause
+
+I thought about what I want to teach #pause
+
+We will focus primarily on reinforcement learning in this course #pause
+
+But reinforcement learning is a method, not a problem #pause
+
+The problem is decision making, and so I will call this course *Decision Making*
+
+==
+How do we define decision making? #pause
+
+It depends, each field has their own mathematical definition 
+
+- Philosophy #pause
+- Mathematics #pause
+- Cognitive science #pause
+- Economics #pause
+- Computer science #pause
+- Military science 
+
+Let us look at the history of decision making
+
+==
+
+*Question:* Who was the first to apply decision making algorithms? #pause
+
+#side-by-side(align: horizon)[#cimage("fig/01/cell.jpeg", height: 60%)][*3.5 GYA:* Single cell organism] #pause
+
+Must decide to move away from danger and move towards food #pause
+
+Decision making is necessary for life
+
+==
+#side-by-side[
+  #cimage("fig/01/hunter.jpg", height: 80%) #pause
+][
+  *200 kYA:* Humanoid hunter-gatherers develop more complex decision making capabilities #pause
+
+  Sequence of decisions to make fire #pause
+
+  Should we apply mud to our wounds? #pause
+
+  Do we move with the animals, or do we stay and create farms?
+]
+
+==
+
+  #side-by-side()[
+    #cimage("fig/01/tzu.jpg") 
+  ][
+
+  *500 BCE:* Humans begin to study decision making #pause
+
+    Sun Tzu studies and writes about various forms of decision making #pause
+
+    E.g., zero sum games: "Attack where he is unprepared; appear where you are not expected."
+
+  ]
+
+
+
+==
+#side-by-side[
+  #cimage("fig/01/aristotle.jpg", height: 100%) 
+][
+*400 BCE:* Aristotle, the earliest recorded framework for decision making #pause
+
+Syllogistic logic and deductive reasoning from axioms #pause
+
+*Axiom 1:* All philosophers prioritize knowledge over leisure #pause
+
+*Axiom 2:* I am a philosopher #pause
+
+*Decision:* I must attend lecture instead of the party
+]
+
+==
+
+#side-by-side[
+  #cimage("fig/01/pascal.jpg", height: 100%) 
+][
+*1654:* Pascal discovers multiarmed bandits in "Pascal's Wager" #pause
+
+*Premise:* You are in bed, about to die. Should you believe in God? #pause
+
+#table(
+  columns: 3,
+  [], [Believe], [Do not believe],
+  [God exists], [Good], [Bad],
+  [God does not exist], [Neutral], [Neutral]
+) #pause
+
+Decision making under uncertainty (my PhD topic)
+]
+
+==
+
+#side-by-side[
+  #cimage("fig/01/markov.jpeg", height: 100%) 
+][
+*1906:* Markov discovers Markov processes #pause 
+
+All modern decision making systems model Markov processes
+]
+
+==
+
+#side-by-side[
+  #cimage("fig/01/bellman.jpg", height: 100%) 
+][
+*1953:* Bellman discovers reinforcement learning, calls it dynamic programming #pause
+
+Discovers the *Bellman equation*, the basis for modern reinforcement learning
+]
+
+==
+
+#side-by-side[
+  #cimage("fig/01/sutton.jpg", height: 100%) 
+][
+*1983:* Solves the Bellman equation using a neural network #pause
+
+Combined reinforcement learning and neural networks #pause
+
+He is still alive and will answer your emails!
+
+In this course, we will use his textbook _An Introduction to Reinforcement Learning_
+
+]
+
+
+
+
+
+
 
 = Notation
 
@@ -251,30 +413,18 @@ If you spin 1,000 times, you will lose close to -4950 MOP
 
 *Answer:* Do not play! If you must, play as little as possible
 
+==
+
+*Exercise*: You start a new casino in Macau. 
+
+Create a bandit with the following outcomes
+
+$ Omega in {"Win Lemon", "Win Cherry", "Win BAR", "Lose"} $
+
+Write down the probabilities for each outcome, and the random variable value for each outcome
+
+Make sure the expected value is *negative but near zero*:
+- Negative: The player loses money and you win money
+- Near zero: The player wins sometimes and will continue to play 
+
 = Multiarmed Bandits
-
-
-==
-We can represent this information using probabilities #pause
-
-The *random variable* $X$ represents the outcome of playing the bandit #pause
-
-The possible values of $X$ 
-
-#side-by-side[$ x = 1 "(win)" $][ $x = 0 "(lose)" $]
-
-The *probability* of winning 
-
-$ P(x = 1) = 1 / 100 \
-P(x = 0) = 99 / 100 $ #pause
-
-But this does not consider how much money we will make if we win!
-
-==
-To represent how much money we can make, we use the *expectation* or *expected value*
-
-
-==
-We represent this information using the expectation
-The *expectation* or *expected value* is how much money we expect to make #pause
-
