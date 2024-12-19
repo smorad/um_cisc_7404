@@ -1,0 +1,43 @@
+Topic I want to cover:
+- FQI, DQN, PG, Sarsa
+- Advantages
+- DDPG, PPO
+- Imitation learning
+- MBRL
+- World models
+- MCTS
+- LLM/DPO
+- POMDP
+- Exploration 
+    - Curiosity
+    - Should consider collect/train loop early
+
+Notes
+- Return should be function of tau, G(tau)
+
+
+Maybe follow Emma Brunskill from Stanford
+    - She does not use expectations
+
+Lecture 1: Intro to RL and Bandits (S&B 1)
+    - Start with bandits as "RL light"
+    - Example problem (gambler)
+    - Formal definition of bandits
+        - Example application (Netflix recommendation)
+    - Expected values
+    - Simple Q learning
+
+HW 1: Implement bandits env and epsilon greedy
+
+Lecture 2: MDPs 
+
+Lecture 3: Value Learning with a World Model
+    - https://web.stanford.edu/class/cs234/slides/lecture2pre.pdf
+    - Express in multiple ways P(tau) R(tau)
+
+Lecture 4: Value Learning without a World Model
+    - Sarsa
+
+Lecture 5: Policy Gradient
+
+Lecture 6: 

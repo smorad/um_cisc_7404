@@ -36,19 +36,19 @@
     - Week 5 (02.19): Model-Free Value Iteration
     - Week 6 (02.26): Q Learning
     - Week 7 (03.05): Policy Gradient
-    - Week 8 (03.12): Actor-Critic (PPO + DDPG)
-    - Week 9 (03.19): Exploration (MaxEnt, Curiosity)
+    - Week 8 (03.12): Actor-Critic
+    - Week 9 (03.19): Exploration
     - Week 10 (03.26): Model-Based RL
     - Week 11 (04.02): Offline RL
     - Week 12 (04.09): Imitation Learning
     - Week 13 (04.16): POMDPs
     - Week 14 (04.23): LLMs and Direct Policy Optimization 
-    - Week 15 (11.30): Project Presentations
+    - Week 15 (04.30): Project Presentations
   ],
   [Preliminary Assignment Schedule], [
-    - Week 3-4 (09.02 - 09.09): Linear Regression
-    - Week 4-6 (09.09 - 09.23): Neural Networks and Backpropagation
-    - Week 6-8 (09.23 - 10.07): MLP Regression
+    - Week 3-4 (09.02 - 09.09): Multiarmed bandit
+    - Week 4-6 (09.09 - 09.23): Deep Q network
+    - Week 6-8 (09.23 - 10.07): Policy gradient
     - Week 8-10 (10.07 - 10.21): Convolutional MNIST Classification
     - Week 10-12 (10.21 - 11.04): LSTM Weather Prediction
     - Week 12-14 (11.04 - 11.18): Transformer IMDB Sentiment Analysis

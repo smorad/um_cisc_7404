@@ -31,14 +31,12 @@
 
 = Course information
 
+
 ==
-Prerequisites
-
-Lecture plan
-
-Structure
-
-Etc
+- Prerequisites
+- Lecture plan
+- Structure
+- Github
 
 = Decision Making
 
@@ -63,12 +61,12 @@ We will focus primarily on reinforcement learning in this course #pause
 
 But reinforcement learning is a method, not a problem #pause
 
-The problem is decision making, and so I will call this course *Decision Making*
+The problem we solve is *decision making*
 
 ==
 How do we define decision making? #pause
 
-It depends, each field has their own mathematical definition 
+It depends, each field has their own definition  #pause
 
 - Philosophy #pause
 - Mathematics #pause
@@ -298,7 +296,7 @@ The function $f$ takes in elements from sets $X$ and $Theta$ and outputs element
 ==
 
 #side-by-side[
-    The simplest form of decision making is the *bandit* #pause
+    The simplest form of decision making problem is the *bandit* #pause
 
     *Question:* What is a bandit? #pause
 ][
@@ -403,28 +401,164 @@ $ -10 dot 199 / 200 + 1000 dot 1 / 200 = -4.95 $
 
 You should expect to lose 4.95 MOP each time you spin the bandit #pause
 
-This is an average, some people win money #pause
 
-The more you spin, the closer you reach the expected value #pause
+We call the value after each spin the *reward* #pause
 
-If you spin 1,000 times, you will lose close to -4950 MOP
+$ 
+  r_1 = -10 \
+  r_2 = -10 \ 
+  dots.v \
+  r_n = -10
+$ #pause
 
-*Question:* What is the best way to make money with the bandit?
+==
+
+$ 
+  r_1 = -10 \
+  r_2 = -10 \ 
+  dots.v \
+  r_n = -10
+$ #pause
+
+As we play the game more and more, we converge to the expectation
+
+$ lim_(n -> oo) sum_(t=1)^n r_t = -4.95 n = n bb(E)[cal(X)] $
+
+
+==
+$ lim_(n -> oo) sum_(t=1)^n r_t = -4.95 n = n bb(E)[cal(X)] $ #pause
+
+
+If you spin 1,000 times, you should expect to lose -4950 MOP #pause
+
+*Question:* What is the best way to make money with the bandit? #pause
 
 *Answer:* Do not play! If you must, play as little as possible
 
 ==
 
-*Exercise*: You start a new casino in Macau. 
+If you know $bb(E)[cal(X)]$, you know the result of gambling #pause
 
-Create a bandit with the following outcomes
+*Question:* Do gamblers know $bb(E)[cal(X)]$? #pause
 
-$ Omega in {"Win Lemon", "Win Cherry", "Win BAR", "Lose"} $
+*Answer:* No! This is a secret of the casino #pause
 
-Write down the probabilities for each outcome, and the random variable value for each outcome
+*Question:* How could a gambler find out $bb(E)[cal(X)]$?
 
-Make sure the expected value is *negative but near zero*:
-- Negative: The player loses money and you win money
-- Near zero: The player wins sometimes and will continue to play 
+==
+*Question:* How could a gambler find out $bb(E)[cal(X)]$?
+
+Gambler only has access to the rewards
+
+$ r_1, r_2, dots, r_n = -10, -10, dots, 100 $ #pause
+
+// $ lim_(n -> oo) sum_(t=1)^n r_t = -4.95 n = n bb(E)[cal(X)] $ #pause
+
+#side-by-side[
+  We can add the rewards
+  ][
+    $ sum_(t=1)^n r_t approx n bb(E)[cal(X)] $
+  ] #pause
+
+#side-by-side[Divide by number of plays][
+  $ 1 / n sum_(t=1)^n r_t approx bb(E)[cal(X)] $ #pause
+] #pause
+
+After playing enough, the gambler can find the expectation!
+
+==
+
+*Exercise*: You start a new casino in Macau. #pause Create a bandit with the following outcomes $Omega in {"Win Lemon", "Win Cherry", "Win BAR", "Lose"}$ #pause
+
+Write down: #pause
+- Probability for each outcome $P(omega); quad forall omega in Omega$ #pause
+- The random variable for each outcome $cal(X)(omega); quad forall omega in Omega$ #pause
+- The expected value $bb(E)[cal(X)]$ #pause
+- How much money you should make after 1000 plays #pause
+
+Make sure the expected value is *negative but near zero*: #pause
+- Negative: The player loses money and you win money #pause
+- Near zero: The player wins sometimes and will continue to play #pause
+
+
+
+
 
 = Multiarmed Bandits
+
+// casino
+// define problem
+// applications
+// q*/expectation
+// exploration and exploitation
+// epsilon greedy
+// incremental exploration
+
+== 
+The bandit problem is useful for casino owners and gamblers #pause
+
+But it is a trivial decision making problem #pause
+
+If $E[cal(X)] > 0$ you should gamble #pause
+
+If $E[cal(X)] < 0$ you should not gamble
+
+We will consider a more interesting problem
+
+
+
+
+==
+You arrive at the Londoner with 1000 MOP and want to win money #pause
+
+#cimage("fig/01/mab-slots.jpg", height: 60%) #pause
+
+*Question:* Which machine do you play?
+
+==
+We call this the *multi-armed bandit* problem #pause
+
+#cimage("fig/01/mab-octo.png", height: 60%) #pause
+
+You don't know the expected value of each arm. Which should you pull?
+
+==
+We can model many real problems as multiarmed bandits
+
+==
+*Problem:* We have $k$ bandits, and each bandit is a random variable
+
+$ cal(X)_1, cal(X)_2, dots, cal(X)_k $ #pause
+
+We do not know $bb(E)[cal(X)_1], bb(E)[cal(X)_2], dots, bb(E)[cal(X)_k]$ #pause
+
+You can take an *action* by pulling the arm of each bandit
+
+$ a in {1, 2, dots, k} $ #pause
+
+Which actions should you take to make the most money? #pause
+
+*Question:* How should we approach this problem? #pause
+
+==
+
+This is a hard problem! #pause
+
+We need to estimate $bb(E)[cal(X)_1], bb(E)[cal(X)_2], dots, bb(E)[cal(X)_k]$ #pause
+
+But we do not have enough money to estimate all $k$ bandits #pause
+
+We must be careful in how we choose $a$ #pause
+
+==
+First, we will introduce some notation #pause
+
+$ Q(a) = 1 / n sum_(t=1)^n r_t $
+
+/*
+$ q_*(a) = bb(E)[cal(X)_a] $ #pause
+
+$ q_*(3) = bb(E)[cal(X)_3] $ #pause
+
+$ q_*(14) = bb(E)[cal(X)_14] $ #pause
+*/
