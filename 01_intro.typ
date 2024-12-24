@@ -34,9 +34,120 @@
 
 ==
 - Prerequisites
+- Cheating/AI
+- Grading/Participation
 - Lecture plan
 - Structure
 - Github
+
+==
+*Prerequisites:* #pause
+- Deep learning #pause
+- Multivariable calculus #pause
+- Statistics and probability 
+
+==
+*Cheating:* #pause
+
+Westerners hate cheating, I take cheating *seriously* #pause
+
+If I suspect you cheated on an exam/assignment, I will give you a zero #pause
+
+I gave many zeros in last term's deep learning course #pause
+
+You can come to my office to argue cheating #pause
+
+If you argue and I don't believe you, I will report you to the department and you can convince them
+
+==
+*Question:* What is cheating? #pause
+
+Copying assignment or exam from another student #pause
+
+Having notes, laptop, or phone out during quiz/exam #pause
+
+Turning in LLM output
+
+==
+*Secret:* After you graduate nobody will care about your grade/degree! #pause
+
+For AI jobs, you will do 5 hours of in-person interviews #pause
+
+You will write on a whiteboard in front of interviewers #pause
+
+Your diploma will not tell you the answer! #pause
+
+To get the job, you must *understand* the material #pause
+
+If you cheat, maybe you pass the class, but you will fail life #pause
+
+Most cheaters I know now work in restaurants, degree is worthless #pause
+
+I want you to *learn the material* so you succeed in life
+
+==
+*Question:* Can you use LLMs in class? #pause
+
+You can ask LLMs for help, but *do not turn in LLM output* #pause
+
+*Ok:* LLM, is $underline(quad quad)$ a correct translation of $underline(quad quad)$> #pause
+
+*Ok:* LLM, is $underline(quad quad)$ correct grammar? #pause
+
+*Cheating:* LLM, answer the following homework question $underline(quad quad)$ #pause
+
+*Ok:* LLM, why does does this code raise `AttributeError`? #pause
+
+*Ok:* LLM, why does my Q function return large values? #pause
+
+*Cheating:* LLM, implement the policy gradient algorithm in pytorch
+
+==
+*Grading:*
+Quizzes 30% #pause
+Assignments 30% #pause
+Final Project 30% #pause
+Participation 10% #pause
+
+==
+*Participation:*
+
+==
+*Office Hours:*
+
+
+== 
+*Lecture Plan:* #pause
+- Introduction #pause
+- Basics #pause
+- Modern Methods #pause
+- Active Research
+
+==
+*Introduction* #pause
+- Introduction and Deep Learning #pause
+- Bandits 
+==
+*Basics:* #pause
+- Decision Processes #pause
+- Imitation learning
+- Policy Gradient
+- Value Iteration
+- Actor Critic
+==
+*Modern Methods:*
+- Advantage Actor Critic
+- Trust Region Policy Optimization
+- Proximal Policy Optimization
+- Deep Q Learning
+- Deep Deterministic Policy Gradient
+- Soft Actor Critic
+==
+*Active Research:*
+- Memory 
+- Offline RL
+- World Models
+- RL from Human Feedback
 
 = Decision Making
 
