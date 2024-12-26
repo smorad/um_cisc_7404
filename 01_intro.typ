@@ -1,6 +1,6 @@
 #import "@preview/algorithmic:0.1.0"
 #import algorithmic: algorithm
-#import "@preview/touying:0.5.3": *
+#import "@preview/touying:0.5.4": *
 #import themes.university: *
 #import "common.typ": *
 #import "@preview/cetz:0.3.1"
@@ -66,7 +66,7 @@ Copying assignment or exam from another student #pause
 
 Having notes, laptop, or phone out during quiz/exam #pause
 
-Turning in LLM output
+Submitting LLM output
 
 ==
 *Secret:* After you graduate nobody will care about your grade/degree! #pause
@@ -84,6 +84,12 @@ If you cheat, maybe you pass the class, but you will fail life #pause
 Most cheaters I know now work in restaurants, degree is worthless #pause
 
 I want you to *learn the material* so you succeed in life
+
+==
+#cimage("fig/01/interview.png")
+==
+
+#cimage("fig/01/interview2.png")
 
 ==
 *Question:* Can you use LLMs in class? #pause
@@ -104,13 +110,53 @@ You can ask LLMs for help, but *do not turn in LLM output* #pause
 
 ==
 *Grading:*
-Quizzes 30% #pause
-Assignments 30% #pause
-Final Project 30% #pause
-Participation 10% #pause
+
+- Quizzes 30% #pause
+- Assignments 30% #pause
+- Final Project 30% #pause
+- Participation 10% #pause
+
+==
+*Quizzes:*
+- I will tell you week before exam #pause
+- Expect 3 quizzes
+
+==
+*Assignments:*
+- Programming #pause
+- Expect 3 assignments
+
+==
+*Final Project:* #pause
+#side-by-side[
+#cimage("fig/01/hok.jpg") #pause
+][
+- Research based #pause
+- Tencent offers compute and Honor of Kings environment
+- Train agents to beat humans at Honor of Kings
+- Implement RL algorithm, improve it, write up analysis
+- More information later
+
+]
 
 ==
 *Participation:*
+
+National Academy of Sciences:
+
+#cimage("fig/01/active-learning.png")
+
+==
+*Participation:*
+I want this class to be interactive #pause
+
+Participation is *asking* or *answering* questions during lecture #pause
+
+To encourage you, your grade depends on interacting
+
+- Class participation
+- Individual participation
+
 
 ==
 *Office Hours:*
@@ -146,6 +192,7 @@ Participation 10% #pause
 *Active Research:*
 - Memory 
 - Offline RL
+- RL and Search
 - World Models
 - RL from Human Feedback
 
@@ -175,9 +222,54 @@ But reinforcement learning is a method, not a problem #pause
 The problem we solve is *decision making*
 
 ==
-How do we define decision making? #pause
+*Question:* What is decision making? #pause
 
 It depends, each field has their own definition  #pause
+
+- Philosophy #pause
+- Mathematics #pause
+- Cognitive science #pause
+- Economics #pause
+- Computer science #pause
+- Military science  #pause
+
+*Answer:* Given information, make the best possible choice
+
+
+==
+*Question:* Why should we care about decision making? #pause
+
+
+Everything in life is a decision #pause
+
+- Do I eat dumplings or noodles?
+- Should I go to school or find a job?
+- Should I date this person or not?
+- Where should I live?
+- Should I tax poor people or rich people?
+
+A human life is a series of decisions, we are decision making machines #pause
+
+Who we are is defined by what we do #pause
+
+"All we have to decide is what to do with the time that is given to us"
+
+==
+To study decision making is to study ourselves #pause
+
+If we learn to make better decisions, we can lead better lives #pause
+
+If we build a machine to make the best decisions, we will create *superintelligence* #pause
+- Best doctor #pause
+- Best lawyer #pause
+- Best leader #pause
+
+If this machine understands *why* it makes certain decisions, then it is *conscious*
+
+==
+How do we define decision making? #pause
+
+Each field has their own definition  #pause
 
 - Philosophy #pause
 - Mathematics #pause
@@ -187,7 +279,6 @@ It depends, each field has their own definition  #pause
 - Military science 
 
 Let us look at the history of decision making
-
 ==
 
 *Question:* Who was the first to apply decision making algorithms? #pause
