@@ -21,6 +21,8 @@
   header: self => utils.display-current-heading(level: 1)
 )
 
+// TOOD: Replace bandits with overview of RL vs ML vs IL etc
+
 #title-slide()
 
 == Outline <touying:hidden>
@@ -132,9 +134,9 @@ You can ask LLMs for help, but *do not turn in LLM output* #pause
 #cimage("fig/01/hok.jpg") #pause
 ][
 - Research based #pause
-- Tencent offers compute and Honor of Kings environment
-- Train agents to beat humans at Honor of Kings
-- Implement RL algorithm, improve it, write up analysis
+- Tencent offers compute and Honor of Kings environment #pause
+- Train agents to beat humans at Honor of Kings #pause
+- Implement RL algorithm, improve it, write up analysis #pause
 - More information later
 
 ]
@@ -161,6 +163,10 @@ To encourage you, your grade depends on interacting
 ==
 *Office Hours:*
 
+*Github:*
+
+https://github.com/smorad/um_cisc_7404
+
 
 == 
 *Lecture Plan:* #pause
@@ -171,14 +177,14 @@ To encourage you, your grade depends on interacting
 
 ==
 *Introduction* #pause
-- Introduction and Deep Learning #pause
-- Bandits 
+- Introduction #pause
+- Bandits #pause
 ==
 *Basics:* #pause
+- Review of Deep Learning #pause
 - Decision Processes #pause
-- Imitation learning
-- Policy Gradient
 - Value Iteration
+- Policy Gradient
 - Actor Critic
 ==
 *Modern Methods:*
@@ -188,6 +194,7 @@ To encourage you, your grade depends on interacting
 - Deep Q Learning
 - Deep Deterministic Policy Gradient
 - Soft Actor Critic
+- Imitation learning
 ==
 *Active Research:*
 - Memory 
@@ -266,6 +273,7 @@ If we build a machine to make the best decisions, we will create *superintellige
 
 If this machine understands *why* it makes certain decisions, then it is *conscious*
 
+/*
 ==
 How do we define decision making? #pause
 
@@ -277,6 +285,11 @@ Each field has their own definition  #pause
 - Economics #pause
 - Computer science #pause
 - Military science 
+*/
+==
+What is the current state of artificial decision making? #pause
+
+TODO Videos
 
 Let us look at the history of decision making
 ==
@@ -387,10 +400,22 @@ In this course, we will use his textbook _An Introduction to Reinforcement Learn
 
 ]
 
+==
+TODO 
 
-
-
-
+- Timeline
+- Decision making vs ML
+- Classical approaches
+  - A\*
+  - Programmed
+  - Learning
+    - Scales with data and compute
+    - Bitter lesson
+- Types of decision making learning
+  - RL 
+  - Planning
+  - IL
+- Videos
 
 
 = Notation
