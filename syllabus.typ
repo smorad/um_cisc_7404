@@ -1,10 +1,10 @@
 #align(center)[#text(size: 20pt)[Course Syllabus]]
 #table(
   columns: (0.2fr, 0.8fr),
-  [Course], [CISC 7026 Fall 2024],
-  [Time], [19:00-22:00, Mondays],
-  [Location], [Room E6-1102C],
-  [Description], [This course introduces the theory and application of deep neural networks],
+  [Course], [CISC 7404 Spring 2025],
+  [Time], [19:00-22:00, Thursdays],
+  [Location], [E12-G005],
+  [Description], [This course introduces decision making],
   [Instructor], [
     Steven Morad \<smorad at um.edu.mo\>
   ],
@@ -30,7 +30,7 @@
     - Programming in Python
     - Introduction to Deep Learning
   ],
-  table.cell(colspan: 2, align(center, [*Preliminary Schedules*])),
+  table.cell(colspan: 2, align(center, [*Preliminary Schedules, Subject to Change*])),
   [Lecture], [
     - Week 1 (01.08): Introduction 
     - Week 2 (01.15): Bandits (S&B 2)
