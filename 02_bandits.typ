@@ -1,3 +1,35 @@
+#import "@preview/algorithmic:0.1.0"
+#import algorithmic: algorithm
+#import "@preview/touying:0.5.4": *
+#import themes.university: *
+#import "common.typ": *
+#import "@preview/cetz:0.3.1"
+
+#set math.vec(delim: "[")
+#set math.mat(delim: "[")
+
+#show: university-theme.with(
+  aspect-ratio: "16-9",
+  config-info(
+    title: [Introduction],
+    subtitle: [CISC 7404 - Decision Making],
+    author: [Steven Morad],
+    institution: [University of Macau],
+    logo: image("fig/common/bolt-logo.png", width: 4cm)
+  ),
+  header-right: none,
+  header: self => utils.display-current-heading(level: 1)
+)
+
+// TOOD: Replace bandits with overview of RL vs ML vs IL etc
+
+#title-slide()
+
+== Outline <touying:hidden>
+
+#components.adaptive-columns(
+    outline(title: none, indent: 1em, depth: 1)
+)
 
 = Notation
 
@@ -66,7 +98,7 @@ $ bold(X) = mat(
 ) $
 
 ==
-Calligraphic capital letters will often refer to *sets* #pause
+Capital letters will often refer to *sets* #pause
 
 $ X = {1, 2, 3, 4} $ #pause
 
@@ -77,7 +109,45 @@ We will represent important sets with blackboard font
 #side-by-side[$ bb(Z)_+ $][Set of all *positive* integers ${1, 2, dots}$]
 
 ==
+The $max$ operator returns the maximum of a function over its domain #pause
+
+$ max_x f(x) $
+
+The $argmax$ operator returns the input that maximizes a function
+
+$ argmax_x f(x) $ #pause
+
+
+
+==
 Let's quiz you on some notation #pause
+
+#side-by-side[
+$ f(x) = -(x + 1)^2 $ #pause
+][
+    #align(center)[
+        #canvas(length: 1cm, {
+        plot.plot(size: (8, 6),
+            x-tick-step: 1,
+            y-tick-step: 1,
+            y-min: -2,
+            y-max: 1,
+            y-label: $ f(x) $,
+            {
+            plot.add(
+                domain: (-3, 3), 
+                style: (stroke: (thickness: 5pt, paint: red)),
+                x => -calc.pow(x + 1, 2)
+            )
+            })
+        })
+    ] #pause
+]
+#side-by-side[$ max_x f(x) $ #pause][$ argmax_x f(x) $]
+
+
+
+==
 #side-by-side[$ bb(R)^n $ #pause][Set of all vectors containing $n$ real numbers #pause]
 #side-by-side[$ bb(Z)_(3:6) $ #pause][Set of all integers between 3 and 6 #pause]
 #side-by-side[$ [0, 1]^n $ #pause][Set of all vectors of length $n$ with values between 0 and 1]
@@ -156,12 +226,15 @@ Our bandit has two outcomes, lose (-10) or win (1000) #pause
 ==
 We can represent the chance of each outcome using probabilities #pause
 
-//$ Pr(cal(X) = x) = {omega in Omega | cal(X)(\omega) = x} $
+$ Pr(cal(X) = x) = {underbrace(omega, "Outcome") in underbrace(Omega, "Outcomes") mid(|) underbrace(cal(X)(omega), "Outcome to real") = underbrace(x, "Real")} $ #pause
+
+#side-by-side[$ cal(X): {"lose", "win"} |-> {-10, 1000} $ #pause][$ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $]
 
 //#side-by-side[$ Pr(cal(X) = x) $][Probability of outcome $x$ occuring] #pause
 
 $ Pr(cal(X) = x) = vec(Pr(cal(X) = -10), Pr(cal(X) = 1000)) = #pause vec(199 / 200, 1 / 200) = vec(0.995, 0.005) $ #pause
 
+== 
 The probabilities over all outcomes *must always sum to one* #pause
 
 $ sum_(omega in Omega) Pr(X(omega) = x) = 1 $ #pause
@@ -190,13 +263,13 @@ The *expectation* or *expected value* $bb(E)$ tells us how much money we make on
 
 $ bb(E): underbrace((Omega |-> bb(R)), "random variable") |-> bb(R) $ #pause
 
-$ bb(E)[cal(X)] = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $ #pause
+$ bb(E)[cal(X)] = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $ 
 
 
 ==
 $ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $ #pause 
 $ P(cal(X) = -10) = 199 / 200; quad P(cal(X) = 1000) = 1 / 200 $ #pause
-$ bb(E)(cal(X)) = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $ #pause
+$ bb(E)[cal(X)] = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $ #pause
 
 *Question:* What is the expected value of the bandit? #pause
 
@@ -207,7 +280,7 @@ $ -10 dot 199 / 200 + 1000 dot 1 / 200 = -4.95 $
 ==
 *Question:* What does $bb(E)[cal(X)] = -4.95$ mean? #pause
 
-You should expect to lose 4.95 MOP each time you spin the bandit #pause
+Expect to lose 4.95 MOP on average each time you spin the bandit #pause
 
 
 We call the value after each spin the *reward* #pause
@@ -258,21 +331,21 @@ If you know $bb(E)[cal(X)]$, you know the result of gambling #pause
 
 Gambler only has access to the rewards
 
-$ r_1, r_2, dots, r_n = -10, -10, dots, 100 $ #pause
+$ r_1, r_2, dots, r_n = -10, -10, dots, 1000 $ #pause
 
 // $ lim_(n -> oo) sum_(t=1)^n r_t = -4.95 n = n bb(E)[cal(X)] $ #pause
 
 #side-by-side[
-  We can add the rewards
+  We can sum the rewards
   ][
     $ sum_(t=1)^n r_t approx n bb(E)[cal(X)] $
   ] #pause
 
 #side-by-side[Divide by number of plays][
-  $ 1 / n sum_(t=1)^n r_t approx bb(E)[cal(X)] $ #pause
+  $ 1 / n sum_(t=1)^n r_t approx bb(E)[cal(X)] $
 ] #pause
 
-After playing enough, the gambler can find the expectation!
+After playing enough, the gambler can approximate the expectation!
 
 ==
 
@@ -282,7 +355,7 @@ Write down: #pause
 - Probability for each outcome $P(omega); quad forall omega in Omega$ #pause
 - The random variable for each outcome $cal(X)(omega); quad forall omega in Omega$ #pause
 - The expected value $bb(E)[cal(X)]$ #pause
-- How much money you should make after 1000 plays #pause
+- How much money the gambler loses after 1000 plays #pause
 
 Make sure the expected value is *negative but near zero*: #pause
 - Negative: The player loses money and you win money #pause
@@ -307,9 +380,9 @@ The bandit problem is useful for casino owners and gamblers #pause
 
 But it is a trivial decision making problem #pause
 
-If $E[cal(X)] > 0$ you should gamble #pause
+If $bb(E)[cal(X)] > 0$ you should gamble #pause
 
-If $E[cal(X)] < 0$ you should not gamble
+If $bb(E)[cal(X)] < 0$ you should not gamble
 
 We will consider a more interesting problem
 
@@ -331,7 +404,44 @@ We call this the *multi-armed bandit* problem #pause
 You don't know the expected value of each arm. Which should you pull?
 
 ==
-We can model many real problems as multiarmed bandits
+We can model many real problems as multiarmed bandits #pause
+
+For example, we can model hospital treatment as multiarmed bandits #pause
+
+We have new medicines, but do not know their effectiveness #pause 
+
+#side-by-side[
+    #cimage("fig/02/slot.jpg")
+    #align(center)[Medicine A]
+][
+    #cimage("fig/02/slot.jpg")
+    #align(center)[Medicine B]
+][
+    #cimage("fig/02/slot.jpg")
+    #align(center)[Medicine C]
+] #pause
+
+We can find the best medicine while healing the most people
+
+==
+YouTube, Youku, BiliBili, TikTok, Netflix use bandits to suggest videos #pause
+
+#side-by-side[
+    #cimage("fig/02/slot.jpg")
+    #align(center)[Dog videos]
+][
+    #cimage("fig/02/slot.jpg")
+    #align(center)[Gaming videos]
+][
+    #cimage("fig/02/slot.jpg")
+    #align(center)[Study videos]
+] #pause
+
+You are the bandit! #pause 
+
+You like a specific type of video, but YouTube does not know what it is #pause
+
+YouTube tries to find your favorite video category
 
 ==
 *Problem:* We have $k$ bandits, and each bandit is a random variable
@@ -346,7 +456,7 @@ $ a in {1, 2, dots, k} $ #pause
 
 Which actions should you take to make the most money? #pause
 
-*Question:* How should we approach this problem? #pause
+*Question:* How should we approach this problem?
 
 ==
 
@@ -354,19 +464,107 @@ This is a hard problem! #pause
 
 We need to estimate $bb(E)[cal(X)_1], bb(E)[cal(X)_2], dots, bb(E)[cal(X)_k]$ #pause
 
-But we do not have enough money to estimate all $k$ bandits #pause
+But we do not have enough money to perfectly estimate all $k$ bandits #pause
 
-We must be careful in how we choose $a$ #pause
+We must be careful in how we choose $a in 1 dots k$ #pause
+
+We want to: #pause
+- #side-by-side[Pick $a$ to approximate bandits][$ bb(E)[cal(X)_a | a in 1 dots k] $] #pause
+- #side-by-side[Pick $a$ to make the most money][$ argmax_(a in 1 dots k) bb(E)[cal(X)_a] $] 
 
 ==
-First, we will introduce some notation #pause
+We have names for each goal #pause
 
-$ Q(a) = 1 / n sum_(t=1)^n r_t $
+#side-by-side(align: center)[
+    *Exploration:* 
+    $ bb(E)[cal(X)_a | a in 1 dots k] $ #pause
 
-/*
-$ q_*(a) = bb(E)[cal(X)_a] $ #pause
+    Explore our options to improve our estimate of each expectation #pause
+][
+    *Exploitation:*
+    $ argmax_(a in 1 dots k) bb(E)[cal(X)_a] $ #pause
 
-$ q_*(3) = bb(E)[cal(X)_3] $ #pause
+    Use our estimates to make money
 
-$ q_*(14) = bb(E)[cal(X)_14] $ #pause
-*/
+] #pause
+
+It is important you understand this! Any questions? 
+
+
+==
+*Question:* How can we choose $a$ to achieve each goal? #pause
+
+#side-by-side(align: center)[
+    *Exploration:* 
+    $ bb(E)[cal(X)_a | a in 1 dots k] $ 
+
+    Explore our options to improve our estimate of each expectation 
+][
+    *Exploitation:*
+    $ argmax_(a in 1 dots k) bb(E)[cal(X)_a] $ 
+
+    Use our estimates to make money
+
+] #pause
+
+
+#side-by-side[
+    $ a tilde "uniform"({1 dots k}) $ #pause
+][
+    $ a = argmax(bb(E)[cal(X)_a]) $ #pause
+] 
+
+*Question:* How can we achieve both goals at once? #pause
+
+*Answer:* Sometimes choose $a$ to explore, sometimes choose $a$ to exploit
+
+==
+$ 
+    u tilde "uniform"([0, 1]) \
+    "if" u < 0.5 "then" a tilde "uniform"({1 dots k}) \
+    "if" u >= 0.5 "then" a = argmax(bb(E)[cal(X)_a])
+$ #pause
+
+Half the time we explore, half the time we exploit #pause
+
+We can change the explore/exploit ratio using a parameter $epsilon$ #pause
+
+$ 
+    u tilde "uniform"([0, 1]) \
+    "if" u < epsilon "then" a tilde "uniform"({1 dots k}) \
+    "if" u >= epsilon "then" a = argmax(bb(E)[cal(X)_a])
+$ #pause
+
+==
+
+$ 
+    epsilon in [0, 1] \
+    u tilde "uniform"([0, 1]) \
+    "if" u < epsilon "then" a tilde "uniform"({1 dots k}) \
+    "if" u >= epsilon "then" a = argmax(bb(E)[cal(X)_a])
+$ #pause
+
+We call this *epsilon greedy* because we are greedy with proportion $epsilon$ #pause
+
+*Question:* When should $epsilon approx 1$? When should $epsilon approx 0$? #pause
+
+*Answer:* 
+- $epsilon approx 1$ when we trust our estimates $bb(E)[cal(X)]$ 
+- $epsilon approx 0$ when we do not trust our estimates
+
+==
+*Question:* Do we use epsilon greedy in medicine? #pause
+
+*Answer:* Yes! #pause
+- Usually give patients drug A that we know works (exploit) #pause
+- Sometimes test new drug B on patients (explore) #pause
+
+*Question:* Does TikTok or BiliBili use epsilon greedy? #pause
+
+*Answer:* Yes! #pause
+- If you watch dog videos, it usually suggests more dog videos #pause
+- Sometimes it suggests study videos
+
+==
+Let us code some multiarmed bandits! #pause
+
