@@ -11,7 +11,7 @@
 #show: university-theme.with(
   aspect-ratio: "16-9",
   config-info(
-    title: [Introduction],
+    title: [Bandits],
     subtitle: [CISC 7404 - Decision Making],
     author: [Steven Morad],
     institution: [University of Macau],
@@ -178,7 +178,7 @@ The function $f$ takes in elements from sets $X$ and $Theta$ and outputs element
 
     *Question:* What is a bandit? #pause
 ][
-    #cimage("fig/01/western-bandit.jpg", height: 80%) #pause
+    #cimage("fig/02/western-bandit.jpg", height: 80%) #pause
 ]
 
 A bandit steals your money
@@ -186,14 +186,14 @@ A bandit steals your money
 ==
 Here is the bandit we will focus on in this course #pause
 
-#cimage("fig/01/bandit.jpeg") #pause
+#cimage("fig/02/bandit.jpeg") #pause
 
 This is a *one-armed* bandit
 
 ==
 
 #side-by-side[
-#cimage("fig/01/bandit.jpeg") #pause
+#cimage("fig/02/bandit.jpeg") #pause
 ][
 *Question:* How does a one-armed bandit steal your money? #pause
 
@@ -392,14 +392,14 @@ We will consider a more interesting problem
 ==
 You arrive at the Londoner with 1000 MOP and want to win money #pause
 
-#cimage("fig/01/mab-slots.jpg", height: 60%) #pause
+#cimage("fig/02/mab-slots.jpg", height: 60%) #pause
 
 *Question:* Which machine do you play?
 
 ==
 We call this the *multi-armed bandit* problem #pause
 
-#cimage("fig/01/mab-octo.png", height: 60%) #pause
+#cimage("fig/02/mab-octo.png", height: 60%) #pause
 
 You don't know the expected value of each arm. Which should you pull?
 
