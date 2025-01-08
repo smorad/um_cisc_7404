@@ -508,7 +508,7 @@ https://www.youtube.com/watch?v=eHipy_j29Xw
 ==
 
 #side-by-side[
-  #cimage("fig/01/dota.jpeg", width: 100%) 
+  #cimage("fig/01/openai.svg", width: 100%) 
 ][
 *2020-2024:* GPT-3, GPT-4 trained using reinforcement learning
 ]
@@ -516,12 +516,86 @@ https://www.youtube.com/watch?v=eHipy_j29Xw
 ==
 2025?
 
+= Decision Making and Deep Learning
+
 ==
-*Homework:* #pause
+We will formally define decision making and reinforcement learning later in the course #pause
+
+For now, I want to clarify decision making in the context of machine learning #pause
+
+How does decision making differ from regular deep learning?
+
+==
+In deep learning, we usually know the answer #pause
+
+$ f(bold(x), bold(theta)) = bold(y) $ #pause
+
+In decision making, we often do not know the answer! #pause
+
+$ f(bold(x), bold(theta)) = ? $ #pause
+
+What does this mean?
+
+==
+*Example:* You train a model $f$ to play chess #pause
+
+$ f: X times Theta |-> Y $ #pause
+
+$ X in "Position of pieces on the board" $ #pause
+
+$ Y in "Where to move piece" $ 
+
+==
+#side-by-side[$ X in "Position of pieces on the board" $][
+    $ Y in "Where to move piece" $ 
+] #pause
+
+#cimage("fig/01/chess.png", height: 85%)
+
+==
+#cimage("fig/01/chess.png", height: 85%) 
+
+#side-by-side[What is the correct answer? #pause][We do not know the answer]//[But RL can tell us!]
+
+==
+#cimage("fig/01/chess.png", height: 85%) 
+
+How can we learn a model without an answer?
+
+//#side-by-side[No answer, no supervised learning#pause][RL can train without the answer!]//[But RL can tell us!]
+
+==
+#cimage("fig/01/chess.png", height: 85%) 
+
+#side-by-side[An answer gives us just one move #pause][We need many moves to win]
+
+==
+Decision making can give us the best *sequence* of moves to: #pause
+
+- Win a game of chess #pause
+- Drive a customer to the store #pause
+- Cook a tasty meal #pause
+- Treat a sick patient #pause
+- Prevent climate change #pause
+- Reduce human suffering #pause
+
+We do not know the correct moves #pause
+
+But with decision making, we can find them!
+
+
+= Questions?
+
+
+= Homework
+
+==
 - Review prerequisites #pause
+  - Especially probability #pause
 - Play with Google Colab #pause
 - Download Sutton and Barto textbook #pause
-  - Read Chapter 1.1 (few pages) 
+  - Read Chapter 1.1 (few pages) #pause
+  - Read Chapter 2 before next lecture
 
 /*
 = ML vs RL

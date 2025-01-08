@@ -117,8 +117,6 @@ The $argmax$ operator returns the input that maximizes a function
 
 $ argmax_x f(x) $ #pause
 
-
-
 ==
 Let's quiz you on some notation #pause
 
@@ -172,6 +170,17 @@ The function $f$ takes in elements from sets $X$ and $Theta$ and outputs element
 = Bandits
 
 ==
+The Sutton and Barto textbook reviews bandits before introducing reinforcement learning #pause
+
+Bandits are a simplified version of reinforcement learning #pause
+
+It provides a "taste" of reinforcement learning in a single lecture #pause
+
+Today's lecture will be difficult #pause
+
+But if you can understand it, then reinforcement learning will be easy for you
+
+==
 
 #side-by-side[
     The simplest form of decision making problem is the *bandit* #pause
@@ -213,6 +222,16 @@ The world is based on random *outcomes*, down to the atomic level #pause
 
 $ Omega in {"win", "lose"} $ #pause
 
+We define the probability over the outcome space #pause
+
+$ Pr("win") = 1/200, quad Pr("lose") = 199/200 $ #pause
+
+Probabilities *must be positive* and *must sum to one* #pause
+
+$ sum_(omega in Omega) Pr(omega) = 1 $
+
+==
+
 A *random variable* $cal(X)$ maps an outcome to a real number #pause
 
 $ cal(X): Omega |-> bb(R) $ #pause
@@ -224,27 +243,45 @@ Our bandit has two outcomes, lose (-10) or win (1000) #pause
 #side-by-side[$ cal(X): {"lose", "win"} |-> {-10, 1000} $ #pause][$ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $]
 
 ==
-We can represent the chance of each outcome using probabilities #pause
+//We can represent the chance of each outcome using probabilities #pause
 
-$ Pr(cal(X) = x) = {underbrace(omega, "Outcome") in underbrace(Omega, "Outcomes") mid(|) underbrace(cal(X)(omega), "Outcome to real") = underbrace(x, "Real")} $ #pause
+We can also compute the probability over random variables #pause
+
+$ Pr(cal(X) = x) = {Pr(underbrace(cal(X)(omega), "Outcome to real") = underbrace(x, "Real")) mid(|) underbrace(omega, "Outcome") in underbrace(Omega, "Outcomes")} $ #pause
 
 #side-by-side[$ cal(X): {"lose", "win"} |-> {-10, 1000} $ #pause][$ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $]
 
 //#side-by-side[$ Pr(cal(X) = x) $][Probability of outcome $x$ occuring] #pause
 
-$ Pr(cal(X) = x) = vec(Pr(cal(X) = -10), Pr(cal(X) = 1000)) = #pause vec(199 / 200, 1 / 200) = vec(0.995, 0.005) $ #pause
+$ Pr(cal(X)) = vec(Pr(cal(X) = -10), Pr(cal(X) = 1000)) = #pause vec(199 / 200, 1 / 200) = vec(0.995, 0.005) $ #pause
 
 == 
-The probabilities over all outcomes *must always sum to one* #pause
+// TODO: This doesn't make sense does it?
+// Shouldn't it be Pr(w) = 1?
+Like before, the probability over the random variable *must sum to one* #pause
 
-$ sum_(omega in Omega) Pr(X(omega) = x) = 1 $ #pause
+$ sum_(omega in Omega) Pr(X(omega)) = 1 $ #pause
 
-$ Pr(cal(X)("lose") = -10) + Pr(cal(X)("win") = 1000) $ #pause
+$ Pr(cal(X)("lose") = -10) + Pr(cal(X)("win") = 1000) = 1 $ #pause
 
 $ 199 / 200 + 1 / 200  = 1 $
 
 // TODO: Fix this, should x be the outcomes, or the values?
 
+==
+We defined our bandit's probabilities
+
+$ Pr("lose") = 199 / 200; quad Pr("win") = 1 / 200 $ #pause
+
+And the expected values
+
+$ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $ #pause
+
+But we still do not know how much money we will make! #pause
+
+But we can combine them to find out
+
+/*
 ==
 We defined the bandit random variable
 
@@ -257,7 +294,7 @@ $ P(cal(X) = -10) = 199 / 200; quad P(cal(X) = 1000) = 1 / 200 $ #pause
 But we still do not know how much money we will make! #pause
 
 But we can combine them to find out
-
+*/
 ==
 The *expectation* or *expected value* $bb(E)$ tells us how much money we make on average #pause
 
@@ -267,15 +304,15 @@ $ bb(E)[cal(X)] = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $
 
 
 ==
+$ Pr("lose") = 199 / 200; quad Pr("win") = 1 / 200 $ #pause
 $ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $ #pause 
-$ P(cal(X) = -10) = 199 / 200; quad P(cal(X) = 1000) = 1 / 200 $ #pause
-$ bb(E)[cal(X)] = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $ #pause
+$ bb(E)[cal(X)] = sum_(omega in Omega) Pr(omega) dot cal(X)(omega) $ #pause
 
 *Question:* What is the expected value of the bandit? #pause
 
-$ cal(X)("lose") dot P(cal(X) = -10) + cal(X)("win") dot P(cal(X) = 1000) $ #pause
+$ Pr("lose") dot cal(X)("lose") + Pr("win") dot cal(X)("win") $ #pause
 
-$ -10 dot 199 / 200 + 1000 dot 1 / 200 = -4.95 $
+$ 199 / 200 dot -10 + 1 / 200 dot 1000 = -4.95 $
 
 ==
 *Question:* What does $bb(E)[cal(X)] = -4.95$ mean? #pause
@@ -291,6 +328,8 @@ $
   dots.v \
   r_n = -10
 $ #pause
+
+Negative reward means we lose money
 
 ==
 
@@ -358,12 +397,8 @@ Write down: #pause
 - How much money the gambler loses after 1000 plays #pause
 
 Make sure the expected value is *negative but near zero*: #pause
-- Negative: The player loses money and you win money #pause
-- Near zero: The player wins sometimes and will continue to play #pause
-
-
-
-
+- Negative: The gambler loses money and you win money #pause
+- Near zero: The gambler wins sometimes and will continue to play 
 
 = Multiarmed Bandits
 
@@ -437,11 +472,11 @@ YouTube, Youku, BiliBili, TikTok, Netflix use bandits to suggest videos #pause
     #align(center)[Study videos]
 ] #pause
 
-You are the bandit! #pause 
+You are the bandit! The "money" is your #emoji.heart #pause 
 
-You like a specific type of video, but YouTube does not know what it is #pause
+You like a specific type of video, but TikTok does not know what it is #pause
 
-YouTube tries to find your favorite video category
+TikTok tries to find your favorite video category
 
 ==
 *Problem:* We have $k$ bandits, and each bandit is a random variable
@@ -565,6 +600,9 @@ We call this *epsilon greedy* because we are greedy with proportion $epsilon$ #p
 - If you watch dog videos, it usually suggests more dog videos #pause
 - Sometimes it suggests study videos
 
+= Coding
 ==
 Let us code some multiarmed bandits! #pause
+
+https://colab.research.google.com/drive/1cyNLRa-J8oe7pgy_gs2mcypZPqqaquoa
 
