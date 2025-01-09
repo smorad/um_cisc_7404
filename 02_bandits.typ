@@ -600,6 +600,8 @@ We call this *epsilon greedy* because we are greedy with proportion $epsilon$ #p
 - If you watch dog videos, it usually suggests more dog videos #pause
 - Sometimes it suggests study videos
 
+= Questions?
+
 = Coding
 ==
 Let us code some multiarmed bandits! #pause

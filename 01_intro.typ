@@ -526,6 +526,12 @@ For now, I want to clarify decision making in the context of machine learning #p
 How does decision making differ from regular deep learning?
 
 ==
+
+#cimage("fig/01/ml_types.png")
+
+
+
+==
 In deep learning, we usually know the answer #pause
 
 $ f(bold(x), bold(theta)) = bold(y) $ #pause
