@@ -8,7 +8,7 @@
   [Instructor], [
     Steven Morad \<smorad at um.edu.mo\>
   ],
-  [Office Hours], [11:00-12:00 Mondays and Tuesdays],
+  [Office Hours], [10:00-12:00 Mondays and Tuesdays],
   [Grading], [
     - Assignments: 30%
     - Quizzes: 30%
@@ -32,21 +32,21 @@
   ],
   table.cell(colspan: 2, align(center, [*Preliminary Schedules, Subject to Change*])),
   [Lecture], [
-    - Week 1 (01.08): Introduction 
-    - Week 2 (01.15): Bandits (S&B 2)
-    - Week 3 (01.22): Decision Processes (S&B 3) 
-    - Week 4 (02.12): Dynamic Programming (S&B 4)
-    - Week 5 (02.19): Monte Carlo Methods (S&B 5) 
-    - Week 6 (02.26): Q Learning (S&B 6)
-    - Week 7 (03.05): Policy Gradient (S&B 13)
-    - Week 8 (03.12): Actor Critic (S&B 13)
-    - Week 9 (03.19): Modern Actor Critic
-    - Week 10 (03.26): Model-Based RL
-    - Week 11 (04.02): Offline RL
-    - Week 12 (04.09): Memory and POMDPs
-    - Week 13 (04.16): Imitation Learning
-    - Week 14 (04.23): Learning from Human Feedback
-    - Week 15 (04.30): Project Presentations
+    - Week 1 (01.09): Introduction 
+    - Week 2 (01.16): Bandits (S&B 2)
+    - Week 3 (02.06): Decision Processes (S&B 3) 
+    - Week 4 (02.13): Dynamic Programming (S&B 4)
+    - Week 5 (02.20): Monte Carlo Methods (S&B 5) 
+    - Week 6 (02.27): Q Learning (S&B 6)
+    - Week 7 (03.06): Policy Gradient (S&B 13)
+    - Week 8 (03.13): Actor Critic (S&B 13)
+    - Week 9 (03.20): Modern Actor Critic
+    - Week 10 (03.27): Model-Based RL
+    - Week 11 (04.03): Offline RL
+    - Week 12 (04.10): Memory and POMDPs
+    - Week 13 (04.17): Imitation Learning
+   // - Week 14 (04.24): Learning from Human Feedback
+    - Week 14 (04.24): Project Presentations
   ],
   [Assignment], [
     - Due Week 6 (02.26): Dynamic Programming
@@ -55,8 +55,8 @@
     - Due Week 15 (04.30): Final Project
   ],
   [Quiz], [
-    - Week 3 (01.22): Bandits
-    - Week 8 (03.12): Classical RL
-    - Week 13 (04.16): Modern RL
+    - Week 4 (02.13): Bandits and MDPs
+    - Week 8 (03.13): Classical RL
+    - Week 11 (04.03): Modern RL
   ]
 )

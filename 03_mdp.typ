@@ -162,13 +162,37 @@ Why is it called a *Markov* process? #pause
 
 It follows the *Markov* property:
 
-The next state only depends on the previous state #pause
+The next state only depends on the current state #pause
 
 $ Pr(s_t | s_(t-1), s_(t-2), dots, s_1) = Pr(s_t | s_(t-1)) $ #pause
 
 *This is a very important condition we must always satisfy* #pause
 
-If we cannot satisfy it, then the process is *not* Markov
+If we cannot satisfy it, then the process is *not* Markov #pause
+
+==
+
+#side-by-side[
+To compute the next node, we only look at the current node
+][
+#diagram({
+  node((0mm, 0mm), "Cloud", stroke: 0.1em, shape: "circle", width: 3em, name: "cloud")
+  node((100mm, 0mm), "Sun", stroke: 0.1em, shape: "circle", width: 3em, name: "sun")
+  node((50mm, -50mm), "Rain", stroke: 0.1em, shape: "circle", width: 3em, name: "rain")
+
+  edge(label("cloud"), label("cloud"), "->", label: 0.4, bend: -130deg, loop-angle: -90deg)
+  edge(label("sun"), label("sun"), "->", label: 0.4, bend: -130deg, loop-angle: -90deg)
+  edge(label("rain"), label("rain"), "->", label: 0.3, bend: -130deg, loop-angle: 90deg)
+
+  edge(label("cloud"), label("sun"), "->", label: 0.3, bend: 40deg)
+  edge(label("sun"), label("cloud"), "->", label: 0.5, bend: 0deg)
+  edge(label("cloud"), label("rain"), "->", label: 0.3, bend: -50deg)
+  edge(label("sun"), label("rain"), "->", label: 0.1, bend: 50deg)
+  edge(label("rain"), label("sun"), "->", label: 0.2, bend: 0deg)
+  edge(label("rain"), label("cloud"), "->", label: 0.5, bend: 0deg)
+})
+]
+
 
 ==
 
@@ -215,6 +239,12 @@ $ Pr(s' = s_"terminal" | s = s_"terminal") = 1.0 $
 ]
 
 ==
+*Exercise:* Design an MDP about a problem you care about #pause
+- 3 or more states #pause
+- Also write down the state transition function $T = Pr(s' | s)$ #pause
+- Create a terminal state
+
+==
 
 *Question:* How can we model decision making in a Markov process? #pause
 
@@ -232,7 +262,11 @@ A Markov process models the predetermined evolution of some system #pause
 
 We call this system the *environment*, because we cannot control it #pause
 
-To make decisions, we introduce an *agent* #pause
+For decisions to matter, they must change the environment #pause
+
+We introduce the *agent* to make decisions that change the environment
+
+==
 
 The agent takes *actions* $a in A$ that change the environment #pause
 
@@ -248,12 +282,43 @@ The action space $A$ defines what our agent can do #pause
   T : S times A |-> Delta S $
 ] #pause
 
+In a Markov process, the future follows a specified evolution #pause
+
+In a Markov control process, we can control the evolution! #pause
+
 Let us see an example
 
 ==
 
+#side-by-side[
+#diagram({
+  node((0mm, 0mm), "Healthy", stroke: 0.1em, shape: "circle", width: 3em, name: "drive")
+  node((100mm, 0mm), "Sick", stroke: 0.1em, shape: "circle", width: 3em, name: "park", fill: orange)
+  node((50mm, -50mm), "Dead", stroke: 0.1em, shape: "circle", width: 3em, name: "crash")
 
+  edge(label("drive"), label("drive"), "->", label: 0.9, bend: -130deg, loop-angle: -90deg)
+  edge(label("park"), label("park"), "->", label: "Nothing 0.9", bend: -130deg, loop-angle: -90deg)
+  edge(label("crash"), label("crash"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
 
+  edge(label("drive"), label("park"), "->", label: 0.09, bend: 30deg)
+  edge(label("park"), label("drive"), "->", label: "Nothing 0.09", bend: 30deg)
+  edge(label("park"), label("crash"), "->", label: 0.01, bend: 30deg)
+})
+][
+#diagram({
+  node((0mm, 0mm), "Healthy", stroke: 0.1em, shape: "circle", width: 3em, name: "drive")
+  node((100mm, 0mm), "Sick", stroke: 0.1em, shape: "circle", width: 3em, name: "park", fill: orange)
+  node((50mm, -50mm), "Dead", stroke: 0.1em, shape: "circle", width: 3em, name: "crash")
+
+  edge(label("drive"), label("drive"), "->", label: 0.9, bend: -130deg, loop-angle: -90deg)
+  edge(label("park"), label("park"), "->", label: "Medicine 0.19", bend: -130deg, loop-angle: -90deg)
+  edge(label("crash"), label("crash"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
+
+  edge(label("drive"), label("park"), "->", label: 0.09, bend: 30deg)
+  edge(label("park"), label("drive"), "->", label: "Medicine 0.8", bend: 30deg)
+  edge(label("park"), label("crash"), "->", label: 0.01, bend: 30deg)
+})
+]
 
 ==
 A Markov process consists of $(S, T)$ #pause

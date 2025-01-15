@@ -101,6 +101,9 @@ If you did not know this, you should review!
 - Final Project 30% #pause
 - Participation 10% 
 
+
+
+
 ==
 *Quizzes:* #pause
 - I will tell you week before exam #pause
@@ -123,6 +126,13 @@ Final quiz score: (90 + 70) / 2 = 80% #pause
 - Programming #pause
 - Expect 2-3 assignments #pause
 - We will use Google Colab: https://colab.research.google.com
+
+
+*Late assignment policy:* #pause
+- 0-1 day late (-15%) #pause
+- 1-2 days late (-30%) #pause
+- 2-3 days late (-50%) #pause
+- 3+ days late (-100%)
 
 // 23:00
 
