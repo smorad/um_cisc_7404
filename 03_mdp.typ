@@ -442,7 +442,116 @@ We call this the *return* #pause
   Now, we make better decisions!
 
 ==
-Gamma decay
+Consider one more example #pause
+#side-by-side[
+#diagram({
+  node((0mm, -30mm), "Walk", stroke: 0.1em, shape: "circle", width: 3em, name: "walk")
+  node((40mm, -30mm), "Food", stroke: 0.1em, shape: "circle", width: 3em, name: "food")
+  node((80mm, -30mm), "Sleep", stroke: 0.1em, shape: "circle", width: 3em, name: "trap")
+
+  node((0mm, 0mm), $R("walk") \ = 0$)
+  node((40mm, 0mm), $R("food") \ = 3$)
+  node((80mm, 0mm), $R("sleep") \ = 0$)
+
+  edge(label("trap"), label("trap"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
+  edge(label("walk"), label("walk"), "->", bend: -130deg, loop-angle: 90deg)
+
+  edge(label("food"), label("walk"), "<-", bend: 0deg)
+  edge(label("food"), label("trap"), "->", label: 1.0, bend: 0deg)
+}) #pause
+][
+*Question:* What is the optimal sequence of states? #pause
+
+]
+
+
+$ & "Walk" + "Food" + "Sleep" + dots && = 0 + 3 + 0 + dots &&= 3 \
+& "Walk" + "Walk" + dots + "Food" + "Sleep" + dots &&= 0 + 0 + dots + 3 + 0 + dots &&= 3 \
+$
+
+==
+The return is an infinite sum 
+
+$ G = sum_(t=0)^oo R(s_t) $
+
+We can eat food now, or in 1000 years, the return is the same #pause
+
+*Experiment:* Place a cookie in front of a child. If they do not eat the cookie for 5 minutes, they get two cookies #pause
+
+*Question:* What does the child do? #pause
+
+*Answer:* The child eats the cookie immediately #pause
+
+Humans and animals prefer reward now instead of later #pause
+
+
+==
+$ G = sum_(t=0)^oo R(s_t) $
+
+*Question:* How can we fix the return to prefer rewards sooner? #pause
+
+What if we make future rewards less important? #pause
+
+$ R(s) = {1 | s in S} $ #pause
+
+$ G &= sum_(t=0)^oo 1 &&= 1 + 1 + dots \ #pause
+
+G &= quad ? &&= 1 + 0.9 + 0.8 + dots $ #pause
+
+*Question:* How?
+
+
+==
+
+We can introduce a *discount* term $gamma in [0, 1]$ to the return
+
+#side-by-side(align: center)[
+  With $gamma = 1$ 
+  $ G = sum_(t=1)^oo gamma^t R(s_t) $#pause
+][
+  With $gamma = 0.9$ 
+  $ G = sum_(t=1)^oo gamma^t R(s_t) $
+]
+
+#side-by-side(align: center)[
+  $ G = 1 + 1 + 1 + dots $ #pause
+][
+  $ G &= (0.9^0 dot 1) + (0.9^1 dot 1) + (0.9^2 dot 1) + dots \ #pause 
+  G &= 1 + 0.9 + 0.81 + dots $
+]
+
+==
+#side-by-side(align: center)[
+  Without $gamma$
+
+  $ G = 1 + 1 + 1 + dots $ 
+][
+  With $gamma$
+
+  $ G &= (0.9^0 dot 1) + (0.9^1 dot 1) + (0.9^2 dot 1) + dots \ 
+  G &= 1 + 0.9 + 0.81 + dots $
+]
+
+We call this the *discounted return* #pause
+
+Thus, our objective is
+
+$ argmax_(s in S) G = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_t) $
+
+==
+Let us review #pause
+
+*Definition:* A Markov decision process (MDP) is a tuple $(S, A, T, R, gamma)$ #pause
+- $S$ is the state space #pause
+- $A$ is the action space #pause
+- $T: S times A |-> Delta S$ is the state transition function #pause
+- $R: S |-> bb(R)$ is the reward function #pause
+- $gamma in [0, 1]$ is the discount factor #pause
+
+For the rest of the course, we will solve MDPs
+
+
+= Exercise
 
 = Reinforcement Learning
 
