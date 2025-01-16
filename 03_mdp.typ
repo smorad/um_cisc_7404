@@ -58,6 +58,7 @@ Gymnasium
 = Review
 
 ==
+RL and decision making designed to solve only MDPs
 
 = Markov Processes
 
@@ -94,7 +95,7 @@ A Markov process consists of two parts #pause
 
   $ T: S |-> Delta S $ #pause
 
-  $ Pr(s' | s) $
+  $ T = Pr(s' | s) $
 ] #pause
 
 Let us do an example to understand this 
@@ -238,12 +239,14 @@ The only transition from a terminal state is back to itself
 $ Pr(s' = s_"terminal" | s = s_"terminal") = 1.0 $
 ]
 
+= Exercise
 ==
-*Exercise:* Design an MDP about a problem you care about #pause
+Design an MDP about a problem you care about #pause
 - 3 or more states #pause
-- Also write down the state transition function $T = Pr(s' | s)$ #pause
+- State transition function $T = Pr(s' | s)$ for all $s, s'$ #pause
 - Create a terminal state
 
+= Markov Control Processes
 ==
 
 *Question:* How can we model decision making in a Markov process? #pause
@@ -254,7 +257,6 @@ Markov processes follow the state transition function $T$, there are no decision
 
 We will modify the Markov process for decision making
 
-= Markov Control Processes
 // env agent first?
 
 ==
@@ -292,34 +294,197 @@ Let us see an example
 
 #side-by-side[
 #diagram({
-  node((0mm, 0mm), "Healthy", stroke: 0.1em, shape: "circle", width: 3em, name: "drive")
-  node((100mm, 0mm), "Sick", stroke: 0.1em, shape: "circle", width: 3em, name: "park", fill: orange)
-  node((50mm, -50mm), "Dead", stroke: 0.1em, shape: "circle", width: 3em, name: "crash")
+  node((0mm, 0mm), "Healthy", stroke: 0.1em, shape: "circle", width: 3.5em, name: "drive")
+  node((100mm, 0mm), "Sick", stroke: 0.1em, shape: "circle", width: 3.5em, name: "park", fill: orange)
+  node((50mm, -50mm), "Dead", stroke: 0.1em, shape: "circle", width: 3.5em, name: "crash")
 
   edge(label("drive"), label("drive"), "->", label: 0.9, bend: -130deg, loop-angle: -90deg)
-  edge(label("park"), label("park"), "->", label: "Nothing 0.9", bend: -130deg, loop-angle: -90deg)
+  edge(label("park"), label("park"), "->", label: text(fill:orange)[Nothing 0.9], bend: -130deg, loop-angle: -90deg)
   edge(label("crash"), label("crash"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
 
-  edge(label("drive"), label("park"), "->", label: 0.09, bend: 30deg)
-  edge(label("park"), label("drive"), "->", label: "Nothing 0.09", bend: 30deg)
+  edge(label("drive"), label("park"), "->", label: 0.09, bend: 40deg)
+  edge(label("park"), label("drive"), "->", label: text(fill:orange)[Nothing 0.09], bend: 0deg)
   edge(label("park"), label("crash"), "->", label: 0.01, bend: 30deg)
 })
 ][
 #diagram({
-  node((0mm, 0mm), "Healthy", stroke: 0.1em, shape: "circle", width: 3em, name: "drive")
-  node((100mm, 0mm), "Sick", stroke: 0.1em, shape: "circle", width: 3em, name: "park", fill: orange)
-  node((50mm, -50mm), "Dead", stroke: 0.1em, shape: "circle", width: 3em, name: "crash")
+  node((0mm, 0mm), "Healthy", stroke: 0.1em, shape: "circle", width: 3.5em, name: "drive")
+  node((100mm, 0mm), "Sick", stroke: 0.1em, shape: "circle", width: 3.5em, name: "park", fill: orange)
+  node((50mm, -50mm), "Dead", stroke: 0.1em, shape: "circle", width: 3.5em, name: "crash")
 
   edge(label("drive"), label("drive"), "->", label: 0.9, bend: -130deg, loop-angle: -90deg)
-  edge(label("park"), label("park"), "->", label: "Medicine 0.19", bend: -130deg, loop-angle: -90deg)
+  edge(label("park"), label("park"), "->", label: text(fill:orange)[Medicine 0.19], bend: -130deg, loop-angle: -90deg)
   edge(label("crash"), label("crash"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
 
-  edge(label("drive"), label("park"), "->", label: 0.09, bend: 30deg)
-  edge(label("park"), label("drive"), "->", label: "Medicine 0.8", bend: 30deg)
+  edge(label("drive"), label("park"), "->", label: 0.09, bend: 40deg)
+  edge(label("park"), label("drive"), "->", label: text(fill:orange)[Medicine 0.8], bend: 0deg)
   edge(label("park"), label("crash"), "->", label: 0.01, bend: 30deg)
 })
 ]
 
+==
+Markov control processes let us control which states we visit #pause
+
+They do not tell us which states are good to visit #pause
+
+How can we make optimal decisions if we cannot tell how good a decision is? #pause
+
+We need something to tell us how good it is to be in a state!
+
+= Markov Decision Processes
+
+==
+Markov decision processes (MDPs) add a measure of "goodness" to Markov control processes #pause
+
+We use a *reward function* $R$ to measure the goodness of being in a specific state #pause
+
+#side-by-side(align: center)[
+  Sutton and Barto:
+  $ R: S times A |-> bb(R) $ #pause
+][
+  This course:
+  $ R: S |-> bb(R) $ 
+]
+
+==
+#side-by-side(align: center)[
+  Markov process
+  $ (S, T) \
+  T : S |-> Delta S $ #pause
+][
+  Markov control process
+  $ (S, A, T) \
+  T : S times A |-> Delta S $ #pause
+][
+  Markov decision process
+  $ (S, A, T, R, gamma) \
+  T : S times A |-> Delta S \ 
+  R: S |-> bb(R)
+  $ 
+] 
+
+
+==
+We want to maximize the reward #pause
+
+The reward function determines the agent behavior #pause
+
+#side-by-side[$ s_d = "Dumpling" $][$ s_n = "Noodle" $]
+
+#side-by-side[$ R(s_d) = 10 $][$ R(s_n) = 15 $ #pause][*Result:* Eat noodle] #pause
+
+#side-by-side[$ R(s_d) = 5 $][$ R(s_n) = -3 $ #pause][*Result:* Eat dumpling]
+
+//We can pick the action that maximizes the reward function #pause
+
+We can write this mathematically as
+
+$ argmax_(s in S) R(s) $
+
+
+
+==
+However, maximizing the reward is not always ideal #pause
+
+
+#side-by-side[
+  #cimage("fig/03/trap.jpg", width: 100%)
+][
+#diagram({
+  node((0mm, 0mm), "Walk", stroke: 0.1em, shape: "circle", width: 3.5em, name: "walk")
+  node((50mm, 0mm), "Food", stroke: 0.1em, shape: "circle", width: 3.5em, name: "food")
+  node((100mm, 0mm), "Trap", stroke: 0.1em, shape: "circle", width: 3.5em, name: "trap")
+
+  node((0mm, 30mm), $R("walk") \ = 0$)
+  node((50mm, 30mm), $R("food") \ = 3$)
+  node((100mm, 30mm), $R("trap") \ = -1$)
+
+  edge(label("trap"), label("trap"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
+  edge(label("walk"), label("walk"), "->", bend: -130deg, loop-angle: 90deg)
+
+  edge(label("food"), label("walk"), "<-", bend: 0deg)
+  edge(label("food"), label("trap"), "->", label: 1.0, bend: 0deg)
+})
+] #pause
+
+$ argmax_(s in S) R(s)  #pause = "food" $
+
+==
+
+#side-by-side[
+#diagram({
+  node((0mm, -30mm), "Walk", stroke: 0.1em, shape: "circle", width: 3em, name: "walk")
+  node((40mm, -30mm), "Food", stroke: 0.1em, shape: "circle", width: 3em, name: "food")
+  node((80mm, -30mm), "Trap", stroke: 0.1em, shape: "circle", width: 3em, name: "trap")
+
+  node((0mm, 0mm), $R("walk") \ = 0$)
+  node((40mm, 0mm), $R("food") \ = 3$)
+  node((80mm, 0mm), $R("trap") \ = -1$)
+
+  edge(label("trap"), label("trap"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
+  edge(label("walk"), label("walk"), "->", bend: -130deg, loop-angle: 90deg)
+
+  edge(label("food"), label("walk"), "<-", bend: 0deg)
+  edge(label("food"), label("trap"), "->", label: 1.0, bend: 0deg)
+}) 
+][
+Instead, we maximize the *sum* of rewards #pause
+
+$ G = sum_(t=0)^oo R(s_(t)) $ #pause
+
+We call this the *return* #pause
+]
+
+  $ R("walk") + R("walk") + R("walk") + dots &= 0 + 0 + dots &&= 0 \ #pause
+
+   R("food") + R("trap") + R("trap") + dots &= 3 - 1 - 1 - dots &&= -oo $ #pause
+
+  Now, we make better decisions!
+
+==
+Gamma decay
+
+= Reinforcement Learning
+
+==
+
+==
+
+Let us put everything together #pause
+
+At each timestep we: #pause
+- Take an action $a$ #pause
+- Change states: $Pr(s' | s, a)$
+
+
+
+==
+Understanding MDPs is the *most important part* of RL #pause
+
+Existing software can train RL agents on your MDP #pause
+
+You can train an RL agent without understanding RL #pause
+
+You can only train an agent if you can model your problem as an MDP #pause
+
+Make sure you understand MDPs!
+
+==
+
+#side-by-side[
+  Markov decision process
+  $ (S, A, T, R, gamma) \
+  T : S times A |-> Delta S \ 
+  R: S times A |-> bb(R)
+  $ #pause
+][
+ #cimage("/fig/03/pacmove-1.png") 
+]
+
+
+
+
+/*
 ==
 A Markov process consists of $(S, T)$ #pause
 
@@ -550,3 +715,4 @@ There are two interfaces we use to implement decision processes: #pause
 Gymnasium is more popular so we will focus on it
 
 ==
+*/
