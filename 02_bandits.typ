@@ -32,7 +32,31 @@
     outline(title: none, indent: 1em, depth: 1)
 )
 
-= Sets
+= Review
+==
+In this course, we will focus primarily on reinforcement learning #pause
+
+But reinforcement learning is a method, not a problem #pause
+
+The problem is *decision making*
+==
+In this course, we focus on *optimal* decision making #pause
+
+Make the best possible decision, given the information we have #pause
+
+We will find methods that *guarantee* optimal decision making #pause
+
+With these methods, we can create optimal decision making machines #pause
+
+With an optimal decision making machine, you can create: #pause
+- Best possible doctor (which medicine to give?) #pause
+- Best possible lawyer (what to argue?) #pause
+- Best possible scientist (what to research?) #pause
+
+If the machine understands *why* it makes decisions, it is conscious
+
+
+= Set Notation
 
 ==
 Let us review some notation I will use in the course #pause
@@ -176,7 +200,7 @@ You can think of this as a for loop
   output = {x + 1 for x in Z}
 ```
 
-= Functions 
+= Function Notation
 
 ==
 We define *functions* or *maps* between sets
@@ -184,7 +208,7 @@ We define *functions* or *maps* between sets
 $ #pin(1) f #pin(2) : #pin(3) bb(R) #pin(4) |-> #pin(5) bb(Z) #pin(6) $ #pause
 
 #pinit-highlight(1, 2)
-#pinit-point-from((1,2), pin-dx: 0pt, offset-dx: 0pt)[Name]
+#pinit-point-from((1,2), pin-dx: 0pt, offset-dx: 0pt)[Name] #pause
 
 #pinit-highlight(3, 4, fill: blue.transparentize(80%))
 #pinit-point-from((3,4),)[Input] #pause
@@ -309,7 +333,7 @@ It provides a "taste" of reinforcement learning in a single lecture #pause
 
 Today's lecture will be difficult #pause
 
-But if you can understand it, then reinforcement learning will be easy for you
+If you can understand it, then reinforcement learning will be easy 
 
 ==
 
