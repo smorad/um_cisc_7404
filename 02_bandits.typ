@@ -236,6 +236,13 @@ I will define variables when possible
 
 #side-by-side[$ X in bb(R)^n; Theta in bb(R)^(m times n); Y in [0, 1]^(n times m) $] #pause
 
+==
+Finally, functions can have a function as input or output #pause
+
+*Question:* Any examples? #pause
+
+$ dif / (dif x): underbrace((f: bb(R) |-> bb(R)), "Input function") |-> underbrace((f': bb(R) |-> bb(R)), "Output function") $
+
 == // 15:00
 The $max$ function returns the maximum of a function over a domain #pause
 
@@ -446,9 +453,9 @@ $ Pr(cal(X) = x) = Pr({#pin(1)cal(X)(omega)#pin(2) = #pin(3)x#pin(4) mid(|) #pin
 
 //#side-by-side[$ Pr(cal(X) = x) $][Probability of outcome $x$ occuring] #pause
 
-$ Pr(cal(X)) = vec(Pr(cal(X) = -10), Pr(cal(X) = 1000)) = #pause vec(199 / 200, 1 / 200) = vec(0.995, 0.005) $ #pause
+$ Pr(cal(X)) = vec(Pr(cal(X) = -10), Pr(cal(X) = 1000)) = vec(199 / 200, 1 / 200) = vec(0.995, 0.005) $ #pause
 
-$ Pr(cal(X) #pin(9)= 1000#pin(10)) = vec(Pr(cal(X) = -10), #pin(11)Pr(cal(X) = 1000)#pin(12)) = #pause vec(199 / 200, #pin(13)1 / 200#pin(14)) = vec(0.995, #pin(15)0.005#pin(16)) $ 
+$ Pr(cal(X) #pin(9)= 1000#pin(10)) = vec(Pr(cal(X) = -10), #pin(11)Pr(cal(X) = 1000)#pin(12)) = vec(199 / 200, #pin(13)1 / 200#pin(14)) = vec(0.995, #pin(15)0.005#pin(16)) $ 
 
 #pinit-highlight(9, 10, fill: orange.transparentize(80%))
 #pinit-highlight(11, 12, fill: orange.transparentize(80%))
