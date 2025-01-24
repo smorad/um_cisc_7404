@@ -22,6 +22,38 @@
   header: self => utils.display-current-heading(level: 1)
 )
 
+#let weather_mdp = diagram({
+  node((0mm, 0mm), "Cloud", stroke: 0.1em, shape: "circle", width: 3em, name: "cloud")
+  node((100mm, 0mm), "Sun", stroke: 0.1em, shape: "circle", width: 3em, name: "sun")
+  node((50mm, -50mm), "Rain", stroke: 0.1em, shape: "circle", width: 3em, name: "rain")
+
+  edge(label("cloud"), label("cloud"), "->", label: 0.4, bend: -130deg, loop-angle: -90deg)
+  edge(label("sun"), label("sun"), "->", label: 0.4, bend: -130deg, loop-angle: -90deg)
+  edge(label("rain"), label("rain"), "->", label: 0.3, bend: -130deg, loop-angle: 90deg)
+
+  edge(label("cloud"), label("sun"), "->", label: 0.3, bend: 40deg)
+  edge(label("sun"), label("cloud"), "->", label: 0.5, bend: 0deg)
+  edge(label("cloud"), label("rain"), "->", label: 0.3, bend: -50deg)
+  edge(label("sun"), label("rain"), "->", label: 0.1, bend: 50deg)
+  edge(label("rain"), label("sun"), "->", label: 0.2, bend: 0deg)
+  edge(label("rain"), label("cloud"), "->", label: 0.5, bend: 0deg)
+})
+
+#let driving_mdp = diagram({
+  node((0mm, 0mm), "Drive", stroke: 0.1em, shape: "circle", width: 3em, name: "drive")
+  node((100mm, 0mm), "Park", stroke: 0.1em, shape: "circle", width: 3em, name: "park")
+  node((50mm, -50mm), "Crash", stroke: 0.1em, shape: "circle", width: 3em, name: "crash")
+
+  edge(label("drive"), label("drive"), "->", label: 0.9, bend: -130deg, loop-angle: -90deg)
+  edge(label("park"), label("park"), "->", label: 0.9, bend: -130deg, loop-angle: -90deg)
+  edge(label("crash"), label("crash"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
+
+  edge(label("drive"), label("park"), "->", label: 0.09, bend: 30deg)
+  edge(label("park"), label("drive"), "->", label: 0.09, bend: 30deg)
+  edge(label("drive"), label("crash"), "->", label: 0.01, bend: -30deg)
+  edge(label("park"), label("crash"), "->", label: 0.01, bend: 30deg)
+})
+
 // TODO: Episodes
 
 #title-slide()
@@ -32,33 +64,13 @@
     outline(title: none, indent: 1em, depth: 1)
 )
 
-==
-Markov chains
-
-How should we structure decision making problems?
-
-Recall MAB bandit
-
-Agent/environment interface
-
-Chess bot example
-
-Why is chess not MAB bandits?
-
-Sequential decision making
-
-Agent makes decisions/moves pieces
-
-Env is set of rules
-
-Input/output function
-
-Gymnasium
 
 = Review
 
 ==
-RL and decision making designed to solve only MDPs
+Last time, we reviewed probability and bandits #pause
+
+==
 
 = Markov Processes
 
@@ -102,17 +114,6 @@ Let us do an example to understand this
 
 ==
 
-/*
-#side-by-side[
-  *Problem:* Predict the weather #pause
-][
-$ S = {"rain", "clouds", "sun"} $ #pause
-] 
-
-#cimage("fig/03/chain.png", height: 85%)
-
-==
-*/
 #side-by-side[
   *Problem:* Predict the weather #pause
 
@@ -131,22 +132,7 @@ $ S = {"rain", "clouds", "sun"} $ #pause
   )
   $ #pause
 ][
-#diagram({
-  node((0mm, 0mm), "Cloud", stroke: 0.1em, shape: "circle", width: 3em, name: "cloud")
-  node((100mm, 0mm), "Sun", stroke: 0.1em, shape: "circle", width: 3em, name: "sun")
-  node((50mm, -50mm), "Rain", stroke: 0.1em, shape: "circle", width: 3em, name: "rain")
-
-  edge(label("cloud"), label("cloud"), "->", label: 0.4, bend: -130deg, loop-angle: -90deg)
-  edge(label("sun"), label("sun"), "->", label: 0.4, bend: -130deg, loop-angle: -90deg)
-  edge(label("rain"), label("rain"), "->", label: 0.3, bend: -130deg, loop-angle: 90deg)
-
-  edge(label("cloud"), label("sun"), "->", label: 0.3, bend: 40deg)
-  edge(label("sun"), label("cloud"), "->", label: 0.5, bend: 0deg)
-  edge(label("cloud"), label("rain"), "->", label: 0.3, bend: -50deg)
-  edge(label("sun"), label("rain"), "->", label: 0.1, bend: 50deg)
-  edge(label("rain"), label("sun"), "->", label: 0.2, bend: 0deg)
-  edge(label("rain"), label("cloud"), "->", label: 0.5, bend: 0deg)
-})
+  #weather_mdp
 ]
 
 ==
@@ -176,22 +162,7 @@ If we cannot satisfy it, then the process is *not* Markov #pause
 #side-by-side[
 To compute the next node, we only look at the current node
 ][
-#diagram({
-  node((0mm, 0mm), "Cloud", stroke: 0.1em, shape: "circle", width: 3em, name: "cloud")
-  node((100mm, 0mm), "Sun", stroke: 0.1em, shape: "circle", width: 3em, name: "sun")
-  node((50mm, -50mm), "Rain", stroke: 0.1em, shape: "circle", width: 3em, name: "rain")
-
-  edge(label("cloud"), label("cloud"), "->", label: 0.4, bend: -130deg, loop-angle: -90deg)
-  edge(label("sun"), label("sun"), "->", label: 0.4, bend: -130deg, loop-angle: -90deg)
-  edge(label("rain"), label("rain"), "->", label: 0.3, bend: -130deg, loop-angle: 90deg)
-
-  edge(label("cloud"), label("sun"), "->", label: 0.3, bend: 40deg)
-  edge(label("sun"), label("cloud"), "->", label: 0.5, bend: 0deg)
-  edge(label("cloud"), label("rain"), "->", label: 0.3, bend: -50deg)
-  edge(label("sun"), label("rain"), "->", label: 0.1, bend: 50deg)
-  edge(label("rain"), label("sun"), "->", label: 0.2, bend: 0deg)
-  edge(label("rain"), label("cloud"), "->", label: 0.5, bend: 0deg)
-})
+  #weather_mdp
 ]
 
 
@@ -213,20 +184,7 @@ However, many processes we like to model eventually end #pause
 ==
 
 #side-by-side[
-#diagram({
-  node((0mm, 0mm), "Drive", stroke: 0.1em, shape: "circle", width: 3em, name: "drive")
-  node((100mm, 0mm), "Park", stroke: 0.1em, shape: "circle", width: 3em, name: "park")
-  node((50mm, -50mm), "Crash", stroke: 0.1em, shape: "circle", width: 3em, name: "crash")
-
-  edge(label("drive"), label("drive"), "->", label: 0.9, bend: -130deg, loop-angle: -90deg)
-  edge(label("park"), label("park"), "->", label: 0.9, bend: -130deg, loop-angle: -90deg)
-  edge(label("crash"), label("crash"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
-
-  edge(label("drive"), label("park"), "->", label: 0.09, bend: 30deg)
-  edge(label("park"), label("drive"), "->", label: 0.09, bend: 30deg)
-  edge(label("drive"), label("crash"), "->", label: 0.01, bend: -30deg)
-  edge(label("park"), label("crash"), "->", label: 0.01, bend: 30deg)
-})
+  #driving_mdp
 ][
 
   
@@ -240,7 +198,23 @@ $ Pr(s' = s_"terminal" | s = s_"terminal") = 1.0 $
 ]
 
 ==
-TODO episode
+#side-by-side[
+  #driving_mdp
+][
+  We call the sequence of states until the terminal state an *episode* #pause
+
+  $ 
+    vec(s_0, s_1, s_2, dots.v, s_n) #pause 
+    = vec(
+      "Drive",
+      "Drive",
+      "Park",
+      dots.v,
+      "Crash"
+    ) $ 
+
+  $ $
+]
 
 = Exercise
 ==
@@ -326,7 +300,41 @@ Let us see an example
 ]
 
 ==
-TODO Trajectory
+
+#side-by-side[
+  #diagram({
+  node((0mm, 0mm), "Healthy", stroke: 0.1em, shape: "circle", width: 3.5em, name: "drive")
+  node((100mm, 0mm), "Sick", stroke: 0.1em, shape: "circle", width: 3.5em, name: "park")
+  node((50mm, -50mm), "Dead", stroke: 0.1em, shape: "circle", width: 3.5em, name: "crash")
+
+  edge(label("drive"), label("drive"), "->", bend: -130deg, loop-angle: -90deg)
+  edge(label("park"), label("park"), "->", bend: -130deg, loop-angle: -90deg)
+  edge(label("crash"), label("crash"), "->", bend: -130deg, loop-angle: 90deg)
+
+  edge(label("drive"), label("park"), "->", bend: 40deg)
+  edge(label("park"), label("drive"), "->", bend: 0deg)
+  edge(label("park"), label("crash"), "->", bend: 30deg)
+}) #pause
+
+][
+  The *trajectory* contains the states and actions until a terminal state #pause
+
+  $ bold(tau) = mat(
+    s_0, a_0; 
+    s_1, a_1;
+    s_2, a_2;
+    dots.v, dots.v;
+    s_n, emptyset
+  ) #pause =
+  mat(
+    "Healthy", "Nothing";
+    "Sick", "Nothing";
+    "Sick", "Medicine";
+    dots.v, dots.v;
+    "Dead", emptyset
+  ) $
+]
+
 
 ==
 Markov control processes let us control which states we visit #pause
@@ -368,6 +376,12 @@ We use a *reward function* $R$ to measure the goodness of being in a specific st
   R: S |-> bb(R)
   $ 
 ] 
+
+
+==
+The *history* contains the states, actions, and rewards until termination #pause
+
+$ bold(H) = mat(s_0, a_0, r_0; s_1, a_1, r_1; dots.v, dots.v, dots.v; s_n, emptyset, r_n) $
 
 
 ==
@@ -436,7 +450,7 @@ $ argmax_(s in S) R(s)  #pause = "food" $
 ][
 Instead, we maximize the *sum* of rewards #pause
 
-$ G = sum_(t=0)^oo R(s_(t)) $ #pause
+$ G = sum_(t=0)^oo R(s_(t+1)) $ #pause
 
 We call this the *return* #pause
 ]
@@ -478,7 +492,7 @@ $
 ==
 The return is an infinite sum 
 
-$ G = sum_(t=0)^oo R(s_t) $
+$ G = sum_(t=0)^oo R(s_(t+1)) $
 
 We can eat food now, or in 1000 years, the return is the same #pause
 
@@ -492,7 +506,7 @@ Humans and animals prefer reward now instead of later #pause
 
 
 ==
-$ G = sum_(t=0)^oo R(s_t) $
+$ G = sum_(t=0)^oo R(s_(t+1)) $
 
 *Question:* How can we fix the return to prefer rewards sooner? #pause
 
@@ -513,10 +527,10 @@ We can introduce a *discount* term $gamma in [0, 1]$ to the return
 
 #side-by-side(align: center)[
   With $gamma = 1$ 
-  $ G = sum_(t=1)^oo gamma^t R(s_t) $#pause
+  $ G = sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
 ][
   With $gamma = 0.9$ 
-  $ G = sum_(t=1)^oo gamma^t R(s_t) $
+  $ G = sum_(t=0)^oo gamma^t R(s_(t+1)) $
 ]
 
 #side-by-side(align: center)[
@@ -542,7 +556,8 @@ We call this the *discounted return* #pause
 
 Thus, our objective is
 
-$ argmax_(s in S) G = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_t) $
+$ argmax_(s in S) G = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $
+
 
 ==
 Let us review #pause
@@ -563,7 +578,7 @@ In reinforcement learning, we have a single goal #pause
 
 Maximize the discounted return #pause
 
-$ argmax_(s in S) G = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_t) $ #pause
+$ argmax_(s in S) G = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $ #pause
 
 You must understand the discounted return!
 
@@ -589,24 +604,73 @@ TODO Mario
 
 = Coding
 
-== Gymnasium
+== 
+In this course, we will implemented MDPs using *gymnasium* #pause
+
+Originally developed by OpenAI for reinforcement learning #pause
+
+Gymnasium provides an *environment* (MDP) API #pause
+
+Must define: #pause
+  - state space ($S$) #pause
+  - action space ($A$) #pause
+  - step ($T, R, "terminated"$) #pause
+  - reset ($s_0$) #pause
+
+https://gymnasium.farama.org/api/env/
 
 
 
+==
+Gymnasium uses *observations* instead of *states* #pause
 
-#side-by-side[
-  Markov decision process
-  $ (S, A, T, R, gamma) \
-  T : S times A |-> Delta S \ 
-  R: S times A |-> bb(R)
-  $ #pause
-][
- #cimage("/fig/03/pacmove-1.png") 
-]
+*Question:* What was the condition for MDPs? #pause
+
+The next Markov state only depends on the current Markov state #pause
+
+$ Pr(s_t | s_(t-1), s_(t-2), dots, s_1) = Pr(s_t | s_(t-1)) $ #pause
+
+If the Markov property is broken, $s_t in S$ is not a Markov state #pause
+
+Then, we change $s_t in S$ to an *observation* $o_t in O$ (more later)
+==
+```python
+
+import gymnasium as gym
+
+MyMDP(gym.Env):
+  def __init__(self):
+    self.action_space = gym.spaces.Discrete(3) # A
+    self.observation_space = gym.spaces.Discrete(5) # S
+
+  def reset(self, seed=None) -> Tuple[Observation, Dict]
+
+  def step(self, action) -> Tuple[
+    Observation, Reward, Terminated, Truncated, Dict
+  ]
+```
 
 
 ==
 https://colab.research.google.com/drive/1rDNik5oRl27si8wdtMLE7Y41U5J2bx-I#scrollTo=9pOLI5OgKvoE
+
+= Exam Next Class
+
+==
+We will have an exam next week #pause
+
+1 hour 15 minutes, no coding, only math #pause
+
+No book, no notes, no calculator -- only pencil and pen #pause
+
+Study *notation*, *probability*, bandits, and MDPs #pause
+
+Practice expectations, bandit problems, state transitions, and returns #pause
+
+You must have intuition, not memorize #pause
+
+Too many A's last term, exam will be *difficult*
+
 
 
 
