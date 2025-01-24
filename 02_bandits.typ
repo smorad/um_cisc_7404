@@ -40,7 +40,7 @@ But reinforcement learning is a method, not a problem #pause
 
 The problem is *decision making*
 ==
-In this course, we focus on *optimal* decision making #pause
+We will focus on *optimal* decision making #pause
 
 Make the best possible decision, given the information we have #pause
 
@@ -51,10 +51,7 @@ With these methods, we can create optimal decision making machines #pause
 With an optimal decision making machine, you can create: #pause
 - Best possible doctor (which medicine to give?) #pause
 - Best possible lawyer (what to argue?) #pause
-- Best possible scientist (what to research?) #pause
-
-If the machine understands *why* it makes decisions, it is conscious
-
+- Best possible scientist (what to research?)
 
 = Set Notation
 
@@ -241,7 +238,9 @@ Finally, functions can have a function as input or output #pause
 
 *Question:* Any examples? #pause
 
-$ dif / (dif x): underbrace((f: bb(R) |-> bb(R)), "Input function") |-> underbrace((f': bb(R) |-> bb(R)), "Output function") $
+$ dif / (dif x): underbrace((f: bb(R) |-> bb(R)), "Input function") |-> underbrace((f': bb(R) |-> bb(R)), "Output function") $ #pause
+
+$ dif / (dif x) x^2 = 2x $
 
 == // 15:00
 The $max$ function returns the maximum of a function over a domain #pause
@@ -320,7 +319,7 @@ $ {x^(1/2) | x in bb(R)_+} $ #pause
 *Question:* What is this? #pause
 
 *Answer:* #pause
-- An infinitely large set of all real numbers greater than zero #pause
+- An infinitely large set #pause
 - The results of evaluating $f(x) = sqrt(x)$ for all positive real numbers
 
 
@@ -386,7 +385,7 @@ The world is based on random *outcomes* #pause
 
 For our bandit, we have two possible outcomes 
 
-$ Omega in {"win", "lose"} $ #pause
+$ Omega = {"win", "lose"} $ #pause
 
 An *event* is a set of outcomes
 
@@ -798,8 +797,8 @@ We take the greedy action (make money) with probability $1 - epsilon$ #pause
 
 *Question:* When should $epsilon approx 1$? When should $epsilon approx 0$? #pause
 
-#side-by-side[$epsilon approx 1$ when we trust our estimates of $bb(E)[cal(X)]$ ][
-$epsilon approx 0$ when we do not trust our estimates of $bb(E)[cal(X)]$
+#side-by-side[$epsilon approx 0$ when we trust our estimates of $bb(E)[cal(X)]$ ][
+$epsilon approx 1$ when we do not trust our estimates of $bb(E)[cal(X)]$
 ]
 
 ==

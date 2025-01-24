@@ -22,7 +22,7 @@
   header: self => utils.display-current-heading(level: 1)
 )
 
-// TODO: Terminal states
+// TODO: Episodes
 
 #title-slide()
 
@@ -239,6 +239,9 @@ The only transition from a terminal state is back to itself
 $ Pr(s' = s_"terminal" | s = s_"terminal") = 1.0 $
 ]
 
+==
+TODO episode
+
 = Exercise
 ==
 Design an MDP about a problem you care about #pause
@@ -323,6 +326,9 @@ Let us see an example
 ]
 
 ==
+TODO Trajectory
+
+==
 Markov control processes let us control which states we visit #pause
 
 They do not tell us which states are good to visit #pause
@@ -373,7 +379,7 @@ The reward function determines the agent behavior #pause
 
 #side-by-side[$ R(s_d) = 10 $][$ R(s_n) = 15 $ #pause][*Result:* Eat noodle] #pause
 
-#side-by-side[$ R(s_d) = 5 $][$ R(s_n) = -3 $ #pause][*Result:* Eat dumpling]
+#side-by-side[$ R(s_d) = 5 $][$ R(s_n) = -3 $ #pause][*Result:* Eat dumpling] #pause
 
 //We can pick the action that maximizes the reward function #pause
 
@@ -550,22 +556,16 @@ Let us review #pause
 
 For the rest of the course, we will solve MDPs
 
-
-= Exercise
-
-= Reinforcement Learning
-
 ==
+Reinforcement learning is designed to solve MDPs #pause
 
-==
+In reinforcement learning, we have a single goal #pause
 
-Let us put everything together #pause
+Maximize the discounted return #pause
 
-At each timestep we: #pause
-- Take an action $a$ #pause
-- Change states: $Pr(s' | s, a)$
+$ argmax_(s in S) G = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_t) $ #pause
 
-
+You must understand the discounted return!
 
 ==
 Understanding MDPs is the *most important part* of RL #pause
@@ -580,6 +580,20 @@ Make sure you understand MDPs!
 
 ==
 
+
+= Exercise
+
+==
+TODO Mario
+
+
+= Coding
+
+== Gymnasium
+
+
+
+
 #side-by-side[
   Markov decision process
   $ (S, A, T, R, gamma) \
@@ -590,6 +604,9 @@ Make sure you understand MDPs!
  #cimage("/fig/03/pacmove-1.png") 
 ]
 
+
+==
+https://colab.research.google.com/drive/1rDNik5oRl27si8wdtMLE7Y41U5J2bx-I#scrollTo=9pOLI5OgKvoE
 
 
 
