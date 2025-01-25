@@ -107,7 +107,7 @@ A Markov process consists of two parts #pause
 
   $ T: S |-> Delta S $ #pause
 
-  $ T = Pr(s' | s) $
+  $ T(s) = Pr(s' | s) $
 ] #pause
 
 Let us do an example to understand this 
