@@ -558,6 +558,20 @@ Thus, our objective is
 
 $ argmax_(s in S) G = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $
 
+/*
+==
+Now, we can define reinforcement learning #pause
+
+The *policy* is the "brain" of the agent, parameterized by $theta in Theta$ #pause
+
+$ pi: S times Theta |-> Delta A $ #pause
+
+It tells the agent what to do #pause
+
+In RL, our goal is to learn the parameters $theta in Theta$ of a *policy* that maximizes the discounted return #pause
+*/
+
+
 
 ==
 Let us review #pause
@@ -593,13 +607,28 @@ You can only train an agent if you can model your problem as an MDP #pause
 
 Make sure you understand MDPs!
 
-==
-
 
 = Exercise
 
 ==
-TODO Mario
+#side-by-side[
+  #cimage("fig/03/mario.jpeg", width: 100%)
+][
+  Model Super Mario Bros as an MDP #pause
+  Design the: #pause
+  - State space $S$ #pause
+  - Action space $A$ #pause
+  - State transition function $T$ #pause
+  - Reward function $R$ #pause
+  - Discount factor $gamma$ #pause
+
+  Compute discounted return for:  #pause
+    - Eat mushroom at $t = 10$ #pause
+    - Collect coins at $t = 11, 12$ #pause
+    - Die to bowser at $t = 20$
+
+]
+
 
 
 = Coding
@@ -618,7 +647,6 @@ Must define: #pause
   - reset ($s_0$) #pause
 
 https://gymnasium.farama.org/api/env/
-
 
 
 ==
