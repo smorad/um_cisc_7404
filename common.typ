@@ -10,6 +10,7 @@
 #let argmin = $op("arg min", limits: #true)$
 #let argmax = $op("arg max", limits: #true)$
 #let softmax= $op("softmax", limits: #true)$
+#let Tr= $op("Tr", limits: #false)$
 
 #let cimage(..args) = { 
   align(center + horizon, image(..args))

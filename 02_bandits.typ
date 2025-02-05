@@ -425,11 +425,8 @@ Our bandit has two outcomes, lose (-10) or win (1000) #pause
 #side-by-side[$ cal(X): {"lose", "win"} |-> {-10, 1000} $ #pause][$ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $]
 
 ==
-//We can represent the chance of each outcome using probabilities #pause
-
 We can also compute the probability over random variables #pause
 
-//$ Pr(cal(X) = x) = {Pr(underbrace(cal(X)(omega), "Outcome to real") = underbrace(x, "Real")) mid(|) underbrace(omega, "Outcome") in underbrace(Omega, "Outcomes")} $ #pause
 
 $ Pr(cal(X) = x) = Pr({#pin(1)cal(X)(omega)#pin(2) = #pin(3)x#pin(4) mid(|) #pin(5)omega#pin(6) in #pin(7)Omega#pin(8)}) $ #pause
 

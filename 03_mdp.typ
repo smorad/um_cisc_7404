@@ -5,6 +5,7 @@
 #import "common.typ": *
 #import "@preview/cetz:0.3.1"
 #import "@preview/fletcher:0.5.4" as fletcher: diagram, node, edge
+#import "@preview/pinit:0.2.2": *
 
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
@@ -54,7 +55,6 @@
   edge(label("park"), label("crash"), "->", label: 0.01, bend: 30deg)
 })
 
-// TODO: Episodes
 
 #title-slide()
 
@@ -66,11 +66,6 @@
 
 
 = Review
-
-==
-Last time, we reviewed probability and bandits #pause
-
-==
 
 = Markov Processes
 
@@ -94,7 +89,7 @@ We can model almost anything as a Markov process #pause
 
 So what is a Markov process? #pause
 
-It is a probabilistic model of dynamical systems, where the *future depends on the past* #pause
+It is a probabilistic model of dynamical systems, where the *future depends on the present* #pause
 
 A Markov process consists of two parts #pause
 
@@ -102,15 +97,20 @@ A Markov process consists of two parts #pause
   The *state space*
 
   $ S $ #pause
+
+  Outcome space describing the state of our system #pause
 ][
   The *state transition function*
 
-  $ T: S |-> Delta S $ #pause
+  $ Tr: S |-> Delta S $ #pause
 
-  $ T(s) = Pr(s' | s) $
-] #pause
+  $ Tr(s_(t+1) | s_t) = Pr(s_(t+1) | s_t) \
+  s_(t+1) tilde Tr(dot | s_t)
 
-Let us do an example to understand this 
+  $
+] 
+
+//Let us do an example to understand this 
 
 ==
 
@@ -120,16 +120,17 @@ Let us do an example to understand this
   $ S = {"rain", "cloud", "sun"} = {R, C, S} $ #pause
   
   $ 
-  mat(
-    Pr(C | C), Pr(R | C), Pr(S | C);
-    Pr(C | R), Pr(R | R), Pr(S | R);
-    Pr(C | S), Pr(R | S), Pr(S | S);
-  ) \
-  = mat(
-    0.4, 0.3, 0.3;
-    0.5, 0.3, 0.2;
-    0.5, 0.1, 0.4
-  )
+  Tr(s_(t+1) | s_t) = Pr(s_(t+1) | s_t) \ #pause
+= mat(
+  Pr(C | C), Pr(R | C), Pr(S | C);
+  Pr(C | R),  Pr(R | R), Pr(S | R);
+  Pr(C | S), Pr(R | S), Pr(S | S);
+) \ #pause
+= mat(
+  0.4, 0.3, 0.3;
+  0.5, 0.3, 0.2;
+  0.5, 0.1, 0.4
+)
   $ #pause
 ][
   #weather_mdp
@@ -147,81 +148,114 @@ Of course, we can model many other systems as Markov processes #pause
 
 Why is it called a *Markov* process? #pause
 
-It follows the *Markov* property:
+It follows the *Markov* property: #pause
 
 The next state only depends on the current state #pause
 
-$ Pr(s_t | s_(t-1), s_(t-2), dots, s_1) = Pr(s_t | s_(t-1)) $ #pause
+$ Pr(s_(t+1) | s_(t)) = Pr(s_(t+1) | s_(t), s_(t-1), dots, s_0)  $ #pause
 
 *This is a very important condition we must always satisfy* #pause
 
 If we cannot satisfy it, then the process is *not* Markov #pause
 
+#side-by-side[$ Pr("sun" | s_t="rain", s_(t-1)="sun") = 0.4 $ #pause][
+$ 
+Pr("sun" | s_t="rain" ) = 0.3
+$
+]
+
+$0.3 != 0.4$, process is *not* Markov
+
 ==
 
 #side-by-side[
-To compute the next node, we only look at the current node
+We can visualize the Markov property too #pause
+
+To compute the next node, we only look at the current node #pause
 ][
   #weather_mdp
 ]
+
+==
+Using the Markov property, we can chain state transitions together #pause
+
+We can estimate the state distribution at a specific time #pause
+
+$ Pr(s_1 | s_0 = s) $ #pause
+
+$ Pr(s_2 | s_0 = s) = sum_(#pin(1)s_1 in S#pin(2)) Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $ #pause
+
+#pinit-point-from((1,2), pin-dx: 0pt, offset-dx: 0pt)[Paths from all possible $s_1$ to $s_2$]
+#v(2em) #pause
+
+$ Pr(s_3 | s_0 = s) = sum_(s_2 in S) Pr(s_3 | s_2) sum_(s_1 in S) Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $
+
+==
+$ Pr(s_3 | s_0 = s) = sum_(s_2 in S) Pr(s_3 | s_2) sum_(s_1 in S) Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $ #pause
+
+Move the sums
+
+$ Pr(s_3 | s_0 = s) = sum_(s_2 in S) sum_(s_1 in S) Pr(s_3 | s_2)  Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $ #pause
+
+Combine the sums
+
+$ Pr(s_3 | s_0 = s) = sum_(s_1, s_2 in S) Pr(s_3 | s_2) Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $
+
+==
+$ Pr(s_3 | s_0 = s) = sum_(s_1, s_2 in S) Pr(s_3 | s_2) Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $ #pause
+
+Combine the products
+
+$ Pr(s_3 | s_0 = s) = sum_(s_1, s_2 in S) product_(t=0)^(2)  Pr(s_(t+1) | s_t) $ #pause
+
+Generalize to any timestep $n$
+
+$ Pr(s_n | s_0) = sum_(s_1, s_2, dots s_(n-1) in S) product_(t=0)^(n-1)  Pr(s_(t+1) | s_t) $
+
+==
+$ Pr(s_n | s_0) = sum_(s_1, s_2, dots s_(n-1) in S) product_(t=0)^(n-1)  Pr(s_(t+1) | s_t) $ #pause
+
+This expression tells us how the Markov process evolves over time 
+
+
 
 
 ==
 
 *Question:* When does a Markov process end? #pause
 
-*Answer:* Technically, they never end. You are always in a specific state #pause
+*Answer:* Technically, never. You transition between states forever #pause
 
 However, many processes we like to model eventually end #pause
 - Dying in a video game #pause
-- Winning a video game #pause
+- Reaching your destination #pause
 - Running out of money #pause
 
-*Question:* How can we model this? #pause
+*Question:* How can we model a Markov process that ends? #pause
 
 *Answer:* We create a *terminal state* that we cannot leave
 
 ==
 
 #side-by-side[
-  #driving_mdp
+  #driving_mdp #pause
 ][
-
-  
 Upon reaching a terminal state, we get stuck #pause
 
 Once we crash our car, we cannot drive or park any more #pause
 
 The only transition from a terminal state is back to itself
 
-$ Pr(s' = s_"terminal" | s = s_"terminal") = 1.0 $
-]
-
-==
-#side-by-side[
-  #driving_mdp
-][
-  We call the sequence of states until the terminal state an *episode* #pause
-
-  $ 
-    vec(s_0, s_1, s_2, dots.v, s_n) #pause 
-    = vec(
-      "Drive",
-      "Drive",
-      "Park",
-      dots.v,
-      "Crash"
-    ) $ 
-
-  $ $
+$ Pr(s_"terminal" | s_"terminal") = 1.0 $
 ]
 
 = Exercise
 ==
 Design an MDP about a problem you care about #pause
-- 3 or more states #pause
-- State transition function $T = Pr(s' | s)$ for all $s, s'$ #pause
-- Create a terminal state
+- 4 states #pause
+- State transition function $Tr = Pr(s_(t+1) | s_t)$ for all $s_t, s_(t+1)$ #pause
+- Create a terminal state #pause
+- Given a starting state $s_0$, what will your state distribution be for $s_2$?
 
 = Markov Control Processes
 ==
@@ -230,7 +264,7 @@ Design an MDP about a problem you care about #pause
 
 *Answer:* We can't (yet) #pause
 
-Markov processes follow the state transition function $T$, there are no decisions for us to make #pause
+Markov processes follow the state transition function $Tr$, there are no decisions for us to make #pause
 
 We will modify the Markov process for decision making
 
@@ -261,7 +295,7 @@ The action space $A$ defines what our agent can do #pause
   T : S times A |-> Delta S $
 ] #pause
 
-In a Markov process, the future follows a specified evolution #pause
+In a Markov process, the future follows a predefined evolution #pause
 
 In a Markov control process, we can control the evolution! #pause
 
@@ -324,6 +358,7 @@ Let us see an example
     s_1, a_1;
     s_2, a_2;
     dots.v, dots.v;
+    s_(n-1), a_(n-1);
     s_n, emptyset
   ) #pause =
   mat(
@@ -331,9 +366,30 @@ Let us see an example
     "Sick", "Nothing";
     "Sick", "Medicine";
     dots.v, dots.v;
-    "Dead", emptyset
-  ) $
+    "Dead", "Nothing";
+    "Dead", emptyset 
+  ) $ #pause
+
+  If there is no terminal state, the trajectory can be infinitely long!
 ]
+
+/*
+==
+$ bold(tau) = mat(
+  s_0, a_0; 
+  s_1, a_1;
+  s_2, a_2;
+  dots.v, dots.v;
+  s_n, emptyset
+) #pause
+$
+
+We can find the probability of any trajectory with actions $a_0 dots a_(n-1)$ #pause
+
+$ Pr(bold(tau) | s_0, a_0, a_1, dots, a_n) = Pr(s_n | s_(n-1), a_(n-1)) dot dots dot Pr(s_1 | s_0, a_0) $ #pause
+
+$ Pr(bold(tau) | s_0, a_0, a_1, dots, a_n) = product_(t=0)^n Pr(s_(t+1) | s_t, a_t) $
+*/
 
 
 ==
@@ -356,9 +412,17 @@ We use a *reward function* $R$ to measure the goodness of being in a specific st
   Sutton and Barto:
   $ R: S times A |-> bb(R) $ #pause
 ][
+  Other books:
+  $ R: S times A times S |-> bb(R) $ #pause
+][
   This course:
   $ R: S |-> bb(R) $ 
 ]
+
+For now, I will use the simplest one #pause
+
+You can always make these equivalent by modifying the MDP
+
 
 ==
 #side-by-side(align: center)[
@@ -379,9 +443,11 @@ We use a *reward function* $R$ to measure the goodness of being in a specific st
 
 
 ==
-The *history* contains the states, actions, and rewards until termination #pause
+An *episode* contains the states, actions, and rewards until termination #pause
 
-$ bold(H) = mat(s_0, a_0, r_0; s_1, a_1, r_1; dots.v, dots.v, dots.v; s_n, emptyset, r_n) $
+$ bold(E) = mat(s_0, a_0, r_0; s_1, a_1, r_1; dots.v, dots.v, dots.v; s_(n-1), a_(n-1), r_(n-1); s_n, emptyset, emptyset) = 
+mat(bold(tau), bold(r))
+$
 
 
 ==
@@ -389,7 +455,7 @@ We want to maximize the reward #pause
 
 The reward function determines the agent behavior #pause
 
-#side-by-side[$ s_d = "Dumpling" $][$ s_n = "Noodle" $]
+#side-by-side[$ s_d = "Dumpling" $][$ s_n = "Noodle" $] #pause
 
 #side-by-side[$ R(s_d) = 10 $][$ R(s_n) = 15 $ #pause][*Result:* Eat noodle] #pause
 
@@ -408,7 +474,7 @@ However, maximizing the reward is not always ideal #pause
 
 
 #side-by-side[
-  #cimage("fig/03/trap.jpg", width: 100%)
+  #cimage("fig/03/trap.jpg", width: 100%) #pause
 ][
 #diagram({
   node((0mm, 0mm), "Walk", stroke: 0.1em, shape: "circle", width: 3.5em, name: "walk")
@@ -430,7 +496,24 @@ However, maximizing the reward is not always ideal #pause
 $ argmax_(s in S) R(s)  #pause = "food" $
 
 ==
+Maximizing the immediate reward can result in bad agents #pause
 
+Instead, we maximize the *cumulative sum* of rewards #pause
+
+We call this this cumulative sum the *return* 
+
+#side-by-side[
+  $ G: bb(R)^n |-> bb(R) $ #pause
+
+  $ G(r_0, r_1, dots) = sum_(t=0)^oo r_t $ #pause
+][
+  $ G: S^(n) times A^(n-1) |-> bb(R) $ #pause
+
+  $ G(bold(tau)) &= G(s_0, a_0, s_1, a_1, dots) \ &= sum_(t=0)^oo R(s_(t+1)) $ #pause
+]
+
+
+==
 #side-by-side[
 #diagram({
   node((0mm, -30mm), "Walk", stroke: 0.1em, shape: "circle", width: 3em, name: "walk")
@@ -448,11 +531,7 @@ $ argmax_(s in S) R(s)  #pause = "food" $
   edge(label("food"), label("trap"), "->", label: 1.0, bend: 0deg)
 }) 
 ][
-Instead, we maximize the *sum* of rewards #pause
 
-$ G = sum_(t=0)^oo R(s_(t+1)) $ #pause
-
-We call this the *return* #pause
 ]
 
   $ R("walk") + R("walk") + R("walk") + dots &= 0 + 0 + dots &&= 0 \ #pause
@@ -485,14 +564,17 @@ Consider one more example #pause
 ]
 
 
-$ & "Walk" + "Food" + "Sleep" + dots && = 0 + 3 + 0 + dots &&= 3 \
+$ & "Walk" + "Food" + "Sleep" + dots && = 0 + 3 + 0 + dots &&= 3 \ #pause
 & "Walk" + "Walk" + dots + "Food" + "Sleep" + dots &&= 0 + 0 + dots + 3 + 0 + dots &&= 3 \
 $
 
 ==
-The return is an infinite sum 
+#side-by-side[The return is a sum][
+$ G(bold(tau)) = sum_(t=0)^oo R(s_(t+1)) $
+] #pause
 
-$ G = sum_(t=0)^oo R(s_(t+1)) $
+
+If you swap the terms $s_1$ and $s_1000$, the sum is the same #pause
 
 We can eat food now, or in 1000 years, the return is the same #pause
 
@@ -502,76 +584,67 @@ We can eat food now, or in 1000 years, the return is the same #pause
 
 *Answer:* The child eats the cookie immediately #pause
 
-Humans and animals prefer reward now instead of later #pause
+Order matters, humans prefer reward sooner rather than later 
 
 
 ==
-$ G = sum_(t=0)^oo R(s_(t+1)) $
+$ G(bold(tau)) = sum_(t=0)^oo R(s_(t+1)) $
 
 *Question:* How can we fix the return to prefer rewards sooner? #pause
 
 What if we make future rewards less important? #pause
 
-$ R(s) = {1 | s in S} $ #pause
+#side-by-side(align: horizon)[
+  $ R(s_(t+1)) = {1 | s_(t+1) in S} $ #pause
+][
+$ G(bold(tau)) &= sum_(t=0)^oo 1 &&= 1 + 1 + dots \ #pause
 
-$ G &= sum_(t=0)^oo 1 &&= 1 + 1 + dots \ #pause
+G(bold(tau)) &= quad ? &&= 1 + 0.9 + 0.8 + dots $ #pause
+]
 
-G &= quad ? &&= 1 + 0.9 + 0.8 + dots $ #pause
 
 *Question:* How?
 
 
 ==
 
-We can introduce a *discount* term $gamma in [0, 1]$ to the return
+We can introduce a *discount* term $gamma in [0, 1]$ to the return #pause
+
+$ G(bold(tau)) = sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
+
 
 #side-by-side(align: center)[
-  With $gamma = 1$ 
-  $ G = sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
+  With $gamma = 1$ #pause
+
+  $ G(bold(tau)) = 1 + 1 + 1 + dots $ #pause
 ][
-  With $gamma = 0.9$ 
-  $ G = sum_(t=0)^oo gamma^t R(s_(t+1)) $
+  With $gamma = 0.9$  #pause
+
+  $ G(bold(tau)) &= (0.9^0 dot 1) + (0.9^1 dot 1) + (0.9^2 dot 1) + \ #pause 
+
+  G(bold(tau)) &= 1 + 0.9 + 0.81 + dots $
 ]
 
-#side-by-side(align: center)[
-  $ G = 1 + 1 + 1 + dots $ #pause
-][
-  $ G &= (0.9^0 dot 1) + (0.9^1 dot 1) + (0.9^2 dot 1) + dots \ #pause 
-  G &= 1 + 0.9 + 0.81 + dots $
-]
 
 ==
 #side-by-side(align: center)[
   Without $gamma$
 
-  $ G = 1 + 1 + 1 + dots $ 
+  $ G(bold(tau)) = 1 + 1 + 1 + dots $ 
 ][
   With $gamma$
 
-  $ G &= (0.9^0 dot 1) + (0.9^1 dot 1) + (0.9^2 dot 1) + dots \ 
-  G &= 1 + 0.9 + 0.81 + dots $
+  $ G(bold(tau)) &= (0.9^0 dot 1) + (0.9^1 dot 1) + (0.9^2 dot 1) + \ 
+  G(bold(tau)) &= 1 + 0.9 + 0.81 + dots $
 ]
 
 We call this the *discounted return* #pause
 
-Thus, our objective is
+The discounted return lets makes us prefer rewards sooner, like humans #pause
 
-$ argmax_(s in S) G = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $
+For the rest of the course, we maximize the discounted return
 
-/*
-==
-Now, we can define reinforcement learning #pause
-
-The *policy* is the "brain" of the agent, parameterized by $theta in Theta$ #pause
-
-$ pi: S times Theta |-> Delta A $ #pause
-
-It tells the agent what to do #pause
-
-In RL, our goal is to learn the parameters $theta in Theta$ of a *policy* that maximizes the discounted return #pause
-*/
-
-
+$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $
 
 ==
 Let us review #pause
@@ -579,20 +652,18 @@ Let us review #pause
 *Definition:* A Markov decision process (MDP) is a tuple $(S, A, T, R, gamma)$ #pause
 - $S$ is the state space #pause
 - $A$ is the action space #pause
-- $T: S times A |-> Delta S$ is the state transition function #pause
+- $Tr: S times A |-> Delta S$ is the state transition function #pause
 - $R: S |-> bb(R)$ is the reward function #pause
 - $gamma in [0, 1]$ is the discount factor #pause
-
-For the rest of the course, we will solve MDPs
 
 ==
 Reinforcement learning is designed to solve MDPs #pause
 
 In reinforcement learning, we have a single goal #pause
 
-Maximize the discounted return #pause
+Maximize the discounted return of the MDP #pause
 
-$ argmax_(s in S) G = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $ #pause
+$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $
 
 You must understand the discounted return!
 
@@ -614,11 +685,10 @@ Make sure you understand MDPs!
 #side-by-side[
   #cimage("fig/03/mario.jpeg", width: 100%)
 ][
-  Model Super Mario Bros as an MDP #pause
-  Design the: #pause
+  Design a Super Mario Bros MDP #pause
   - State space $S$ #pause
   - Action space $A$ #pause
-  - State transition function $T$ #pause
+  - State transition function $Tr$ #pause
   - Reward function $R$ #pause
   - Discount factor $gamma$ #pause
 
@@ -643,7 +713,7 @@ Gymnasium provides an *environment* (MDP) API #pause
 Must define: #pause
   - state space ($S$) #pause
   - action space ($A$) #pause
-  - step ($T, R, "terminated"$) #pause
+  - step ($Tr, R, "terminated"$) #pause
   - reset ($s_0$) #pause
 
 https://gymnasium.farama.org/api/env/
@@ -652,15 +722,18 @@ https://gymnasium.farama.org/api/env/
 ==
 Gymnasium uses *observations* instead of *states* #pause
 
-*Question:* What was the condition for MDPs? #pause
+*Question:* What was the Markov condition for MDPs? #pause
 
 The next Markov state only depends on the current Markov state #pause
 
-$ Pr(s_t | s_(t-1), s_(t-2), dots, s_1) = Pr(s_t | s_(t-1)) $ #pause
+$ Pr(s_(t+1) | s_(t), s_(t-1), dots, s_1) = Pr(s_(t+1) | s_(t)) $ #pause
 
 If the Markov property is broken, $s_t in S$ is not a Markov state #pause
 
-Then, we change $s_t in S$ to an *observation* $o_t in O$ (more later)
+Then, we change $s_t in S$ to an *observation* $o_t in O$ (more later) #pause
+
+Gymnasium uses observations, but for MDPs we treat them as states
+
 ==
 ```python
 
@@ -691,7 +764,7 @@ We will have an exam next week #pause
 
 No book, no notes, no calculator -- only pencil and pen #pause
 
-Study *notation*, *probability*, bandits, and MDPs #pause
+Study notation, probability, bandits, and Markov processes #pause
 
 Practice expectations, bandit problems, state transitions, and returns #pause
 
