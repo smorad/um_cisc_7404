@@ -5,6 +5,7 @@
 #import "common.typ": *
 #import "@preview/cetz:0.3.1"
 #import "@preview/fletcher:0.5.4" as fletcher: diagram, node, edge
+#import "@preview/pinit:0.2.2": *
 
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
@@ -30,8 +31,8 @@ Introduce value
     node((-30mm, 0mm), $s_i$, stroke: 0.1em, shape: "circle", name: "si", width: 3em)
     node((30mm, 0mm), $s_j$, stroke: 0.1em, shape: "circle", name: "sj", width: 3em)
 
-    node((-30mm, -6em), $R(s_i) = 1$)
-    node((30mm, -6em), $R(s_j) = 0$)
+    node((-30mm, -6em), $R(s_i) = 0$)
+    node((30mm, -6em), $R(s_j) = 1$)
 
     edge(label("si"), label("si"), "->", bend: -130deg, loop-angle: 270deg)
     edge(label("sj"), label("sj"), "->", bend: -130deg, loop-angle: 270deg)
@@ -344,15 +345,36 @@ $ bb(E) [G(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[R(s_(t
 
 *Goal:* Given an initial state and some actions, predict the expected discounted return #pause
 
-Let's start with a trajectory of length 1 
+//Let's start with a trajectory of length 1 
 
+$ bb(E) [R(s_1) | s_0, a_0] = sum_(s_(1) in S) R(s_(1)) Pr(s_(1) | s_0, a_0) $ 
+
+$ bb(E) [R(s_2) | s_0, a_0, a_1] = sum_(s_(2) in S) R(s_(2)) sum_(s_(1) in S)  Pr(s_(2) | s_1, a_1) Pr(s_(1) | s_0, a_0) $
+
+$ bb(E) [R(s_(n + 1)) | s_0, a_0, a_1, dots a_n] = sum_(s_(n+1) in S) R(s_(n + 1))sum_(s_1, dots, s_n in S) product_(t=0)^n  Pr(s_(t+1) | s_t, a_t) $
+
+==
+#v(2em)
+$ bb(E) [R(s_(n + 1)) | s_0, a_0, a_1, dots a_n] = #pin(1)sum_(s_(n+1) in S) R(s_(n + 1))#pin(2) #pin(3)sum_(s_1, dots, s_n in S) product_(t=0)^n#pin(4)  Pr(s_(t+1) | s_t, a_t)#pin(5) $ #pause
+
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom)[Mean reward over possible $s_(n+1)$] #pause
+
+#pinit-highlight-equation-from((3,4,5), (3,4), fill: blue, pos: top)[$s_(n+1)$ Distribution] #pause
+
+#v(4em)
+
+
+$ bb(E) [R(s_(n + 1)) | s_0, a_0, a_1, dots a_n] = sum_(s_1, dots, s_(n + 1) in S) R(s_(n+1)) product_(t=0)^n  Pr(s_(t+1) | s_t, a_t) $
+
+/*
 $ bb(E) [R(s_1) | s_0, a_0] = sum_(s_(1) in S) R(s_(1)) Pr(s_(1) | s_0, a_0) $ 
 
 $ bb(E) [R(s_2) | s_0, a_0, a_1] = sum_(s_(2) in S) R(s_(2)) Pr(s_(2) | s_1, a_1) sum_(s_(1) in S) Pr(s_(1) | s_0, a_0) $
 
 
 $ bb(E) [R(s_(n + 1)) | s_0, a_0, a_1, dots a_n] = R(s_(n + 1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Pr(s_(t+1) | s_t, a_t) $
-
+*/
 ==
 
 $ bb(E)[ G | s_0, a_0, a_1, dots] &= &&bb(E)[R(s_1) | s_0, a_0] \
@@ -360,8 +382,8 @@ $ bb(E)[ G | s_0, a_0, a_1, dots] &= &&bb(E)[R(s_1) | s_0, a_0] \
  &+ gamma^2 &&bb(E)[R(s_3) | s_0, a_0, a_1, a_2] \
  &+ &dots \
  &=&& sum_(s_(1) in S) R(s_(1)) Pr(s_(1) | s_0, a_0) \
- &+ gamma && sum_(s_(2) in S) R(s_(2)) Pr(s_(2) | s_1, a_1) sum_(s_(1) in S) Pr(s_(1) | s_0, a_0) \
- &+ gamma^2 && sum_(s_(3) in S) R(s_(3)) Pr(s_(3) | s_2, a_2) sum_(s_(2) in S) R(s_(2)) Pr(s_(2) | s_1, a_1) dots \
+ &+ gamma && sum_(s_(2) in S) R(s_(2)) sum_(s_(1) in S) Pr(s_(2) | s_1, a_1)  Pr(s_(1) | s_0, a_0) \
+ &+ gamma^2 && sum_(s_(3) in S) R(s_(3)) sum_(s_(2) in S) Pr(s_(3) | s_2, a_2) sum_(s_(1) in S) Pr(s_(2) | s_1, a_1) dots \
  &+ dots $
 
 ==
@@ -388,20 +410,6 @@ $ bb(E)[ G | s_0, a_0, a_1, dots] &= &&bb(E)[R(s_1) | s_0, a_0] \
 
 #traj_opt_tree_red
 
-==
-
-$ bb(E) [R | s_t, a_t] = sum_(s_(t+1) in S) R(s_(t+1)) dot Pr(s_(t+1) | s_t, a_t) $
-
-$ G = sum_(t=0)^oo gamma^t R(s_(t+1)) $
-
-$ bb(E)[G | ?] = bb(E)[sum_(t=0)^oo gamma^t R(s_(t+1)) mid(|) ? ] $
-The expectation is linear, so 
-
-$ bb(E)[G | ?] = sum_(t=0)^oo gamma^t bb(E)[R | s_t, a_t] $
-
-$ bb(E)[G | ?] = sum_(t=0)^oo gamma^t bb(E)[R | s_t, a_t] $
-
-$ bb(E)[G | ?] = sum_(t=0)^oo gamma^t sum_(s_(t+1) in S) R(s_(t+1)) dot Pr(s_(t+1) | s_t, a_t) $
 
 ==
 $ J(a_0, a_1, dots) = bb(E)[G | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t sum_(s_(t+1) in S) R(s_(t+1)) dot Pr(s_(t+1) | s_t, a_t) $
