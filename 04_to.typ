@@ -9,6 +9,131 @@
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
+/*
+From brunskill
+Recall we are trying to find the best return
+Only thing we can control is our actions
+Derive E[R], E[R+1], ...
+It gets very messy
+Derive the value function E[G] = E[R | s0 = s] + E[R+1 | s0 = s] + ...
+
+Optimization problem E[G(tau) | s_0, a_0, a_1, dots]
+RL backup diagram/tree search
+Given that we have to find infinitely many a's we run into issues
+We introduce a horizon T, E[G(tau_t) | s_0, a_0, a_1, dots a_t]
+Introduce policy
+Introduce value
+*/
+
+#let traj_opt_mdp = diagram({
+
+    node((-30mm, 0mm), $s_i$, stroke: 0.1em, shape: "circle", name: "si", width: 3em)
+    node((30mm, 0mm), $s_j$, stroke: 0.1em, shape: "circle", name: "sj", width: 3em)
+
+    node((-30mm, -6em), $R(s_i) = 1$)
+    node((30mm, -6em), $R(s_j) = 0$)
+
+    edge(label("si"), label("si"), "->", bend: -130deg, loop-angle: 270deg)
+    edge(label("sj"), label("sj"), "->", bend: -130deg, loop-angle: 270deg)
+
+    edge(label("si"), label("sj"), "->", bend: 30deg, )
+    edge(label("sj"), label("si"), "->", bend: 30deg)
+})
+
+#let traj_opt_tree = diagram({
+  node((0mm, 0mm), $s_i$, stroke: 0.1em, shape: "circle", name: "root")
+
+  node((-75mm, -25mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0ai")
+  node((75mm, -25mm), $a_j$, stroke: 0.1em, shape: "circle", name: "0aj")
+
+  node((-100mm, -50mm), $s_i$, stroke: 0.1em, shape: "circle", name: "0aisi")
+  node((-50mm, -50mm), $s_j$, stroke: 0.1em, shape: "circle", name: "0aisj")
+
+  node((50mm, -50mm), $s_i$, stroke: 0.1em, shape: "circle", name: "0ajsi")
+  node((100mm, -50mm), $s_j$, stroke: 0.1em, shape: "circle", name: "0ajsj")
+
+  node((-75mm, -75mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0aisjai")
+  node((-25mm, -75mm), $a_j$, stroke: 0.1em, shape: "circle", name: "0aisjaj")
+
+  node((75mm, -75mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0ajsjai")
+  node((125mm, -75mm), $a_j$, stroke: 0.1em, shape: "circle", name: "0ajsjaj")
+
+  node((-100mm, -75mm), $dots$)
+  node((25mm, -75mm), $dots$)
+
+  node((-125mm, 0mm), $t=0$)
+  node((-125mm, -50mm), $t=1$)
+  node((-125mm, -100mm), $t=2$)
+  node((-125mm, -125mm), $dots.v$)
+
+
+  edge(label("root"), label("0ai"), "->")
+  edge(label("root"), label("0aj"), "->")
+
+  edge(label("0ai"), label("0aisi"), "->", label: $Pr(s_i | a_i)$, )
+  edge(label("0ai"), label("0aisj"), "->", label: $Pr(s_j | a_i)$, )
+
+  edge(label("0aj"), label("0ajsi"), "->", label: $Pr(s_i | a_j)$)
+  edge(label("0aj"), label("0ajsj"), "->", label: $Pr(s_j | a_j)$)
+
+  edge(label("0aisj"), label("0aisjaj"), "->")
+  edge(label("0aisj"), label("0aisjai"), "->")
+
+  edge(label("0ajsj"), label("0ajsjaj"), "->")
+  edge(label("0ajsj"), label("0ajsjai"), "->")
+})
+
+#let traj_opt_tree_red = diagram({
+  node((0mm, 0mm), $s_i$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "root")
+
+  node((-75mm, -25mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0ai")
+  node((75mm, -25mm), $a_j$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0aj")
+
+  node((-100mm, -50mm), $s_i$, stroke: 0.1em, shape: "circle", name: "0aisi")
+  node((-50mm, -50mm), $s_j$, stroke: 0.1em, shape: "circle", name: "0aisj")
+
+  node((50mm, -50mm), $s_i$, stroke: 0.1em, shape: "circle", name: "0ajsi")
+  node((100mm, -50mm), $s_j$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0ajsj")
+
+  node((-75mm, -75mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0aisjai")
+  node((-25mm, -75mm), $a_j$, stroke: 0.1em, shape: "circle", name: "0aisjaj")
+
+  node((75mm, -75mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0ajsjai")
+  node((125mm, -75mm), $a_j$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0ajsjaj")
+
+  node((100mm, -100mm), $s_i$, stroke: 0.1em, shape: "circle", name: "0ajsjajsi")
+  node((125mm, -100mm), $s_j$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0ajsjajsj")
+
+
+  node((-100mm, -75mm), $dots$)
+  node((25mm, -75mm), $dots$)
+
+  node((-125mm, 0mm), $t=0$)
+  node((-125mm, -50mm), $t=1$)
+  node((-125mm, -100mm), $t=2$)
+  node((-125mm, -125mm), $dots.v$)
+
+
+  edge(label("root"), label("0ai"), "->")
+  edge(label("root"), label("0aj"), "->", stroke: red)
+
+  edge(label("0ai"), label("0aisi"), "->", label: $Pr(s_i | a_i)$, )
+  edge(label("0ai"), label("0aisj"), "->", label: $Pr(s_j | a_i)$, )
+
+  edge(label("0aj"), label("0ajsi"), "->", label: $Pr(s_i | a_j)$)
+  edge(label("0aj"), label("0ajsj"), "->", label: $Pr(s_j | a_j)$, stroke: red)
+
+  edge(label("0aisj"), label("0aisjaj"), "->")
+  edge(label("0aisj"), label("0aisjai"), "->")
+
+  edge(label("0ajsj"), label("0ajsjaj"), "->", stroke: red)
+  edge(label("0ajsj"), label("0ajsjai"), "->")
+
+  edge(label("0ajsjaj"), label("0ajsjajsj"), "->", stroke: red)
+  edge(label("0ajsjaj"), label("0ajsjajsi"), "->")
+})
+
+
 #show: university-theme.with(
   aspect-ratio: "16-9",
   config-info(
@@ -30,9 +155,15 @@
     outline(title: none, indent: 1em, depth: 1)
 )
 
+= Review
+
 = Exam
 
-= Review
+= Planning with a Model
+
+==
+Model-based RL vs model-free RL
+Pros cons
 
 = Trajectory Optimization
 
@@ -220,9 +351,42 @@ $ bb(E) [R(s_1) | s_0, a_0] = sum_(s_(1) in S) R(s_(1)) Pr(s_(1) | s_0, a_0) $
 $ bb(E) [R(s_2) | s_0, a_0, a_1] = sum_(s_(2) in S) R(s_(2)) Pr(s_(2) | s_1, a_1) sum_(s_(1) in S) Pr(s_(1) | s_0, a_0) $
 
 
-$ bb(E) [R(s_(n + 1)) | s_0, a_0, a_1, dots a_n] = R(s_(n)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Pr(s_(t+1) | s_t, a_t) $
+$ bb(E) [R(s_(n + 1)) | s_0, a_0, a_1, dots a_n] = R(s_(n + 1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Pr(s_(t+1) | s_t, a_t) $
 
 ==
+
+$ bb(E)[ G | s_0, a_0, a_1, dots] &= &&bb(E)[R(s_1) | s_0, a_0] \
+ &+ gamma &&bb(E)[R(s_2) | s_0, a_0, a_1] \ 
+ &+ gamma^2 &&bb(E)[R(s_3) | s_0, a_0, a_1, a_2] \
+ &+ &dots \
+ &=&& sum_(s_(1) in S) R(s_(1)) Pr(s_(1) | s_0, a_0) \
+ &+ gamma && sum_(s_(2) in S) R(s_(2)) Pr(s_(2) | s_1, a_1) sum_(s_(1) in S) Pr(s_(1) | s_0, a_0) \
+ &+ gamma^2 && sum_(s_(3) in S) R(s_(3)) Pr(s_(3) | s_2, a_2) sum_(s_(2) in S) R(s_(2)) Pr(s_(2) | s_1, a_1) dots \
+ &+ dots $
+
+==
+
+#side-by-side[
+  #traj_opt_mdp
+][
+  $ S = {s_i, s_j} quad A = {a_i, a_j} \ #pause
+  \
+
+    Pr(s_i | s_i, a_i) = 0.8; space Pr(s_j | s_i, a_i) = 0.2 \ #pause
+    Pr(s_i | s_i, a_j) = 0.7; space Pr(s_j | s_i, a_j) = 0.3 \ #pause
+    \
+    Pr(s_i | s_j, a_i) = 0.6; space Pr(s_j | s_i, a_i) = 0.4 \ #pause
+    Pr(s_i | s_j, a_j) = 0.1; space Pr(s_j | s_i, a_j) = 0.9 \
+  $
+]
+
+==
+
+#traj_opt_tree
+
+==
+
+#traj_opt_tree_red
 
 ==
 
