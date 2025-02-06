@@ -10,6 +10,14 @@
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
+/* 
+Following Brunskill's
+1. Introduce expected return
+2. Introduce bellman equation
+3. Introduce value function
+4. Use bellman equation with model
+*/ 
+
 #show: university-theme.with(
   aspect-ratio: "16-9",
   config-info(
@@ -89,7 +97,7 @@ We can model almost anything as a Markov process #pause
 
 So what is a Markov process? #pause
 
-It is a probabilistic model of dynamical systems, where the *future depends on the present* #pause
+It is a probabilistic model of dynamical systems that allows us to predict the future #pause
 
 A Markov process consists of two parts #pause
 
@@ -137,7 +145,7 @@ A Markov process consists of two parts #pause
 ]
 
 ==
-Of course, we can model many other systems as Markov processes #pause
+We can model many other systems as Markov processes #pause
 
 #cimage("fig/03/finance-chain.png", height: 85%)
 ==
@@ -148,9 +156,8 @@ Of course, we can model many other systems as Markov processes #pause
 
 Why is it called a *Markov* process? #pause
 
-It follows the *Markov* property: #pause
 
-The next state only depends on the current state #pause
+Markov property: The next state only depends on the current state #pause
 
 $ Pr(s_(t+1) | s_(t)) = Pr(s_(t+1) | s_(t), s_(t-1), dots, s_0)  $ #pause
 
@@ -158,13 +165,13 @@ $ Pr(s_(t+1) | s_(t)) = Pr(s_(t+1) | s_(t), s_(t-1), dots, s_0)  $ #pause
 
 If we cannot satisfy it, then the process is *not* Markov #pause
 
-#side-by-side[$ Pr("sun" | s_t="rain", s_(t-1)="sun") = 0.4 $ #pause][
-$ 
-Pr("sun" | s_t="rain" ) = 0.3
-$
-]
+$ Pr(s_2 = "sun" &| s_1="rain", s_0="sun") &&= 0.4 \ #pause
 
-$0.3 != 0.4$, process is *not* Markov
+
+Pr(s_2 = "sun" &| s_1="rain" ) && = 0.3 #pause
+$
+
+  $0.3 != 0.4, Pr(s_(t+1) | s_(t)) != Pr, (s_(t+1) | s_(t), s_(t-1), dots, s_0)$,  *not* Markov
 
 ==
 
@@ -177,9 +184,9 @@ To compute the next node, we only look at the current node #pause
 ]
 
 ==
-Using the Markov property, we can chain state transitions together #pause
+We can predict the future using Markov processes #pause
 
-We can estimate the state distribution at a specific time #pause
+Chain transition probabilities together to estimate $s_t$ #pause
 
 $ Pr(s_1 | s_0 = s) $ #pause
 
@@ -188,12 +195,14 @@ $ Pr(s_2 | s_0 = s) = sum_(#pin(1)s_1 in S#pin(2)) Pr(s_2 | s_1)  Pr(s_1 | s_0 =
 #pinit-point-from((1,2), pin-dx: 0pt, offset-dx: 0pt)[Paths from all possible $s_1$ to $s_2$]
 #v(2em) #pause
 
-$ Pr(s_3 | s_0 = s) = sum_(s_2 in S) Pr(s_3 | s_2) sum_(s_1 in S) Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $
+$ Pr(s_3 | s_0 = s) = sum_(s_2 in S) Pr(s_3 | s_2) sum_(s_1 in S) Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $ #pause
+
+Can we derive a general form for $P(s_n | s_0)$? 
 
 ==
 $ Pr(s_3 | s_0 = s) = sum_(s_2 in S) Pr(s_3 | s_2) sum_(s_1 in S) Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $ #pause
 
-Move the sums
+Product of sum is the sum of products#pause, move the sum outside
 
 $ Pr(s_3 | s_0 = s) = sum_(s_2 in S) sum_(s_1 in S) Pr(s_3 | s_2)  Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $ #pause
 
@@ -215,25 +224,29 @@ $ Pr(s_n | s_0) = sum_(s_1, s_2, dots s_(n-1) in S) product_(t=0)^(n-1)  Pr(s_(t
 ==
 $ Pr(s_n | s_0) = sum_(s_1, s_2, dots s_(n-1) in S) product_(t=0)^(n-1)  Pr(s_(t+1) | s_t) $ #pause
 
-This expression tells us how the Markov process evolves over time 
+This expression tells us how the Markov process evolves over time #pause
 
+We can predict the future, $n$ timesteps from now #pause
 
+If $s$ is the state of the world, you can predict the future of the world #pause
+
+If $s$ represents someone's mind, you can predict their future thoughts 
 
 
 ==
 
-*Question:* When does a Markov process end? #pause
+We can predict a state $s_n$, but a Markov process never ends #pause
 
-*Answer:* Technically, never. You transition between states forever #pause
+The future infinite, there is always a next state #pause
 
 However, many processes we like to model eventually end #pause
 - Dying in a video game #pause
-- Reaching your destination #pause
+- Completing a task #pause
 - Running out of money #pause
 
 *Question:* How can we model a Markov process that ends? #pause
 
-*Answer:* We create a *terminal state* that we cannot leave
+*Answer:* We create a *terminal state* that we can enter but cannot leave
 
 ==
 
@@ -246,27 +259,38 @@ Once we crash our car, we cannot drive or park any more #pause
 
 The only transition from a terminal state is back to itself
 
-$ Pr(s_"terminal" | s_"terminal") = 1.0 $
+$ Pr(s_(t+1)="term" &| s_t="term") &&= 1 \
+Pr(s_(t+1) = "not term" &| s_t = "term") &&= 0 $
 ]
 
 = Exercise
 ==
-Design an MDP about a problem you care about #pause
+Design an Markov process about a problem you care about #pause
 - 4 states #pause
-- State transition function $Tr = Pr(s_(t+1) | s_t)$ for all $s_t, s_(t+1)$ #pause
+- State transition function $Tr = Pr(s_(t+1) | s_t)$ for all $s_t, s_(t+1) in S$ #pause
 - Create a terminal state #pause
-- Given a starting state $s_0$, what will your state distribution be for $s_2$?
+- Given a starting state $s_0$, what will your state distribution be for $s_2$? #pause
+
+$ Pr(s_n | s_0) = sum_(s_1, s_2, dots s_(n-1) in S) product_(t=0)^(n-1)  Pr(s_(t+1) | s_t) $ 
 
 = Markov Control Processes
 ==
 
-*Question:* How can we model decision making in a Markov process? #pause
+Markov processes model complex evolving processes #pause
 
-*Answer:* We can't (yet) #pause
+But this course is on decision making, how can we model decision making in a Markov process?
 
-Markov processes follow the state transition function $Tr$, there are no decisions for us to make #pause
+We can't #pause
 
-We will modify the Markov process for decision making
+Markov processes follow the state transition function $Tr$ #pause
+
+The future of the system is already determined #pause
+
+There is no room for decisions to change the fate of the system #pause
+
+We will modify the Markov process for decision making #pause
+
+The point of decision making is to choose our fate 
 
 // env agent first?
 
@@ -275,24 +299,30 @@ A Markov process models the predetermined evolution of some system #pause
 
 We call this system the *environment*, because we cannot control it #pause
 
-For decisions to matter, they must change the environment #pause
+The *agent* lives in the environment #pause
 
-We introduce the *agent* to make decisions that change the environment
+The agent makes decisions #pause
+
+The agent changes the environment with its decisions 
+
+//For decisions to matter, they must change the environment #pause
+
+//We introduce the *agent* to make decisions that change the environment
 
 ==
 
 The agent takes *actions* $a in A$ that change the environment #pause
 
 The action space $A$ defines what our agent can do #pause
-
+rrr
 #side-by-side(align: center)[
   Markov process
-  $ (S, T) \
-  T : S |-> Delta S $ #pause
+  $ (S, Tr) \
+  Tr : S |-> Delta S $ #pause
 ][
   Markov control process
-  $ (S, A, T) \
-  T : S times A |-> Delta S $
+  $ (S, A, Tr) \
+  Tr : S times A |-> Delta S $
 ] #pause
 
 In a Markov process, the future follows a predefined evolution #pause
@@ -304,24 +334,29 @@ Let us see an example
 ==
 
 #side-by-side[
-#diagram({
+  $ S = {"Healthy", "Sick", "Dead"} $ #pause
+][
+  $ A = {"Nothing", "Medicine"} = {N, M} $ #pause
+]
+
+#align(center, diagram({
   node((0mm, 0mm), "Healthy", stroke: 0.1em, shape: "circle", width: 3.5em, name: "drive")
-  node((100mm, 0mm), "Sick", stroke: 0.1em, shape: "circle", width: 3.5em, name: "park", fill: orange)
-  node((50mm, -50mm), "Dead", stroke: 0.1em, shape: "circle", width: 3.5em, name: "crash")
+  node((150mm, 0mm), "Sick", stroke: 0.1em, shape: "circle", width: 3.5em, name: "park", fill: orange)
+  node((75mm, -20mm), "Dead", stroke: 0.1em, shape: "circle", width: 3.5em, name: "crash")
 
   edge(label("drive"), label("drive"), "->", label: 0.9, bend: -130deg, loop-angle: -90deg)
-  edge(label("park"), label("park"), "->", label: text(fill:orange)[Nothing 0.9], bend: -130deg, loop-angle: -90deg)
+  edge(label("park"), label("park"), "->", label: text(fill:orange)[$N =0.91, M = 0.18$], bend: -130deg, loop-angle: -90deg)
   edge(label("crash"), label("crash"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
 
   edge(label("drive"), label("park"), "->", label: 0.09, bend: 40deg)
-  edge(label("park"), label("drive"), "->", label: text(fill:orange)[Nothing 0.09], bend: 0deg)
-  edge(label("park"), label("crash"), "->", label: 0.01, bend: 30deg)
-})
-][
+  edge(label("park"), label("drive"), "->", label: text(fill:orange)[$N = 0.09, M =0.82$], bend: 0deg)
+  edge(label("park"), label("crash"), "->", label: 0.01, bend: 15deg)
+}))
+/*
 #diagram({
   node((0mm, 0mm), "Healthy", stroke: 0.1em, shape: "circle", width: 3.5em, name: "drive")
   node((100mm, 0mm), "Sick", stroke: 0.1em, shape: "circle", width: 3.5em, name: "park", fill: orange)
-  node((50mm, -50mm), "Dead", stroke: 0.1em, shape: "circle", width: 3.5em, name: "crash")
+  node((50mm, -20mm), "Dead", stroke: 0.1em, shape: "circle", width: 3.5em, name: "crash")
 
   edge(label("drive"), label("drive"), "->", label: 0.9, bend: -130deg, loop-angle: -90deg)
   edge(label("park"), label("park"), "->", label: text(fill:orange)[Medicine 0.19], bend: -130deg, loop-angle: -90deg)
@@ -331,7 +366,7 @@ Let us see an example
   edge(label("park"), label("drive"), "->", label: text(fill:orange)[Medicine 0.8], bend: 0deg)
   edge(label("park"), label("crash"), "->", label: 0.01, bend: 30deg)
 })
-]
+*/
 
 ==
 
@@ -366,7 +401,7 @@ Let us see an example
     "Sick", "Nothing";
     "Sick", "Medicine";
     dots.v, dots.v;
-    "Dead", "Nothing";
+    "Sick", "Nothing";
     "Dead", emptyset 
   ) $ #pause
 
@@ -395,18 +430,18 @@ $ Pr(bold(tau) | s_0, a_0, a_1, dots, a_n) = product_(t=0)^n Pr(s_(t+1) | s_t, a
 ==
 Markov control processes let us control which states we visit #pause
 
-They do not tell us which states are good to visit #pause
+They do not tell us which states are good to visit, or provide a goal #pause
 
-How can we make optimal decisions if we cannot tell how good a decision is? #pause
+How can we make optimal decisions if we do not have a goal or objective? #pause
 
-We need something to tell us how good it is to be in a state!
+We need a way to determine "good" and "bad" decisions
 
 = Markov Decision Processes
 
 ==
 Markov decision processes (MDPs) add a measure of "goodness" to Markov control processes #pause
 
-We use a *reward function* $R$ to measure the goodness of being in a specific state #pause
+We use a *reward function* $R$ to measure the goodness of a specific state #pause
 
 #side-by-side(align: center)[
   Sutton and Barto:
@@ -416,7 +451,7 @@ We use a *reward function* $R$ to measure the goodness of being in a specific st
   $ R: S times A times S |-> bb(R) $ #pause
 ][
   This course:
-  $ R: S |-> bb(R) $ 
+  $ R: S |-> bb(R) $ #pause
 ]
 
 For now, I will use the simplest one #pause
@@ -427,31 +462,30 @@ You can always make these equivalent by modifying the MDP
 ==
 #side-by-side(align: center)[
   Markov process
-  $ (S, T) \
-  T : S |-> Delta S $ #pause
+  $ (S, Tr) \
+  Tr : S |-> Delta S $ #pause
 ][
   Markov control process
-  $ (S, A, T) \
-  T : S times A |-> Delta S $ #pause
+  $ (S, A, Tr) \
+  Tr : S times A |-> Delta S $ #pause
 ][
   Markov decision process
-  $ (S, A, T, R, gamma) \
-  T : S times A |-> Delta S \ 
+  $ (S, A, Tr, R, gamma) \
+  Tr : S times A |-> Delta S \ 
   R: S |-> bb(R)
   $ 
 ] 
 
+#side-by-side[
+  In an MDP, an *episode* contains the trajectory and also the rewards #pause][
+    $ bold(E) = mat(s_0, a_0, r_0; s_1, a_1, r_1; dots.v, dots.v, dots.v; s_(n-1), a_(n-1), r_(n-1); s_n, emptyset, emptyset) = 
+    mat(bold(tau), bold(r)) $
+  ]
+
+
 
 ==
-An *episode* contains the states, actions, and rewards until termination #pause
-
-$ bold(E) = mat(s_0, a_0, r_0; s_1, a_1, r_1; dots.v, dots.v, dots.v; s_(n-1), a_(n-1), r_(n-1); s_n, emptyset, emptyset) = 
-mat(bold(tau), bold(r))
-$
-
-
-==
-We want to maximize the reward #pause
+Reward is good, we want to maximize the reward #pause
 
 The reward function determines the agent behavior #pause
 
@@ -483,7 +517,7 @@ However, maximizing the reward is not always ideal #pause
 
   node((0mm, 30mm), $R("walk") \ = 0$)
   node((50mm, 30mm), $R("food") \ = 3$)
-  node((100mm, 30mm), $R("trap") \ = -1$)
+  node((100mm, 30mm), $R("trap") \ = -5$)
 
   edge(label("trap"), label("trap"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
   edge(label("walk"), label("walk"), "->", bend: -130deg, loop-angle: 90deg)
@@ -493,23 +527,34 @@ However, maximizing the reward is not always ideal #pause
 })
 ] #pause
 
-$ argmax_(s in S) R(s)  #pause = "food" $
+#side-by-side[
+$ argmax_(a in A) R(s) = "take the food" $ #pause
+][
+  If we maximize the reward, we are *too greedy*
+]
+
 
 ==
 Maximizing the immediate reward can result in bad agents #pause
 
 Instead, we maximize the *cumulative sum* of rewards #pause
 
-We call this this cumulative sum the *return* 
+We think about how our actions now will impact reward the future #pause
+
+We call the cumulative sum of rewards, the *return* #pause
 
 #side-by-side[
   $ G: bb(R)^n |-> bb(R) $ #pause
+][
+  $ G: S^(n) times A^(n-1) |-> bb(R) $ #pause
+]
+
+#side-by-side[
 
   $ G(r_0, r_1, dots) = sum_(t=0)^oo r_t $ #pause
 ][
-  $ G: S^(n) times A^(n-1) |-> bb(R) $ #pause
 
-  $ G(bold(tau)) &= G(s_0, a_0, s_1, a_1, dots) \ &= sum_(t=0)^oo R(s_(t+1)) $ #pause
+  $ G(bold(tau)) &= G(s_0, a_0, s_1, a_1, dots) \ &= sum_(t=0)^oo R(s_(t+1)) $ 
 ]
 
 
@@ -522,7 +567,7 @@ We call this this cumulative sum the *return*
 
   node((0mm, 0mm), $R("walk") \ = 0$)
   node((40mm, 0mm), $R("food") \ = 3$)
-  node((80mm, 0mm), $R("trap") \ = -1$)
+  node((80mm, 0mm), $R("trap") \ = -5$)
 
   edge(label("trap"), label("trap"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
   edge(label("walk"), label("walk"), "->", bend: -130deg, loop-angle: 90deg)
@@ -534,11 +579,13 @@ We call this this cumulative sum the *return*
 
 ]
 
-  $ R("walk") + R("walk") + R("walk") + dots &= 0 + 0 + dots &&= 0 \ #pause
+  $
+  G(bold(tau)_"greedy") = R("food") + R("trap") + R("trap") + dots &= 3 - 5 - 5 - dots &&= -oo \ #pause 
+  
+  G(bold(tau)_"smart") = R("walk") + R("walk") + R("walk") + dots &= 0 + 0 + dots &&= 0  
+  $ #pause
 
-   R("food") + R("trap") + R("trap") + dots &= 3 - 1 - 1 - dots &&= -oo $ #pause
-
-  Now, we make better decisions!
+  By considering the future rewards, we can make optimal decisions
 
 ==
 Consider one more example #pause
@@ -574,23 +621,26 @@ $ G(bold(tau)) = sum_(t=0)^oo R(s_(t+1)) $
 ] #pause
 
 
-If you swap the terms $s_1$ and $s_1000$, the sum is the same #pause
-
 We can eat food now, or in 1000 years, the return is the same #pause
+
+*Question:* Is this how humans make decisions? #pause
+
+*Answer:* No, humans are a little bit greedy #pause
 
 *Experiment:* Place a cookie in front of a child. If they do not eat the cookie for 5 minutes, they get two cookies #pause
 
-*Question:* What does the child do? #pause
-
-*Answer:* The child eats the cookie immediately #pause
-
-Order matters, humans prefer reward sooner rather than later 
-
+#side-by-side[
+  *Question:* What happens? #pause
+][
+*Answer:* Child eats the cookie immediately #pause
+]
 
 ==
-$ G(bold(tau)) = sum_(t=0)^oo R(s_(t+1)) $
+Timing matters, humans prefer reward sooner rather than later #pause
 
-*Question:* How can we fix the return to prefer rewards sooner? #pause
+$ G(bold(tau)) = sum_(t=0)^oo R(s_(t+1)) $ #pause
+
+*Question:* How can we modify the return to prefer rewards sooner? #pause
 
 What if we make future rewards less important? #pause
 
@@ -614,7 +664,7 @@ $ G(bold(tau)) = sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
 
 
 #side-by-side(align: center)[
-  With $gamma = 1$ #pause
+  With $gamma = 0$ #pause
 
   $ G(bold(tau)) = 1 + 1 + 1 + dots $ #pause
 ][
@@ -625,26 +675,17 @@ $ G(bold(tau)) = sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
   G(bold(tau)) &= 1 + 0.9 + 0.81 + dots $
 ]
 
-
-==
-#side-by-side(align: center)[
-  Without $gamma$
-
-  $ G(bold(tau)) = 1 + 1 + 1 + dots $ 
-][
-  With $gamma$
-
-  $ G(bold(tau)) &= (0.9^0 dot 1) + (0.9^1 dot 1) + (0.9^2 dot 1) + \ 
-  G(bold(tau)) &= 1 + 0.9 + 0.81 + dots $
-]
-
 We call this the *discounted return* #pause
 
-The discounted return lets makes us prefer rewards sooner, like humans #pause
+The discounted return lets makes us prefer rewards sooner, like humans
+
+==
 
 For the rest of the course, we maximize the discounted return
 
-$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $
+$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $ #pause
+
+If our agent maximizes the discounted return, then it is *optimal*
 
 ==
 Let us review #pause
@@ -696,6 +737,7 @@ Make sure you understand MDPs!
     - Eat mushroom at $t = 10$ #pause
     - Collect coins at $t = 11, 12$ #pause
     - Die to bowser at $t = 20$
+    - Game over screen at $t=21...oo$
 
 ]
 
