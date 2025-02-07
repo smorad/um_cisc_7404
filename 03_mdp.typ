@@ -7,6 +7,11 @@
 #import "@preview/fletcher:0.5.4" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
+// TODO: Students very slow, moving quickly and only finished first exercise after 1.5h
+// TODO: Mario example too complex, just have them do the discounted return. Give them the four states in the return
+// TODO: Mario should have zero reward for in-between states
+// TODO: Terminal states should have zero reward
+
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
@@ -727,17 +732,17 @@ Make sure you understand MDPs!
   #cimage("fig/03/mario.jpeg", width: 100%)
 ][
   Design a Super Mario Bros MDP #pause
-  - State space $S$ #pause
-  - Action space $A$ #pause
-  - State transition function $Tr$ #pause
   - Reward function $R$ #pause
   - Discount factor $gamma$ #pause
+
+  Your states are: eat mushroom, collect coins, die, game over #pause
 
   Compute discounted return for:  #pause
     - Eat mushroom at $t = 10$ #pause
     - Collect coins at $t = 11, 12$ #pause
     - Die to bowser at $t = 20$
     - Game over screen at $t=21...oo$
+    - $r = 0$ for other timesteps
 
 ]
 
