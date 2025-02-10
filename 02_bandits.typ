@@ -22,7 +22,9 @@
   header: self => utils.display-current-heading(level: 1)
 )
 
-// TOOD: Replace bandits with overview of RL vs ML vs IL etc
+// TODO: Instead of cal(X), we should use cal(R) as the reward so this
+// fits better with trajectory optimization and RL
+// TODO: Maybe also introduce policy, but not as a function of state, just as a way to pick actions
 
 #title-slide()
 

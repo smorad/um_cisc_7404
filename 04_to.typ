@@ -156,162 +156,228 @@ Introduce value
     outline(title: none, indent: 1em, depth: 1)
 )
 
-= Review
-
 = Exam
 
-= Planning with a Model
+= Review
+
+= MDP Coding
+
+= Decision Making with a Model
 
 ==
-Model-based RL vs model-free RL
-Pros cons
+// https://www.youtube.com/watch?v=3FNPSld6Lrg // Do after the algorithm
+
+
+==
+In RL, our goal is to optimize the discounted return #pause
+
+Today, we will see some methods to do this #pause
+
+These ideas are very old, and do not necessarily require deep learning #pause
+
+Many of these ideas appear in classical robotics and control theory #pause
+
+These methods are expensive in terms of compute #pause
+
+We usually only use these methods for simple problems 
+
+==
+
+"Simple" problems have small state and actions spaces $ |S|, |A| = "small" $ #pause
+
+One example is position and velocity control #pause
+
+https://www.youtube.com/watch?v=6qj3EfRTtkE #pause
+
+==
+
+
+Given the power of modern GPUs, researchers are revisiting these methods #pause
+
+They are applying them to more difficult tasks with large $|S|, |A|$ #pause
+
+https://youtu.be/_e3BKzK6xD0?si=Kr-KOccTDypgRjgJ&t=194
+
+==
+There are two classes of decision making algorithms #pause
+
+#side-by-side[
+  *Model-based* #pause
+
+  We know $Tr(s_(t+1) | s_t, a_t)$ #pause
+
+  Cheap to train, expensive to use #pause
+
+  Closer to traditional control theory #pause
+][
+  *Model-free* #pause
+  
+  We do not know $Tr(s_(t+1) | s_t, a_t)$  #pause
+
+  Expensive to train, cheap to use #pause
+
+  Closer to deep learning
+]
+
+Today, we will cover a model-based algorithm called trajectory optimization #pause
+
+Critical part of Alpha-\* methods (AlphaGo, AlphaStar, AlphaZero)
+
+
+==
+Recall the discounted return, our objective for the rest of this course #pause
+
+$ G(bold(tau)) = sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
+
+We want to maximize the discounted return 
+
+$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
+
+We want to find the trajectory $tau = mat(s_0, a_0; s_1, a_1; dots.v, dots.v)$ that provides the greatest discounted return
+
+==
+
+$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
+
+This objective looks simple, but $R(s_(t+1))$ hides much of the process #pause
+
+To understand what is hiding, let us examine the reward function
+
+= The Mysterious Reward
+==
+
+Consider the reward function
+
+$ R(s_(t+1)) $ #pause
+
+Perhaps we want to maximize the reward
+
+$ argmax_(s_(t+1) in S) R(s_(t+1)) $ #pause
+
+*Question:* Agent in a state $s_t$ takes action $a_t$, what is $R(s_(t+1))$ ? #pause
+
+*Answer:* Not sure. $R(s_(t+1))$ depends on $Tr(s_(t+1) | s_t, a_t)$ #pause
+
+Cannot know $s_(t+1)$ with certainty, only know the distribution!
+
+==
+
+$s_(t+1)$ is the *outcome* of a random process #pause 
+
+$ s_(t+1) tilde Tr(dot | s_t, a_t), quad s_t, s_(t+1) in S $ #pause
+
+*Question:* What is $S$? 
+
+*Answer:* State space, also the outcome space $Omega$ of $Tr$
+
+$ s_(t+1) in S = omega in Omega $
+
+And the reward function is a scalar function of the outcome #pause
+
+$ R: S |-> bb(R) $
+
+==
+
+If you can answer the following question, you understand the course #pause
+
+$ s_(t+1) tilde Tr(dot | s_t, a_t), quad s_t, s_(t+1) in S $
+
+$ R: S |-> bb(R) $
+
+*Question:* $R$ is a special kind of function, what is it? #pause
+
+*Answer:* $R$ is a random variable! #pause
+
+#side-by-side[
+  $ R: S |-> bb(R)$
+][
+  $ S = Omega $
+][
+    $ R: Omega |-> bb(R) $
+]
+
+We should write it as $cal(R) : S |-> bb(R)$
+
+
+==
+$ cal(R) : S |-> bb(R) $
+
+*Question:* What do we like to do with random variables? #pause
+
+*Answer:* Take the expectation! #pause
+
+We cannot know which reward we get in the future
+
+$ cal(R) (s_(t+1)), quad s_(t+1) tilde Tr(dot | s_t, a_t) $ #pause
+
+But we can know the *average* future reward using the expectation #pause
+
+$ bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
+
+==
+
+$ bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ #pause
+
+We cannot know which reward we get in the future #pause
+
+But we can know the average (expected) reward we will get #pause
+
+As an agent, we cannot directly control the world ($s_t$ or $s_(t+1)$) #pause
+
+All we can do is choose our own action $a_t$ #pause
+
+Pick an action that maximizes the expected reward #pause 
+
+$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
+
+==
+
+$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
+
+In English:
+  + Compute the probability for each outcome $s in S$, for each $a in A$
+  + Compute the reward for each possible outcome $s in S$
+  + The expected reward for $s in S$ is probability times reward
+  + Take the action $a_t in A$ that produces the largest the expected reward
+
+*Question:* Have we seen this before? #pause
+
+#side-by-side[*Answer:* Bandits! #pause][
+  $ argmax_(a in {1 dots k}) bb(E)[cal(X)_a] $ 
+]
+
+==
+$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
+
+We have a name for a function that picks actions #pause 
+
+We call this the *policy*, which usually has parameters $theta in Theta$ #pause
+
+$ pi: S times Theta |-> Delta A $ #pause
+
+$ pi (a_t | s_t; theta) = cases( 
+  1 "if" a_t = argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t, theta], 
+  0 "otherwise"
+) $ #pause
+
+
+The policy is the "brain" of the agent, it controls the agent
+
+==
+
+We figured out the mystery the reward function was hiding #pause
+
+We found a policy that maximizes the reward #pause
+
+We want to maximize the discounted return, not the reward! #pause
+
+We have one last thing to do
+
 
 = Trajectory Optimization
 
 ==
-https://www.youtube.com/watch?v=3FNPSld6Lrg
-
-https://www.youtube.com/watch?v=6qj3EfRTtkE
-
-==
-The goal of this course is to learn to maximize the discounted return 
-
-Today, we will see some methods to do this 
-
-This is my favorite lecture, because things are still simple
-
-Some of these ideas are very old, but in the last 1-2 years we revisit them with more compute
-
-Dreamer video
-
-==
-Want to select best decisions/actions 
-
-Best means maximize the return 
-
-How can we write how our actions influence the return?
-
-Start with the reward, move on to return
-
-==
-
-Given a state $s_t$ and action $a_t$, what does the reward look like?
-
-First, write the reward function
-
-$ R(s_(t+1)) $ // TODO: Maybe define s' here
-
-What are all possible rewards?
-
-$ {R(s_(t+1)) | s_(t+1) in S} $
-
-This is not true (example figure)
-
-We do not consider our current state $s_t$ or an action $a_t$!
-
-==
-#side-by-side[
-    #diagram({
-    node((0mm, 0mm), "Healthy", stroke: 0.1em, shape: "circle", width: 3.5em, name: "drive")
-    node((100mm, 0mm), "Sick", stroke: 0.1em, shape: "circle", width: 3.5em, name: "park")
-    node((50mm, -50mm), "Dead", stroke: 0.1em, shape: "circle", width: 3.5em, name: "crash")
-
-    edge(label("drive"), label("drive"), "->", bend: -130deg, loop-angle: -90deg)
-    edge(label("park"), label("park"), "->", bend: -130deg, loop-angle: -90deg)
-    edge(label("crash"), label("crash"), "->", bend: -130deg, loop-angle: 90deg)
-
-    edge(label("drive"), label("park"), "->", bend: 40deg)
-    edge(label("park"), label("drive"), "->", bend: 0deg)
-    edge(label("park"), label("crash"), "->", bend: 30deg)
-  })
-][
-  $ {R(s_(t+1)) | s in S} = \ {R("Healthy"), R("Sick"), R("Dead")} $
-
-  If $s_t = "Healthy"$? Can we still have a "Dead" reward?
-
-  No, because the state transition function does not allow this
-
-  $ P("Dead" | "Healthy") = 0 $
-
-  $ P("Dead" | "Sick" ) > 0 $
-]
-
-==
-
-The reward depends on the state transition function
-
-$ T(s_t, a_t) = Pr(s_(t+1) | s_t, a_t) $ 
-
-$ s_(t+1) tilde T(s_t, a_t) $
-
-$ R(s_(t+1)) $
-
-$ { R(s_(t+1)) | s_(t+1) ~ T(s_t, a_t) } $
-
-==
-
-
-But we care about the rewards we can get with the current state/action $s_t, a_t$
-
-How can we write this? Use the state transition function
-
-//But we said that the reward depends on $s_t, a_t$, this reward function does not depend on anything
-
-
-
-
-==
-
-#side-by-side[
-  $ Pr(s_(t+1) | s_t, a_t) $
-][
-  $ { R(s_(t+1)) | s_(t+1) ~ T(s_t, a_t) } $
-]
-
-How can we combine these in a meaningful way?
-
-What if we compute the mean reward for a given action? 
-
-*Question:* How can we do this?
-
-*Answer:* Take the expectation
-
-$ bb(E): underbrace((Omega |-> bb(R)), "random variable") |-> bb(R) $ #pause
-
-$ bb(E)[cal(X)] = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $ #pause
-
-==
-#side-by-side[
-  $ Pr(s_(t+1) | s_t, a_t) $
-][
-  $ { R(s_(t+1)) | s_(t+1) ~ T(s_t, a_t) } $
-]
-$ bb(E)[cal(X)] = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $ 
-
-We can write the expected reward because $R$ is a random variable 
-
-The outcome space $Omega = S$
-
-$ bb(E) [R(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) R(s_(t+1)) dot Pr(s_(t+1) | s_t, a_t) $
-
-The expectation of the random variable $R$ *conditioned* on $s_t, a_t$
-
-==
-
-$ bb(E) [R(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) R(s_(t+1)) dot Pr(s_(t+1) | s_t, a_t) $
-
-*Question:* How can we use this to find a good action?
-
-*Answer:* We can find the action that gives us the best reward (on average)
-
-$ argmax_(a_t in A) space bb(E) [R(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) R(s_(t+1)) dot Pr(s_(t+1) | s_t, a_t) $ 
-
-But in RL, we do not maximize the reward
-
-*Question:* What do we maximize?
-*Answer:* The discounted return
-
-==
+$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S)  R(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
 
 What we have
 
