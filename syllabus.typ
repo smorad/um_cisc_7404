@@ -35,8 +35,8 @@
     - Week 1 (01.09): Introduction 
     - Week 2 (01.16): Bandits (S&B 2)
     - Week 3 (02.06): Decision Processes (S&B 3) 
-    - Week 4 (02.13): Dynamic Programming (S&B 4)
-    - Week 5 (02.20): Monte Carlo Methods (S&B 5) 
+    - Week 4 (02.13): Quiz 1 and Coding //Dynamic Programming (S&B 4)
+    - Week 5 (02.20): Trajectory Optimization (S&B 5) 
     - Week 6 (02.27): Q Learning (S&B 6)
     - Week 7 (03.06): Policy Gradient (S&B 13)
     - Week 8 (03.13): Actor Critic (S&B 13)

@@ -158,6 +158,38 @@ Introduce value
 
 = Exam
 
+==
+- After all students put away their computer/notes/phone I will hand out exams #pause
+- If you have computer/notes/phone out after this point, it counts as cheating #pause
+- I will hand out exams face down, do not turn them over until I say so #pause
+- After turning them over, I will briefly explain each question #pause
+- After my explanation, you will have 75 minutes to complete the exam #pause
+- After you are done, give me your exam and go relax outside, we resume class at 8:30 #pause
+
+==
+
+- There may or may not be different versions of the exam #pause
+- If your exam has the answer for another version, it is cheating #pause
+- Instructions are in both english and chinese, english instructions take precedence #pause
+- Good luck!
+
+==
+- 在所有学生收起电脑/笔记/手机后,我会分发试卷。
+- 如果在此之后仍有电脑/笔记/手机未收,将视为作弊。
+- 试卷会背面朝下发下,在我宣布开始前请勿翻面。
+- 试卷翻面后,我会简要说明每道题的注意事项。
+- 说明结束后,你们有75分钟完成考试。
+- 交卷后请到教室外休息,8:30恢复上课。
+- 试卷可能存在不同版本,细节略有差异。
+- 若你的试卷上出现其他版本的答案,将被判定为作弊。
+- 试卷说明为中英双语,若内容冲突以英文为准。
+- 祝各位考试顺利!
+
+==
+If you thought the exam was easy, come talk to me after class #pause
+
+Our lab is always looking for smart students to work on RL problems 
+
 = Review
 
 = MDP Coding
@@ -169,11 +201,11 @@ Introduce value
 
 
 ==
-In RL, our goal is to optimize the discounted return #pause
+Our goal is to optimize the discounted return #pause
 
 Today, we will see some methods to do this #pause
 
-These ideas are very old, and do not necessarily require deep learning #pause
+These ideas are old, and do not necessarily require deep learning #pause
 
 Many of these ideas appear in classical robotics and control theory #pause
 
@@ -183,18 +215,20 @@ We usually only use these methods for simple problems
 
 ==
 
-"Simple" problems have small state and actions spaces $ |S|, |A| = "small" $ #pause
+"Simple" problems have low dimensional and actions spaces $ |S|, |A| = "small" $ #pause
 
 One example is position and velocity control #pause
 
-https://www.youtube.com/watch?v=6qj3EfRTtkE #pause
+$ S in bb(R)^6, A in bb(R)^3 $
+
+https://www.youtube.com/watch?v=6qj3EfRTtkE 
 
 ==
 
 
-Given the power of modern GPUs, researchers are revisiting these methods #pause
+ With modern GPUs, researchers are revisiting these methods #pause
 
-They are applying them to more difficult tasks with large $|S|, |A|$ #pause
+They are applying them to more difficult tasks with high dimensional $|S|, |A|$ #pause
 
 https://youtu.be/_e3BKzK6xD0?si=Kr-KOccTDypgRjgJ&t=194
 
@@ -266,13 +300,13 @@ $s_(t+1)$ is the *outcome* of a random process #pause
 
 $ s_(t+1) tilde Tr(dot | s_t, a_t), quad s_t, s_(t+1) in S $ #pause
 
-*Question:* What is $S$? 
+*Question:* What is $S$? #pause
 
-*Answer:* State space, also the outcome space $Omega$ of $Tr$
+*Answer:* State space, also the outcome space $Omega$ of $Tr$ #pause
 
-$ s_(t+1) in S = omega in Omega $
+$ s_(t+1) in S = omega in Omega $ #pause
 
-And the reward function is a scalar function of the outcome #pause
+And the reward function is a scalar function of an outcome #pause
 
 $ R: S |-> bb(R) $
 
@@ -280,20 +314,20 @@ $ R: S |-> bb(R) $
 
 If you can answer the following question, you understand the course #pause
 
-$ s_(t+1) tilde Tr(dot | s_t, a_t), quad s_t, s_(t+1) in S $
+$ s_(t+1) tilde Tr(dot | s_t, a_t), quad s_t, s_(t+1) in S $ #pause
 
-$ R: S |-> bb(R) $
+$ R: S |-> bb(R) $ #pause
 
 *Question:* $R$ is a special kind of function, what is it? #pause
 
 *Answer:* $R$ is a random variable! #pause
 
 #side-by-side[
-  $ R: S |-> bb(R)$
+  $ R: S |-> bb(R)$ #pause
 ][
-  $ S = Omega $
+  $ S = Omega $ #pause
 ][
-    $ R: Omega |-> bb(R) $
+    $ R: Omega |-> bb(R) $ #pause
 ]
 
 We should write it as $cal(R) : S |-> bb(R)$
@@ -310,10 +344,16 @@ We cannot know which reward we get in the future
 
 $ cal(R) (s_(t+1)), quad s_(t+1) tilde Tr(dot | s_t, a_t) $ #pause
 
+==
+$ cal(R) (s_(t+1)), quad s_(t+1) tilde Tr(dot | s_t, a_t) $ #pause
+
 But we can know the *average* future reward using the expectation #pause
 
-$ bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
+$ bb(E)[cal(X)] = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $ #pause
 
+$ bb(E)[#pin(1)cal(R)(s_(t+1)) | s_t, a_t#pin(2)] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ #pause
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom)[Random variable conditioned on $s_t, a_t$] 
 ==
 
 $ bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ #pause
@@ -322,11 +362,12 @@ We cannot know which reward we get in the future #pause
 
 But we can know the average (expected) reward we will get #pause
 
-As an agent, we cannot directly control the world ($s_t$ or $s_(t+1)$) #pause
+As an agent, we cannot directly control the world ($s_t$ or $s_(t+1)$) or reward #pause
 
-All we can do is choose our own action $a_t$ #pause
+But we can choose an action $a_t$ that maximizes the expected reward #pause
 
-Pick an action that maximizes the expected reward #pause 
+//All we can do is choose our own action $a_t$ #pause
+
 
 $ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
 
@@ -369,7 +410,7 @@ We figured out the mystery the reward function was hiding #pause
 
 We found a policy that maximizes the reward #pause
 
-We want to maximize the discounted return, not the reward! #pause
+But we want to maximize the discounted return, not the reward! #pause
 
 We have one last thing to do
 
@@ -377,35 +418,115 @@ We have one last thing to do
 = Trajectory Optimization
 
 ==
-$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S)  R(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
+What we have: #pause
 
-What we have
+Expected value of the reward, as a function of state and action #pause
 
-$ bb(E) [R(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) R(s_(t+1)) dot Pr(s_(t+1) | s_t, a_t) $
+$ bb(E) [cal(R)(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ #pause
 
-What we want
+What we want:
 
-$ bb(E) [G(bold(tau)_n) | s_0, a_0, a_1, dots, a_n] = ? $
+Expected value of the return, as a function of initial state and actions #pause
 
-What we need
+$ bb(E) [G(bold(tau)) | s_0, a_0, a_1, dots] = ? $
 
-$ Pr(s_t | s_0, a_0, a_1, a_2, dots a_(t-1)) $
+*Question:* Why depend on future actions? #pause
+
+*Answer:* To pick the actions that maximize $G$
+==
+$ bb(E) [G(bold(tau)) | s_0, a_0, a_1, dots] = ? $ #pause
+
+Note: $G$ is also a random variable #pause 
+$ G: underbrace(S^n times A^n, "Outcome of stochastic" Tr"," pi) |-> bb(R) $ #pause
+
+We can rewrite it curly since it is a random variable #pause
+$ cal(G): underbrace(S^n times A^n, "Outcome of stochastic" Tr"," pi) |-> bb(R) $ #pause
+
+Back to the problem... #pause
+
+$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = ? $
+// What we need
+
+// $ Pr(s_t | s_0, a_0, a_1, a_2, dots) $
+
+==
+First step, write out the return #pause
+
+$ cal(G)(bold(tau)) = sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) $ #pause
+
+Remember, we can only maximize the expectation #pause
+
+Take the expected value of both sides #pause
+
+$ bb(E)[ cal(G)(bold(tau)) | s_0, a_0, a_1 dots ] = bb(E)[ sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) mid(|) s_0, a_0, a_1, dots] $ #pause
+
+We want to find the best actions, so they must be in the expectation
 
 ==
 
-$ Pr(s_1 | s_0, a_0) $
-$ Pr(s_2 | s_0, a_0, a_1) = Pr(s_2 | s_1, a_1) Pr(s_1 | s_0, a_0) $
-$ Pr(s_t | s_0, a_0, a_1, dots a_t) &= Pr(s_t | s_(t-1)) dots Pr(s_2 | s_1, a_1) Pr(s_1 | s_0, a_0) \
-&= 
- $
+$ bb(E)[ cal(G)(bold(tau)) | s_0, a_0, a_1 dots ] = bb(E)[ sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) mid(|) s_0, a_0, a_1, dots] $ #pause
+
+The expectation is a linear function, we can move it inside the sum #pause
+
+$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo bb(E)[gamma^t cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] $ #pause
+
+Expectation is linear, can factor out $gamma$ #pause
+
+$ bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, a_1, dots, a_n] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] $
+
+==
+$ bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, a_1, dots, a_n] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] $
+
+We previously found
+
+$ bb(E) [cal(R)(s_(t+1)) | s_t, a_t] $ #pause
+
+Since we have $s_0, a_0$, we can compute the term for $t=0$ #pause
+
+$ bb(E) [cal(R)(s_1) | s_0, a_0 ] $ #pause
+
+Now, let's try to find $cal(R)(s_2)$ #pause
+
+$ bb(E) [cal(R)(s_2) | s_0, a_0, a_1 ] $
+
+==
+
+$ bb(E) [cal(R)(s_2) | s_0, a_0, a_1 ] $
+
+*Question:* Any problems? #pause
+
+*Answer:* $cal(R)$ needs $s_2$, but we only have $s_0$! #pause
+
+For $t=1$, the reward relies on the distribution $Tr(s_1 | s_0, a_0)$ #pause
+
+For $t=2$, the reward relies on $Tr(s_2 | s_1, a_1)$ and $Tr(s_1 | s_0, a_0)$ #pause
+
+For $cal(R)(s_(n+1))$ we need an expression for $Pr(s_(n+1) | s_0, a_0, a_1, dots)$
 
 
 ==
-$ bb(E) [G(bold(tau)_n) | s_0, a_0, a_1, dots, a_n] = ? $
 
-Plug in definition of discounted return
+*Question:* How do we find $Pr(s_(n+1) | s_0, a_0, a_1, dots)$? #pause
 
-$ bb(E) [G(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[R(s_(t+1))] $
+*Answer:* In lecture 3 we computed the probability of a future state #pause
+
+$ Pr(s_(n+1) | s_0) = sum_(s_1, s_2, dots s_(n) in S) product_(t=0)^(n)  Pr(s_(t+1) | s_t) $ #pause
+
+We just need to include the actions! #pause
+
+$ Pr(s_(n+1) | s_0, a_0, a_1, dots, a_(n-1)) = sum_(s_1, s_2, dots s_(n) in S) product_(t=0)^(n)  Pr(s_(t+1) | s_t, a_t) $ #pause
+
+We are predicting the future state of an MDP
+
+==
+
+$ Pr(s_n | s_0, a_0, a_1, dots, a_(n-1)) = sum_(s_1, s_2, dots s_(n-1) in S) product_(t=0)^(n-1)  Pr(s_(t+1) | s_t, a_t) $ 
+
+TODO write out expectation so we can plug in $R(s_t) Pr(s_t | s_0, a_0, dots)$
+
+$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots] $
+
+$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots] $
 
 ==
 
