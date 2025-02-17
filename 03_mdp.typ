@@ -751,7 +751,7 @@ Make sure you understand MDPs!
 = Coding
 
 == 
-In this course, we will implemented MDPs using *gymnasium* #pause
+In this course, we will implement MDPs using *gymnasium* #pause
 
 Originally developed by OpenAI for reinforcement learning #pause
 

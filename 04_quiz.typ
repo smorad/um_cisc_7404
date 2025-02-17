@@ -62,12 +62,76 @@
 - 祝各位考试顺利!
 
 ==
-If you thought the exam was easy, come talk to me after class #pause
+Our lab is always looking for smart students to work on RL problems #pause
 
-Our lab is always looking for smart students to work on RL problems 
+If you thought the exam was easy, come talk to me after class
 
 = Review
 
-= MDP Coding
+
+= Coding
+
+== 
+In this course, we will implement MDPs using *gymnasium* #pause
+
+Developed by OpenAI for reinforcement learning #pause
+
+Gymnasium provides an *environment* (MDP) API #pause
+
+Must define: #pause
+  - state space ($S$) #pause
+  - action space ($A$) #pause
+  - step ($Tr, R, "terminated"$) #pause
+  - reset ($s_0$) #pause
+
+https://gymnasium.farama.org/api/env/
+
+
+==
+Gymnasium uses *observations* instead of *states* #pause
+
+*Question:* What was the Markov condition for MDPs? #pause
+
+The next Markov state only depends on the current Markov state #pause
+
+$ Pr(s_(t+1) | s_(t), s_(t-1), dots, s_1) = Pr(s_(t+1) | s_(t)) $ #pause
+
+If the Markov property is broken, $s_t in S$ is not a Markov state #pause
+
+Then, we change $s_t in S$ to an *observation* $o_t in O$ (more later) #pause
+
+Gymnasium uses observations, but for MDPs we treat them as states
+
+==
+```python
+
+import gymnasium as gym
+
+MyMDP(gym.Env):
+  def __init__(self):
+    self.action_space = gym.spaces.Discrete(3) # A
+    self.observation_space = gym.spaces.Discrete(5) # S
+
+  def reset(self, seed=None) -> Tuple[Observation, Dict]
+
+  def step(self, action) -> Tuple[
+    Observation, Reward, Terminated, Truncated, Dict
+  ]
+```
+
+==
+I stress MDPs in this course because it is the most important concept #pause
+
+We will see an example of using RL to solve a task #pause
+
+You do not know any RL algorithms, but we will can still solve an MDP #pause
+
+If you can make an MDP, you can use existing code to solve it! #pause
+
+For example, you can use stable-baselines3
+
+https://stable-baselines3.readthedocs.io
+
+
 ==
 https://colab.research.google.com/drive/1rDNik5oRl27si8wdtMLE7Y41U5J2bx-I#scrollTo=yVjbC_VQ-Wha

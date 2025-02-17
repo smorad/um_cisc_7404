@@ -28,11 +28,11 @@ Introduce value
 
 #let traj_opt_mdp = diagram({
 
-    node((-30mm, 0mm), $s_i$, stroke: 0.1em, shape: "circle", name: "si", width: 3em)
-    node((30mm, 0mm), $s_j$, stroke: 0.1em, shape: "circle", name: "sj", width: 3em)
+    node((-30mm, 0mm), $s_a$, stroke: 0.1em, shape: "circle", name: "si", width: 3em)
+    node((30mm, 0mm), $s_b$, stroke: 0.1em, shape: "circle", name: "sj", width: 3em)
 
-    node((-30mm, -6em), $R(s_i) = 0$)
-    node((30mm, -6em), $R(s_j) = 1$)
+    node((-30mm, -6em), $R(s_a) = 0$)
+    node((30mm, -6em), $R(s_b) = 1$)
 
     edge(label("si"), label("si"), "->", bend: -130deg, loop-angle: 270deg)
     edge(label("sj"), label("sj"), "->", bend: -130deg, loop-angle: 270deg)
@@ -42,22 +42,22 @@ Introduce value
 })
 
 #let traj_opt_tree = diagram({
-  node((0mm, 0mm), $s_i$, stroke: 0.1em, shape: "circle", name: "root")
+  node((0mm, 0mm), $s_a$, stroke: 0.1em, shape: "circle", name: "root")
 
-  node((-75mm, -25mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0ai")
-  node((75mm, -25mm), $a_j$, stroke: 0.1em, shape: "circle", name: "0aj")
+  node((-75mm, -25mm), $a_a$, stroke: 0.1em, shape: "circle", name: "0ai")
+  node((75mm, -25mm), $a_b$, stroke: 0.1em, shape: "circle", name: "0aj")
 
-  node((-100mm, -50mm), $s_i$, stroke: 0.1em, shape: "circle", name: "0aisi")
-  node((-50mm, -50mm), $s_j$, stroke: 0.1em, shape: "circle", name: "0aisj")
+  node((-100mm, -50mm), $s_a$, stroke: 0.1em, shape: "circle", name: "0aisi")
+  node((-50mm, -50mm), $s_b$, stroke: 0.1em, shape: "circle", name: "0aisj")
 
-  node((50mm, -50mm), $s_i$, stroke: 0.1em, shape: "circle", name: "0ajsi")
-  node((100mm, -50mm), $s_j$, stroke: 0.1em, shape: "circle", name: "0ajsj")
+  node((50mm, -50mm), $s_a$, stroke: 0.1em, shape: "circle", name: "0ajsi")
+  node((100mm, -50mm), $s_b$, stroke: 0.1em, shape: "circle", name: "0ajsj")
 
-  node((-75mm, -75mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0aisjai")
-  node((-25mm, -75mm), $a_j$, stroke: 0.1em, shape: "circle", name: "0aisjaj")
+  node((-75mm, -75mm), $a_a$, stroke: 0.1em, shape: "circle", name: "0aisjai")
+  node((-25mm, -75mm), $a_b$, stroke: 0.1em, shape: "circle", name: "0aisjaj")
 
-  node((75mm, -75mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0ajsjai")
-  node((125mm, -75mm), $a_j$, stroke: 0.1em, shape: "circle", name: "0ajsjaj")
+  node((75mm, -75mm), $a_a$, stroke: 0.1em, shape: "circle", name: "0ajsjai")
+  node((125mm, -75mm), $a_b$, stroke: 0.1em, shape: "circle", name: "0ajsjaj")
 
   node((-100mm, -75mm), $dots$)
   node((25mm, -75mm), $dots$)
@@ -71,11 +71,11 @@ Introduce value
   edge(label("root"), label("0ai"), "->")
   edge(label("root"), label("0aj"), "->")
 
-  edge(label("0ai"), label("0aisi"), "->", label: $Pr(s_i | a_i)$, )
-  edge(label("0ai"), label("0aisj"), "->", label: $Pr(s_j | a_i)$, )
+  edge(label("0ai"), label("0aisi"), "->", label: $Pr(s_a | a_a)$, )
+  edge(label("0ai"), label("0aisj"), "->", label: $Pr(s_b | a_a)$, )
 
-  edge(label("0aj"), label("0ajsi"), "->", label: $Pr(s_i | a_j)$)
-  edge(label("0aj"), label("0ajsj"), "->", label: $Pr(s_j | a_j)$)
+  edge(label("0aj"), label("0ajsi"), "->", label: $Pr(s_a | a_b)$)
+  edge(label("0aj"), label("0ajsj"), "->", label: $Pr(s_b | a_b)$)
 
   edge(label("0aisj"), label("0aisjaj"), "->")
   edge(label("0aisj"), label("0aisjai"), "->")
@@ -85,25 +85,25 @@ Introduce value
 })
 
 #let traj_opt_tree_red = diagram({
-  node((0mm, 0mm), $s_i$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "root")
+  node((0mm, 0mm), $s_a$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "root")
 
-  node((-75mm, -25mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0ai")
-  node((75mm, -25mm), $a_j$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0aj")
+  node((-75mm, -25mm), $a_a$, stroke: 0.1em, shape: "circle", name: "0ai")
+  node((75mm, -25mm), $a_b$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0aj")
 
-  node((-100mm, -50mm), $s_i$, stroke: 0.1em, shape: "circle", name: "0aisi")
-  node((-50mm, -50mm), $s_j$, stroke: 0.1em, shape: "circle", name: "0aisj")
+  node((-100mm, -50mm), $s_a$, stroke: 0.1em, shape: "circle", name: "0aisi")
+  node((-50mm, -50mm), $s_b$, stroke: 0.1em, shape: "circle", name: "0aisj")
 
-  node((50mm, -50mm), $s_i$, stroke: 0.1em, shape: "circle", name: "0ajsi")
-  node((100mm, -50mm), $s_j$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0ajsj")
+  node((50mm, -50mm), $s_a$, stroke: 0.1em, shape: "circle", name: "0ajsi")
+  node((100mm, -50mm), $s_b$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0ajsj")
 
-  node((-75mm, -75mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0aisjai")
-  node((-25mm, -75mm), $a_j$, stroke: 0.1em, shape: "circle", name: "0aisjaj")
+  node((-75mm, -75mm), $a_a$, stroke: 0.1em, shape: "circle", name: "0aisjai")
+  node((-25mm, -75mm), $a_b$, stroke: 0.1em, shape: "circle", name: "0aisjaj")
 
-  node((75mm, -75mm), $a_i$, stroke: 0.1em, shape: "circle", name: "0ajsjai")
-  node((125mm, -75mm), $a_j$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0ajsjaj")
+  node((75mm, -75mm), $a_a$, stroke: 0.1em, shape: "circle", name: "0ajsjai")
+  node((125mm, -75mm), $a_b$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0ajsjaj")
 
-  node((100mm, -100mm), $s_i$, stroke: 0.1em, shape: "circle", name: "0ajsjajsi")
-  node((125mm, -100mm), $s_j$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0ajsjajsj")
+  node((100mm, -100mm), $s_a$, stroke: 0.1em, shape: "circle", name: "0ajsjajsi")
+  node((125mm, -100mm), $s_b$, stroke: (paint: red, thickness: 0.1em), shape: "circle", name: "0ajsjajsj")
 
 
   node((-100mm, -75mm), $dots$)
@@ -118,11 +118,11 @@ Introduce value
   edge(label("root"), label("0ai"), "->")
   edge(label("root"), label("0aj"), "->", stroke: red)
 
-  edge(label("0ai"), label("0aisi"), "->", label: $Pr(s_i | a_i)$, )
-  edge(label("0ai"), label("0aisj"), "->", label: $Pr(s_j | a_i)$, )
+  edge(label("0ai"), label("0aisi"), "->", label: $Pr(s_a | a_a)$, )
+  edge(label("0ai"), label("0aisj"), "->", label: $Pr(s_b | a_a)$, )
 
-  edge(label("0aj"), label("0ajsi"), "->", label: $Pr(s_i | a_j)$)
-  edge(label("0aj"), label("0ajsj"), "->", label: $Pr(s_j | a_j)$, stroke: red)
+  edge(label("0aj"), label("0ajsi"), "->", label: $Pr(s_a | a_b)$)
+  edge(label("0aj"), label("0ajsj"), "->", label: $Pr(s_b | a_b)$, stroke: red)
 
   edge(label("0aisj"), label("0aisjaj"), "->")
   edge(label("0aisj"), label("0aisjai"), "->")
@@ -138,7 +138,7 @@ Introduce value
 #show: university-theme.with(
   aspect-ratio: "16-9",
   config-info(
-    title: [Trajectory Optimization],
+    title: [Algorithms],
     subtitle: [CISC 7404 - Decision Making],
     author: [Steven Morad],
     institution: [University of Macau],
@@ -156,63 +156,82 @@ Introduce value
     outline(title: none, indent: 1em, depth: 1)
 )
 
-= Exam
-
 ==
-- After all students put away their computer/notes/phone I will hand out exams #pause
-- If you have computer/notes/phone out after this point, it counts as cheating #pause
-- I will hand out exams face down, do not turn them over until I say so #pause
-- After turning them over, I will briefly explain each question #pause
-- After my explanation, you will have 75 minutes to complete the exam #pause
-- After you are done, give me your exam and go relax outside, we resume class at 8:30 #pause
+Quiz results on moodle #pause
 
-==
+If you have no score, come see me #pause
 
-- There may or may not be different versions of the exam #pause
-- If your exam has the answer for another version, it is cheating #pause
-- Instructions are in both english and chinese, english instructions take precedence #pause
-- Good luck!
+Mean score is $3.37 / 4 approx 84%$ #pause
 
-==
-- 在所有学生收起电脑/笔记/手机后,我会分发试卷。
-- 如果在此之后仍有电脑/笔记/手机未收,将视为作弊。
-- 试卷会背面朝下发下,在我宣布开始前请勿翻面。
-- 试卷翻面后,我会简要说明每道题的注意事项。
-- 说明结束后,你们有75分钟完成考试。
-- 交卷后请到教室外休息,8:30恢复上课。
-- 试卷可能存在不同版本,细节略有差异。
-- 若你的试卷上出现其他版本的答案,将被判定为作弊。
-- 试卷说明为中英双语,若内容冲突以英文为准。
-- 祝各位考试顺利!
+You did better than expected! #pause
 
-==
-If you thought the exam was easy, come talk to me after class #pause
+If mean course score is $>80%$ but you understand the material it is ok #pause
 
-Our lab is always looking for smart students to work on RL problems 
+I will not decrease total score #pause
+
+Do not forget individual participation grade!
 
 = Review
 
-= MDP Coding
+==
 
-= Decision Making with a Model
+Diffusion models #pause
+
+https://arxiv.org/pdf/2006.11239
+
+
+= Algorithms
 
 ==
 // https://www.youtube.com/watch?v=3FNPSld6Lrg // Do after the algorithm
 
 
 ==
-Our goal is to optimize the discounted return #pause
+Our goal is to maximize the discounted return #pause
 
-Today, we will see some methods to do this #pause
+Take actions in the MDP to maximize the discounted return #pause
 
-These ideas are old, and do not necessarily require deep learning #pause
+We introduce a *policy* to select actions #pause
 
-Many of these ideas appear in classical robotics and control theory #pause
+$ pi: S times Theta |-> Delta A $ #pause
 
+The policy is the "brain" of the agent #pause
+
+It makes decisions for the agent 
+
+==
+
+Policies can be good, bad, or even human! #pause
+
+#cimage("fig/05/policy-car.jpeg")
+
+
+==
+
+We use *algorithms* to find good policies #pause
+
+*Question:* What makes a policy good? #pause
+
+*Answer:* It achieves a large discounted return #pause
+
+Almost all the algorithms we learn in this course have guarantees #pause
+
+That is, if you train long enough, your policy will become optimal #pause
+
+The policy is guaranteed to maximize the discounted return
+==
+
+Today, we will derive the *trajectory optimization* algorithm  #pause
+
+This algorithm is old, and does not require deep learning #pause
+
+These ideas appear in classical robotics and control theory #pause
+
+https://www.youtube.com/watch?v=6qj3EfRTtkE 
+/*
 These methods are expensive in terms of compute #pause
 
 We usually only use these methods for simple problems 
-
 ==
 
 "Simple" problems have low dimensional and actions spaces $ |S|, |A| = "small" $ #pause
@@ -221,19 +240,40 @@ One example is position and velocity control #pause
 
 $ S in bb(R)^6, A in bb(R)^3 $
 
-https://www.youtube.com/watch?v=6qj3EfRTtkE 
-
 ==
 
 
- With modern GPUs, researchers are revisiting these methods #pause
+With modern GPUs, researchers are revisiting these methods #pause
 
 They are applying them to more difficult tasks with high dimensional $|S|, |A|$ #pause
 
 https://youtu.be/_e3BKzK6xD0?si=Kr-KOccTDypgRjgJ&t=194
 
+*/
+/*
 ==
-There are two classes of decision making algorithms #pause
+There are two axes for decision making algorithms #pause
+
+An algorithm is either *on-policy* or *off-policy* #pause
+
+An algorithm is either *model-based* or *model-free* #pause
+
+What do these mean?
+
+==
+
+#side-by-side[
+  *On-policy* #pause
+
+  An algorithm is limited in 
+
+  Algorithm can only use data collected 
+]
+
+*/
+
+==
+There are two classes of algorithms #pause
 
 #side-by-side[
   *Model-based* #pause
@@ -250,7 +290,7 @@ There are two classes of decision making algorithms #pause
 
   Expensive to train, cheap to use #pause
 
-  Closer to deep learning
+  Closer to deep learning #pause
 ]
 
 Today, we will cover a model-based algorithm called trajectory optimization #pause
@@ -261,17 +301,19 @@ Critical part of Alpha-\* methods (AlphaGo, AlphaStar, AlphaZero)
 ==
 Recall the discounted return, our objective for the rest of this course #pause
 
-$ G(bold(tau)) = sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
+#side-by-side[$ G(bold(tau)) = sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause][
+  $ tau = mat(s_0, a_0; s_1, a_1; dots.v, dots.v) $ #pause
+]
 
 We want to maximize the discounted return 
 
-$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
+$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s_1, s_2, dots in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
 
-We want to find the trajectory $tau = mat(s_0, a_0; s_1, a_1; dots.v, dots.v)$ that provides the greatest discounted return
+We want to find $tau$ that provides the greatest discounted return
 
 ==
 
-$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
+$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s_1, s_2, dots in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $#pause
 
 This objective looks simple, but $R(s_(t+1))$ hides much of the process #pause
 
@@ -288,7 +330,7 @@ Perhaps we want to maximize the reward
 
 $ argmax_(s_(t+1) in S) R(s_(t+1)) $ #pause
 
-*Question:* Agent in a state $s_t$ takes action $a_t$, what is $R(s_(t+1))$ ? #pause
+*Question:* In state $s_t$, take action $a_t$, what is $R(s_(t+1))$ ? #pause
 
 *Answer:* Not sure. $R(s_(t+1))$ depends on $Tr(s_(t+1) | s_t, a_t)$ #pause
 
@@ -304,19 +346,22 @@ $ s_(t+1) tilde Tr(dot | s_t, a_t), quad s_t, s_(t+1) in S $ #pause
 
 *Answer:* State space, also the outcome space $Omega$ of $Tr$ #pause
 
-$ s_(t+1) in S = omega in Omega $ #pause
+$ s_(t+1) in S equiv omega in Omega $ #pause
 
-And the reward function is a scalar function of an outcome #pause
+*Question:* Ok, now what is the definition of $R$?
+
+//And the reward function is a scalar function of an outcome #pause
+
+*Answer:*
 
 $ R: S |-> bb(R) $
 
 ==
-
-If you can answer the following question, you understand the course #pause
-
 $ s_(t+1) tilde Tr(dot | s_t, a_t), quad s_t, s_(t+1) in S $ #pause
 
 $ R: S |-> bb(R) $ #pause
+
+If you can answer the following question, you understand the course #pause
 
 *Question:* $R$ is a special kind of function, what is it? #pause
 
@@ -334,18 +379,20 @@ We should write it as $cal(R) : S |-> bb(R)$
 
 
 ==
-$ cal(R) : S |-> bb(R) $
+$ cal(R) : S |-> bb(R) $ #pause
 
 *Question:* What do we like to do with random variables? #pause
 
 *Answer:* Take the expectation! #pause
 
-We cannot know which reward we get in the future
+*Question:* Why do we like to take the expectation of random variables? #pause
 
-$ cal(R) (s_(t+1)), quad s_(t+1) tilde Tr(dot | s_t, a_t) $ #pause
+*Answer:* It maps complex random processes to a single value, which is much easier to work with
 
 ==
 $ cal(R) (s_(t+1)), quad s_(t+1) tilde Tr(dot | s_t, a_t) $ #pause
+
+We cannot know for certain which reward we get in the future #pause
 
 But we can know the *average* future reward using the expectation #pause
 
@@ -358,11 +405,9 @@ $ bb(E)[#pin(1)cal(R)(s_(t+1)) | s_t, a_t#pin(2)] = sum_(s_(t+1) in S) cal(R)(s_
 
 $ bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ #pause
 
-We cannot know which reward we get in the future #pause
+As an agent, we have partial control of the future reward #pause
 
-But we can know the average (expected) reward we will get #pause
-
-As an agent, we cannot directly control the world ($s_t$ or $s_(t+1)$) or reward #pause
+We cannot directly control the world ($s_(t+1)$) #pause
 
 But we can choose an action $a_t$ that maximizes the expected reward #pause
 
@@ -373,13 +418,13 @@ $ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s
 
 ==
 
-$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
+$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = #pin(9)argmax_(a_t in A)#pin(10) sum_(#pin(1)s_(t+1) in S#pin(2)) #pin(5)cal(R)(s_(t+1))#pin(6) #pin(7)dot#pin(8) #pin(3)Tr(s_(t+1) | s_t, a_t)#pin(4) $ #pause
 
-In English:
-  + Compute the probability for each outcome $s in S$, for each $a in A$
-  + Compute the reward for each possible outcome $s in S$
-  + The expected reward for $s in S$ is probability times reward
-  + Take the action $a_t in A$ that produces the largest the expected reward
+What does this mean in English: #pause
+  + #text(fill: red.transparentize(50%))[Compute the probability for each outcome $s_(t+1) in S$, for each $a_t in A$] #pinit-highlight(1,2) #pinit-highlight(3,4) #pause
+  + #text(fill: blue.transparentize(50%))[Compute the reward for each possible outcome $s_(t+1) in S$] #pinit-highlight(1,2, fill: blue.transparentize(80%)) #pinit-highlight(5,6, fill: blue.transparentize(80%)) #pause
+  + #text(fill: purple.transparentize(50%))[Compute expected reward for $s_(t+1) in S$, probability times reward]  #pinit-highlight(7,8, fill: purple.transparentize(80%)) #pause
+  + #text(fill: olive.transparentize(50%))[Take the action $a_t in A$ that produces the largest the expected reward] #pinit-highlight(9,10, fill: olive.transparentize(80%)) #pause
 
 *Question:* Have we seen this before? #pause
 
@@ -390,29 +435,31 @@ In English:
 ==
 $ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
 
-We have a name for a function that picks actions #pause 
-
-We call this the *policy*, which usually has parameters $theta in Theta$ #pause
+But earlier, we said that algorithms provide a policy $pi$ #pause
 
 $ pi: S times Theta |-> Delta A $ #pause
 
-$ pi (a_t | s_t; theta) = cases( 
+So we can turn this equation into a policy #pause
+
+$ pi (a_t | s_t; theta) = Pr (a_t | s_t ; theta) =  cases( 
   1 "if" a_t = argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t, theta], 
   0 "otherwise"
 ) $ #pause
 
+This policy will always act to maximize the expected reward!
 
-The policy is the "brain" of the agent, it controls the agent
 
 ==
 
 We figured out the mystery the reward function was hiding #pause
 
-We found a policy that maximizes the reward #pause
+We found a policy that is optimal with respect to the reward #pause
 
-But we want to maximize the discounted return, not the reward! #pause
+*Question:* Are we done? Why or why not?
 
-We have one last thing to do
+*Answer:* No, we want to maximize the discounted return, not the reward! #pause
+
+We have one more thing to do
 
 
 = Trajectory Optimization
@@ -420,23 +467,23 @@ We have one last thing to do
 ==
 What we have: #pause
 
-Expected value of the reward, as a function of state and action #pause
+Expected reward, as a function of state and action #pause
 
 $ bb(E) [cal(R)(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ #pause
 
 What we want:
 
-Expected value of the return, as a function of initial state and actions #pause
+Expected return, as a function of initial state and actions #pause
 
-$ bb(E) [G(bold(tau)) | s_0, a_0, a_1, dots] = ? $
+$ bb(E) [G(bold(tau)) | s_0, a_0, a_1, dots] = ? $ #pause
 
 *Question:* Why depend on future actions? #pause
 
-*Answer:* To pick the actions that maximize $G$
+*Answer:* Agent picks actions, optimize over actions to maximize $G$
 ==
 $ bb(E) [G(bold(tau)) | s_0, a_0, a_1, dots] = ? $ #pause
 
-Note: $G$ is also a random variable #pause 
+*Note:* $G$ is also a random variable #pause 
 $ G: underbrace(S^n times A^n, "Outcome of stochastic" Tr"," pi) |-> bb(R) $ #pause
 
 We can rewrite it curly since it is a random variable #pause
@@ -458,9 +505,9 @@ Remember, we can only maximize the expectation #pause
 
 Take the expected value of both sides #pause
 
-$ bb(E)[ cal(G)(bold(tau)) | s_0, a_0, a_1 dots ] = bb(E)[ sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) mid(|) s_0, a_0, a_1, dots] $ #pause
+$ bb(E)[ cal(G)(bold(tau)) | s_0, a_0, a_1 dots ] = bb(E)[ sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) mid(|) s_0, a_0, a_1, dots] $
 
-We want to find the best actions, so they must be in the expectation
+//We want to find the best actions, so they must be in the expectation
 
 ==
 
@@ -473,6 +520,26 @@ $ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo bb(E)[gamma^t c
 Expectation is linear, can factor out $gamma$ #pause
 
 $ bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, a_1, dots, a_n] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] $
+
+==
+$ bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, a_1, dots, a_n] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] $
+
+Write out the sum #pause
+
+$ bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, a_1, dots, a_n] = \ gamma^0 bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] + gamma^1 bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] + dots $ #pause
+
+Rewards do not depend on future actions #pause
+
+$ bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, a_1, dots, a_n] = \ gamma^0 bb(E)[cal(R)(s_(t+1)) | s_0, a_0] + gamma^1 bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1] + dots $
+
+==
+$ bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, a_1, dots, a_n] = \ gamma^0 #pin(1)bb(E)[cal(R)(s_(t+1)) | s_0, a_0]#pin(2) + gamma^1 bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1] + dots $ #pause
+
+*Question:* Do any terms look familiar? #pause
+
+*Answer:* We know the expected reward from before! #pinit-highlight(1, 2)
+
+
 
 ==
 $ bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, a_1, dots, a_n] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] $
@@ -526,7 +593,7 @@ TODO write out expectation so we can plug in $R(s_t) Pr(s_t | s_0, a_0, dots)$
 
 $ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots] $
 
-$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots] $
+//$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots] $
 
 ==
 
@@ -576,16 +643,16 @@ $ bb(E)[ G | s_0, a_0, a_1, dots] &= &&bb(E)[R(s_1) | s_0, a_0] \
 ==
 
 #side-by-side[
-  #traj_opt_mdp
+  #traj_opt_mdp #pause
 ][
-  $ S = {s_i, s_j} quad A = {a_i, a_j} \ #pause
+  $ S = {s_a, s_b} quad A = {a_a, a_b} \ #pause
   \
 
-    Pr(s_i | s_i, a_i) = 0.8; space Pr(s_j | s_i, a_i) = 0.2 \ #pause
-    Pr(s_i | s_i, a_j) = 0.7; space Pr(s_j | s_i, a_j) = 0.3 \ #pause
+    Pr(s_a | s_a, a_a) = 0.8; space Pr(s_b | s_a, a_a) = 0.2 \ #pause
+    Pr(s_a | s_a, a_b) = 0.7; space Pr(s_b | s_a, a_b) = 0.3 \ #pause
     \
-    Pr(s_i | s_j, a_i) = 0.6; space Pr(s_j | s_i, a_i) = 0.4 \ #pause
-    Pr(s_i | s_j, a_j) = 0.1; space Pr(s_j | s_i, a_j) = 0.9 \
+    Pr(s_a | s_b, a_a) = 0.6; space Pr(s_b | s_a, a_a) = 0.4 \ #pause
+    Pr(s_a | s_b, a_b) = 0.1; space Pr(s_b | s_a, a_b) = 0.9 \
   $
 ]
 
@@ -675,7 +742,9 @@ How do we optimize $J$ in practice?
 - Use gradient descent to find $a_0, dots, a_n$
   - *Note:* The state transition function and reward function must be differentiable
 
-= Policies
+= Algorithms and Policies
+
+// TODO introduce on-policy/off-policy, policy, mbrl, mfrl
 
 ==
 With trajectory optimization, we plan all of our actions at once
