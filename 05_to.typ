@@ -31,8 +31,8 @@ Introduce value
     node((-30mm, 0mm), $s_a$, stroke: 0.1em, shape: "circle", name: "si", width: 3em)
     node((30mm, 0mm), $s_b$, stroke: 0.1em, shape: "circle", name: "sj", width: 3em)
 
-    node((-30mm, -6em), $R(s_a) = 0$)
-    node((30mm, -6em), $R(s_b) = 1$)
+    node((-30mm, -6em), $cal(R)(s_a) = 0$)
+    node((30mm, -6em), $cal(R)(s_b) = 1$)
 
     edge(label("si"), label("si"), "->", bend: -130deg, loop-angle: 270deg)
     edge(label("sj"), label("sj"), "->", bend: -130deg, loop-angle: 270deg)
@@ -387,14 +387,14 @@ $ cal(R) : S |-> bb(R) $ #pause
 
 *Question:* Why do we like to take the expectation of random variables? #pause
 
-*Answer:* It maps complex random processes to a single value, which is much easier to work with
+*Answer:* It maps random processes to something we can maximize 
 
 ==
 $ cal(R) (s_(t+1)), quad s_(t+1) tilde Tr(dot | s_t, a_t) $ #pause
 
-We cannot know for certain which reward we get in the future #pause
+We cannot know for certain which reward we get in the next timestep #pause
 
-But we can know the *average* future reward using the expectation #pause
+But we can know the *average* reward using the expectation #pause
 
 $ bb(E)[cal(X)] = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $ #pause
 
@@ -407,24 +407,28 @@ $ bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(
 
 As an agent, we have partial control of the future reward #pause
 
-We cannot directly control the world ($s_(t+1)$) #pause
+We can choose an action $a_t$ to maximize the expected reward #pause
 
-But we can choose an action $a_t$ that maximizes the expected reward #pause
+$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ #pause
+
+*Note:* Cannot directly maximize $cal(R)$ because $s_(t+1)$ is random #pause
+
+We can maximize the expected reward
+
 
 //All we can do is choose our own action $a_t$ #pause
 
 
-$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
 
 ==
 
 $ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = #pin(9)argmax_(a_t in A)#pin(10) sum_(#pin(1)s_(t+1) in S#pin(2)) #pin(5)cal(R)(s_(t+1))#pin(6) #pin(7)dot#pin(8) #pin(3)Tr(s_(t+1) | s_t, a_t)#pin(4) $ #pause
 
-What does this mean in English: #pause
-  + #text(fill: red.transparentize(50%))[Compute the probability for each outcome $s_(t+1) in S$, for each $a_t in A$] #pinit-highlight(1,2) #pinit-highlight(3,4) #pause
-  + #text(fill: blue.transparentize(50%))[Compute the reward for each possible outcome $s_(t+1) in S$] #pinit-highlight(1,2, fill: blue.transparentize(80%)) #pinit-highlight(5,6, fill: blue.transparentize(80%)) #pause
-  + #text(fill: purple.transparentize(50%))[Compute expected reward for $s_(t+1) in S$, probability times reward]  #pinit-highlight(7,8, fill: purple.transparentize(80%)) #pause
-  + #text(fill: olive.transparentize(50%))[Take the action $a_t in A$ that produces the largest the expected reward] #pinit-highlight(9,10, fill: olive.transparentize(80%)) #pause
+How to code this: #pause
+  + #text(fill: red.transparentize(50%))[`probs = [[Tr(next_s, s, a) for next_s in S] for a in A]`] #pinit-highlight(3,4) #pause
+  + #text(fill: blue.transparentize(50%))[`rewards = [R(next_s) for next_s in S]`] #pinit-highlight(5,6, fill: blue.transparentize(80%)) #pause
+  + #text(fill: purple.transparentize(50%))[`expected_reward = [sum([p * rewards]) for p in probs]`]  #pinit-highlight(7,8, fill: purple.transparentize(80%)) #pinit-highlight(1,2, fill: purple.transparentize(80%)) #pause
+  + #text(fill: olive.transparentize(50%))[`a = argmax(expected_reward)`] #pinit-highlight(9,10, fill: olive.transparentize(80%)) #pause
 
 *Question:* Have we seen something similar before? #pause
 
@@ -433,31 +437,77 @@ What does this mean in English: #pause
 ]
 
 ==
-$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $
+$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ #pause
 
 Earlier, we said that algorithms provide a policy $pi: S times Theta |-> Delta A$ #pause
 
 But this equation is not yet a policy! #pause
 
-Let us turn this equation into a policy #pause
+Let us turn this equation into a policy
+
+==
+$ argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = argmax_(a_t in A) sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ #pause
+
+$ pi: S times Theta |-> Delta A $ #pause
+
+*Question:* How to make equation into policy? (Hint: Greedy policy) #pause
 
 $ pi (a_t | s_t; theta) = Pr (a_t | s_t ; theta) =  cases( 
-  1 "if" a_t = argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t, theta], 
+  1 "if" a_t = argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t], 
   0 "otherwise"
 ) $ #pause
 
-This policy will always act to maximize the expected reward
 
+#side-by-side[Policy maximizes the reward at each timestep #pause][
+$ underbrace(pi(a_0 | s_0), cal(R)(s_1)), underbrace(pi(a_1 | s_1), cal(R)(s_2)), dots $
+
+]
 
 ==
 
-We figured out the mystery the reward function was hiding #pause
+$ pi (a_t | s_t; theta) = Pr (a_t | s_t ; theta) =  cases( 
+  1 "if" a_t = argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t], 
+  0 "otherwise"
+) $ #pause
 
-We found a policy that is optimal with respect to the reward #pause
+$ underbrace(pi(a_0 | s_0), cal(R)(s_1)), underbrace(pi(a_1 | s_1), cal(R)(s_2)), dots $ #pause
 
-*Question:* Are we done? Why or why not?
+This policy is *optimal* with respect to the expected reward #pause
 
-*Answer:* No, we want to maximize the discounted return, not the reward! #pause
+It will always act to maximize the expected reward 
+
+==
+
+*Example:* Online advertising, show users ads so they buy products #pause
+
+#side-by-side[
+  $ S = {0, 1}^d times {0, 1} $
+][
+  Current user info, prev user buy?
+] #pause
+
+#side-by-side[
+  $ A = [0, 1]^(256 times 256 times 3) $
+  ][
+  Pixels of advertisement image
+] #pause
+  
+
+$ cal(R)(s_(t+1)) = cases(1 "if bought product", 0 "otherwise") $ #pause
+
+$ pi (a_t | s_t; theta) =  cases( 
+  1 "if" a_t = argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t], 
+  0 "otherwise"
+) $ #pause
+
+
+This will create the best ad creator possible!
+
+==
+
+*Question:* Are we done? Is maximizing reward enough? #pause
+
+*Answer:* No, maximize the discounted return, not the reward! #pause
 
 We have one more thing to do
 
@@ -465,23 +515,22 @@ We have one more thing to do
 = Trajectory Optimization
 
 ==
-What we have: #pause
-
-Expected reward, as a function of state and action #pause
-
 $ bb(E) [cal(R)(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ #pause
 
-What we want:
+$ G(bold(tau)) = sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) $ #pause
 
-Expected return, as a function of initial state and actions #pause
+What we want: #pause
 
-$ bb(E) [G(bold(tau)) | s_0, a_0, a_1, dots] = ? $ #pause
+$ bb(E) [G(bold(tau)) | ? ] = ? $ 
 
+
+/*
 *Question:* Why depend on future actions? #pause
 
 *Answer:* Agent picks actions, optimize over actions to maximize $G$
+*/
 ==
-$ bb(E) [G(bold(tau)) | s_0, a_0, a_1, dots] = ? $ #pause
+$ bb(E) [G(bold(tau)) | ?] = ? $ #pause
 
 *Note:* $G$ is also a random variable #pause 
 $ G: underbrace(S^n times A^n, "Outcome of stochastic" Tr"," pi) |-> bb(R) $ #pause
@@ -491,61 +540,71 @@ $ cal(G): underbrace(S^n times A^n, "Outcome of stochastic" Tr"," pi) |-> bb(R) 
 
 Back to the problem... #pause
 
-$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = ? $
+$ bb(E) [cal(G)(bold(tau)) | ?] = ? $
 // What we need
 
 // $ Pr(s_t | s_0, a_0, a_1, a_2, dots) $
 
 ==
-First step, write out the return #pause
-
 $ cal(G)(bold(tau)) = sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) $ #pause
 
-Remember, we can only maximize the expectation #pause
+//Cannot maximize random variable, only expectation of random variable #pause
 
 Take the expected value of both sides #pause
 
-$ bb(E)[ cal(G)(bold(tau)) | s_0, a_0, a_1, dots ] = bb(E)[ sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) mid(|) s_0, a_0, a_1, dots] $
+$ bb(E)[ cal(G)(bold(tau)) | ?] = bb(E)[ sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) mid(|) ? ] $
+
+//$ bb(E)[ cal(G)(bold(tau)) | s_0, a_0, a_1, dots ] = bb(E)[ sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) mid(|) s_0, a_0, a_1, dots] $
 
 //We want to find the best actions, so they must be in the expectation
 
 ==
+//$ bb(E)[ cal(G)(bold(tau)) | s_0, a_0, a_1, dots ] = bb(E)[ sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) mid(|) s_0, a_0, a_1, dots] $ #pause
 
-$ bb(E)[ cal(G)(bold(tau)) | s_0, a_0, a_1, dots ] = bb(E)[ sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) mid(|) s_0, a_0, a_1, dots] $ #pause
+$ bb(E)[ cal(G)(bold(tau)) | ? ] = bb(E)[ sum_(t=0)^oo gamma^t cal(R)(s_(t+1)) mid(|) ?] $ #pause
 
 The expectation is a linear function, we can move it inside the sum #pause
 
-$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo bb(E)[gamma^t cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] $ #pause
+$ bb(E) [cal(G)(bold(tau)) |?] = sum_(t=0)^oo bb(E)[gamma^t cal(R)(s_(t+1)) | ?] $ #pause
 
 Expectation is linear, can factor out $gamma$ #pause
 
-$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] $
+$ bb(E) [cal(G)(bold(tau)) | ?] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | ?] $
+
+==
+$ bb(E) [cal(G)(bold(tau)) | ?] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | ?] $
+
+Now, let's figure out the conditions #pause
+
+#side-by-side[
+  We know $bb(E)[cal(R)(s_(1))]$ needs $s_0, a_0$ #pause
+][
+  $bb(E)[cal(R)(s_(2)) | s_1, a_1]$, already have $s_1$ only need $a_1$ #pause
+]
+
+$ bb(E) [cal(G)(bold(tau)) | ?] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] $ #pause
+
+$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots ] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots, a_t] $
+
 
 ==
 $ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots] $
 
-Write out the sum #pause
+Unroll the sum #pause
 
-$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = \ gamma^0 bb(E)[cal(R)(s_(1)) | s_0, a_0, a_1, dots] + gamma^1 bb(E)[cal(R)(s_(2)) | s_0, a_0, a_1, dots] + dots $ #pause
-
-Rewards do not depend on future actions #pause
-
-$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = \ gamma^0 bb(E)[cal(R)(s_(1)) | s_0, a_0] + gamma^1 bb(E)[cal(R)(s_(2)) | s_0, a_0, a_1] + gamma^2 bb(E)[cal(R)(s_3) | s_0, a_0, a_1, a_2] + dots $
-
-==
 $ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = \ gamma^0 #pin(1)bb(E)[cal(R)(s_(1)) | s_0, a_0]#pin(2) + gamma^1 bb(E)[cal(R)(s_(2)) | s_0, a_0, a_1] + gamma^2 bb(E)[cal(R)(s_3) | s_0, a_0, a_1, a_2] + dots $ #pause
 
-*Question:* Do any terms look familiar? #pause
+We know how to compute the first term from before 
 
-*Answer:* We know the expected reward from before! #pinit-highlight(1, 2) #pause
+#pinit-highlight(1, 2) #pause
 
-$ bb(E)[cal(R)(s_(t+1)) | s_t, a_t] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ #pause
+$ #pin(3)bb(E)[cal(R)(s_(t+1)) | s_t, a_t]#pin(4) = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Tr(s_(t+1) | s_t, a_t) $ 
 
-$ bb(E)[cal(R)(s_1) | s_0, a_0] = sum_(s_(1) in S) cal(R)(s_(1)) dot Tr(s_(1) | s_0, a_0) $
+#pinit-highlight(3, 4)
 
 ==
 
-$ bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, a_1, dots, a_n] = \ gamma^0 bb(E)[cal(R)(s_(1)) | s_0, a_0] + gamma^1 #pin(1)bb(E)[cal(R)(s_(2)) | s_0, a_0, a_1]#pin(2) + bb(E)[cal(R)(s_3) | s_0, a_0, a_1, a_2] + dots $ #pause
+$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = \ gamma^0 bb(E)[cal(R)(s_(1)) | s_0, a_0] + gamma^1 #pin(1)bb(E)[cal(R)(s_(2)) | s_0, a_0, a_1]#pin(2) + gamma^2 bb(E)[cal(R)(s_3) | s_0, a_0, a_1, a_2] + dots $ #pause
 
 *Question:* Do we know the second term? #pinit-highlight(1, 2) #pause
 
@@ -618,7 +677,7 @@ $ bb(E) [cal(R)(s_1) | s_0, a_0] = sum_(s_(1) in S) cal(R)(s_(1)) Tr(s_(1) | s_0
 
 $ bb(E) [cal(R)(s_2) | s_0, a_0, a_1] = sum_(s_(2) in S) cal(R)(s_(2)) sum_(s_(1) in S)  Tr(s_(2) | s_1, a_1) Tr(s_(1) | s_0, a_0) $ #pause
 
-$ bb(E) [cal(R)(s_(n + 1)) | s_0, a_0, a_1, dots a_n] = sum_(s_(n+1) in S) cal(R)(s_(n + 1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, a_t) $
+$ bb(E) [cal(R)(s_(n + 1)) | s_0, a_0, a_1, dots, a_n] = sum_(s_(n+1) in S) cal(R)(s_(n + 1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, a_t) $
 
 
 ==
@@ -635,9 +694,9 @@ What does each piece mean? #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom)[Mean reward over possible $s_(n+1)$] #pause
 
-This is only for a single reward, must plug into return #pause
+This is only for a single reward, must plug back into discounted return #pause
 
-$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots] $
+$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, dots, a_t] $
 
 
 
@@ -675,12 +734,13 @@ $ pi (a_t | s_t; theta) =  cases(
   0 "otherwise"
 ) $ #pause
 
-We have a name for this policy in control theory
+We have a name for this policy in control theory #pause
 
-*Question:* Anyone know what we call it?
+*Question:* Anyone know what we call it? #pause
 
 *Answer:* Model Predictive Control (MPC) or Receding Horizon Control 
 
+/*
 ==
 MPC is arguably the best practical method for control #pause
 
@@ -689,7 +749,7 @@ Most robots and autonomous vehicles today use some form of MPC #pause
 Example application of trajectory optimization/MPC:
 
 https://www.youtube.com/watch?v=bjlT-6KVQ7U
-
+*/
 
 
 ==
@@ -718,9 +778,9 @@ Let us do a visual example to help you understand
 
 ==
 
-We can build this into a decision tree #pause
+We can build this into a decision tree using trajectory optimization #pause
 
-The root corresponds to $s_0$ #pause
+The root node of the tree corresponds to $s_0$ #pause
 
 Each level of the tree enumerates possible outcomes
 
@@ -740,20 +800,20 @@ Each level of the tree enumerates possible outcomes
 
 *Question:* How many nodes does our tree have? #pause
 
-*Answer:* $O(|S| dot |A|)^n$ #pause
+*Answer:* $O(|S| dot |A|)^oo$ #pause
 
 *Question:* What does this mean? #pause
 
 *Answer:* Do not have the memory/compute to evaluate all possibilities #pause
 
-We have some tricks to make this tractable #pause
+We have some tricks to make this tractable
 
 ==
-$ argmax_(a_0, a_1, dots in A) bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = argmax_(a_0, a_1, dots) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots] $
+$ argmax_(a_0, a_1, dots in A) bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = argmax_(a_0, a_1, dots) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, dots, a_t] $
 
 *Trick 1:* Introduce a *horizon* $n$ #pause
 
-$ argmax_(a_0, dots, #redm[$a_n$] in A) bb(E) [cal(G)(bold(tau)_#redm[$n$]) | s_0, a_0, dots, #redm[$a_n$]] = argmax_(a_0, dots, #redm[$a_n$] in A) sum_(t=0)^#redm[$n$] gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, dots, #redm[$a_n$]] $
+$ argmax_(a_0, dots, #redm[$a_n$] in A) bb(E) [cal(G)(bold(tau)_#redm[$n$]) | s_0, a_0, dots, #redm[$a_n$]] = argmax_(a_0, dots, #redm[$a_n$] in A) sum_(t=0)^#redm[$n$] gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, dots, a_t] $
 
 Now we can limit computation to $O(|S| dot |A|)^n$ #pause
 
@@ -765,13 +825,15 @@ Now we can limit computation to $O(|S| dot |A|)^n$ #pause
 
 $ argmax_(a_0, dots, a_n in A) bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, dots, a_n] = argmax_(a_0, dots, a_n in A) sum_(t=0)^n gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, dots, a_n] $
 
-*Trick 2:* Only simulate $k$ states and $k$ actions #pause
+*Trick 2:* Only simulate $j$ actions and $k$ states #pause
 
 //Many ways to do this, the simplest one is randomly choose $k$ states and $k$ actions at each timestep #pause
 
-$ argmax_(a_0, dots, a_n tilde A^k) bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, dots, a_n] = argmax_(a_0, dots, a_n tilde A^k) sum_(t=0)^n gamma^t 1 / k sum_(s_(t+1) tilde Tr(dot | s_t, a_t)) cal(R)(s_(t+1)) $
+#text(size: 24pt)[
+  $ argmax_(a_0, dots, a_n #redm[$tilde A^j$]) bb(E) [cal(G)(bold(tau)_n) | s_0, a_0, dots, a_n] = argmax_(a_0, dots, a_n #redm[$tilde A^j$]) sum_(t=0)^n gamma^t #redm[$hat(bb(E))_(k)$] [cal(R)(s_(t+1)) | s_0, a_0, dots, a_n] $
+]
 
-Now, computation is $O(k dot k)^n$ #pause
+Now, computation is $O(j dot k)^n$ #pause
 
 *Question:* Drawbacks? #pause
 
@@ -780,19 +842,25 @@ Now, computation is $O(k dot k)^n$ #pause
 ==
 Trajectory optimization/MPC is an "older" method #pause
 
-Often because it is limited by compute #pause
+Less popular in the past, limited by compute #pause
 
 With modern GPUs, we are using MPC more and more #pause
 
-https://www.youtube.com/watch?v=bjlT-6KVQ7U
+https://www.youtube.com/watch?v=bjlT-6KVQ7U #pause
 
-https://www.youtube.com/watch?v=Kf9WDqYKYQQ
+https://www.youtube.com/watch?v=Kf9WDqYKYQQ #pause
+
+https://youtu.be/QsM9C1U0oi4?si=29BOjZ1Oo6At_iFk&t=111 #pause
+
+We use trajectory optimization/MPC in both car racing AND chess/go bots! #pause
 
 ==
 To summarize trajectory optimization/MPC: #pause
-- Model-based method (we must know $Tr$) #pause
+- Model-based method (we must know $Tr$ and $cal(R)$) #pause
 - Results in theoretically optimal policy #pause
 - In practice, make approximations that sacrifice optimality for tractability #pause
 - Computationally expensive, but requires *no training data* #pause
 
-Next time, we will see what happens when we don't have a model
+Next time, we will see what happens when we don't know $Tr$ #pause
+
+I plan to release assignment 1 next lecture
