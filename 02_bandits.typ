@@ -25,6 +25,7 @@
 // TODO: Instead of cal(X), we should use cal(R) as the reward so this
 // fits better with trajectory optimization and RL
 // TODO: Maybe also introduce policy, but not as a function of state, just as a way to pick actions
+// TODO: Call finding the expectation monte carlo, since this is a much simpler form we use later
 
 #title-slide()
 

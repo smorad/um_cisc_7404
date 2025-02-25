@@ -10,21 +10,19 @@
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
-/*
-From brunskill
-Recall we are trying to find the best return
-Only thing we can control is our actions
-Derive E[R], E[R+1], ...
-It gets very messy
-Derive the value function E[G] = E[R | s0 = s] + E[R+1 | s0 = s] + ...
+// TODO: Move policy conditioned return and MCTS from lecture 6 into this lecture
 
-Optimization problem E[G(tau) | s_0, a_0, a_1, dots]
-RL backup diagram/tree search
-Given that we have to find infinitely many a's we run into issues
-We introduce a horizon T, E[G(tau_t) | s_0, a_0, a_1, dots a_t]
-Introduce policy
-Introduce value
-*/
+
+/* TODO: Equations are confusing
+
+Rewrite as two parts, ie
+
+$ Pr (s_(n+1) | s_0; pi, theta_pi) = sum_(a_0, dots, a_n in A) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) $
+
+$ 
+bb(E)[cal(G)(bold(tau)) | s_0; pi, theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr(s_(n + 1) | s_n, a_n)
+$
+/*
 
 #let traj_opt_mdp = diagram({
 
@@ -452,7 +450,7 @@ $ pi: S times Theta |-> Delta A $ #pause
 
 *Question:* How to make equation into policy? (Hint: Greedy policy) #pause
 
-$ pi (a_t | s_t; theta) = Pr (a_t | s_t ; theta) =  cases( 
+$ pi (a_t | s_t; theta_pi) = Pr (a_t | s_t ; theta_pi) =  cases( 
   1 "if" a_t = argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t], 
   0 "otherwise"
 ) $ #pause
@@ -465,7 +463,7 @@ $ underbrace(pi(a_0 | s_0), cal(R)(s_1)), underbrace(pi(a_1 | s_1), cal(R)(s_2))
 
 ==
 
-$ pi (a_t | s_t; theta) = Pr (a_t | s_t ; theta) =  cases( 
+$ pi (a_t | s_t; theta_pi) = Pr (a_t | s_t ; theta_pi) =  cases( 
   1 "if" a_t = argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t], 
   0 "otherwise"
 ) $ #pause
@@ -495,7 +493,7 @@ It will always act to maximize the expected reward
 
 $ cal(R)(s_(t+1)) = cases(1 "if bought product", 0 "otherwise") $ #pause
 
-$ pi (a_t | s_t; theta) =  cases( 
+$ pi (a_t | s_t; theta_pi) =  cases( 
   1 "if" a_t = argmax_(a_t in A) bb(E)[cal(R)(s_(t+1)) | s_t, a_t], 
   0 "otherwise"
 ) $ #pause
@@ -729,7 +727,7 @@ $ argmax_(a_0, a_1, dots) bb(E)[ cal(G)(bold(tau)) | s_0, a_0, a_1, dots] $ #pau
 
 And turn it into a policy #pause
 
-$ pi (a_t | s_t; theta) =  cases( 
+$ pi (a_t | s_t; theta_pi) =  cases( 
   1 "if" a_t = argmax_(a_t in A) bb(E)[cal(G)(bold(tau)) | s_0, a_0, a_1, dots], 
   0 "otherwise"
 ) $ #pause
