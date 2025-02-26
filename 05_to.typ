@@ -12,6 +12,11 @@
 
 // TODO: Move policy conditioned return and MCTS from lecture 6 into this lecture
 
+// TODO: Rename policy as pi (not theta_pi)
+// Later, just introduce pi_theta as needed, say pi_theta = (pi, theta)
+// Important for Q learning to depend on policy
+// Because often we don't have parameters for max Q
+
 
 /* TODO: Equations are confusing
 
