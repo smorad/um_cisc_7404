@@ -954,6 +954,16 @@ In the limit, we sample all possible actions in all states
 
 ==
 
+Can we visualize Q learning? #pause
+
+Navigation example, reward of 1 for reaching center tile #pause
+
+https://user-images.githubusercontent.com/1883779/113412338-97430100-93d5-11eb-856c-ef0f420d1acb.gif #pause
+
+https://mohitmayank.com/interactive_q_learning/q_learning.html
+
+==
+
 So far: #pause
 - Defined training objective (TD and MC updates) #pause
 - Defined dataset (episodes) #pause
