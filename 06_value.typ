@@ -955,7 +955,7 @@ mat(
 )
 $ #pause
 
-$Q_(i,j)$ gives Q value for state $s=i$ and action $a=j$ 
+$Q_(i,j)$ gives Q value for state $s=i$ and action $a=j$
 
 = Homework
 
