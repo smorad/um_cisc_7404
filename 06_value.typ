@@ -95,17 +95,22 @@
   node((50mm, -50mm), $s_a$, stroke: 0.1em, shape: "circle", name: "0ajsi")
   node((100mm, -50mm), $s_b$, stroke: 0.1em, shape: "circle", name: "0ajsj")
 
+  node((50mm, -65mm), $V(s_a, theta_pi)$)
+  node((100mm, -65mm), $V(s_b, theta_pi)$)
+  node((-50mm, -65mm), $V(s_b, theta_pi)$)
+  node((-100mm, -65mm), $V(s_a, theta_pi)$)
+
   node((-125mm, 0mm), $t=0$)
   node((-125mm, -50mm), $t=1$)
 
   edge(label("root"), label("0ai"), "->", label: $Q(s_a, a_a, theta_pi)$)
   edge(label("root"), label("0aj"), "->",  label: $Q(s_a, a_b, theta_pi)$)
 
-  edge(label("0ai"), label("0aisi"), "->", label: $V(s_a, theta_pi)$, )
-  edge(label("0ai"), label("0aisj"), "->", label: $V(s_b, theta_pi)$, )
+  edge(label("0ai"), label("0aisi"), "->", label: $cal(R)(s_a)$, )
+  edge(label("0ai"), label("0aisj"), "->", label: $cal(R)(s_b)$, )
 
-  edge(label("0aj"), label("0ajsi"), "->", label: $V(s_a, theta_pi)$)
-  edge(label("0aj"), label("0ajsj"), "->", label: $V(s_a, theta_pi)$)
+  edge(label("0aj"), label("0ajsi"), "->", label: $cal(R)(s_a)$)
+  edge(label("0aj"), label("0ajsj"), "->", label: $cal(R)(s_a)$)
 
 })
 
@@ -169,7 +174,7 @@ These approximations break optimality guarantees #pause
 
 Today, we will look at new algorithms based on the notion of *value* #pause
 
-Uses fewer approximations but can achieve optimal policy #pause
+Uses fewer approximations and can achieve optimal policy #pause
 
 Can model infinitely long returns  #pause
 
@@ -205,6 +210,8 @@ $ pi (a_t | s_t; theta_pi) =  cases(
   0 "otherwise"
 ) $ #pause
 
+Must construct and evaluate decision tree at each timestep!
+
 ==
 
 $ [cal(G)(bold(tau)) | s_0, #pin(1)a_0, a_1, dots#pin(2)] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, #pin(3)a_0, a_1, dots#pin(4)] $ #pause
@@ -219,15 +226,15 @@ What if we condition on a policy, instead of specific actions?
 
 ==
 
-$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots] $ 
+$ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0, a_1, dots] $  #pause
 
 $ a_0 tilde pi (dot | s_0; theta_pi), quad a_1 tilde pi (dot | s_1; theta_pi), quad a_2 tilde pi (dot | s_2; theta_pi), quad dots $ #pause
 
-Condition on a function parameterized by $theta_pi$ instead of many actions #pause
+Condition on distribution parameterized by $theta_pi$ instead of many actions #pause
 
 $ bb(E) [cal(G)(bold(tau)) | s_0; theta_pi] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, theta_pi] $ #pause
 
-The function outputs a distribution over the action space $pi (a | s; theta_pi)$
+Remember, $pi (a | s; theta_pi)$ provides a distribution over the action space
 
 ==
 
@@ -237,9 +244,9 @@ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] &= sum_(t=0)^oo gamma^t bb(E)[ca
 bb(E) [cal(G)(bold(tau)) | s_0; theta_pi] &= sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, theta_pi] #pause
 $
 
-Now conditioned on the policy #pause
+Now, return conditioned on the policy with $theta_pi$ #pause
 
-But remember, $cal(R)(s_(t+1))$ hides much of the magic #pause
+But remember, $cal(R)(s_(t+1))$ hides the magic #pause
 
 How does $bb(E)[cal(R)(s_(t+1))]$ change when we condition on $theta_pi$?
 
@@ -249,7 +256,9 @@ $ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] =  sum_(t=0)^oo gamma^t cal(R)
 
 *Question:* What changes when we condition on $theta_pi$? #pause
 
-$ Pr (s_(t+1) | s_0; theta_pi) $ #pause
+#pinit-highlight(1,2) #pause
+
+$ Pr(s_(t+1) | s_0, a_0, dots, a_t) => Pr (s_(t+1) | s_0; theta_pi) $ #pause
 
 Maybe we can use $Pr(s_(t+1) | s_t, a_t)$ to figure this out #pause
 
@@ -303,7 +312,9 @@ $ Pr (s_(n+1) | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum
 
 Plug back into our expected reward #pause
 
-$ bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Pr (s_(t+1) | s_0; theta_pi) $
+$ bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Pr (s_(t+1) | s_0; theta_pi) $ #pause
+
+Need to plug expected reward back into expected discounted return
 
 ==
 $ bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] = sum_(s_(t+1) in S) cal(R)(s_(t+1)) dot Pr (s_(t+1) | s_0; theta_pi) $ #pause
@@ -319,7 +330,7 @@ dots $
 *Definition:* General form of policy-conditioned discounted return #pause
 
 $ 
-bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr(s_(n + 1) | s_n, a_n)
+bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; theta_pi)
 $ #pause
 
 Where the state distribution is #pause
@@ -339,6 +350,9 @@ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] &= sum_(n=0)^oo gamma^n sum_(s_(n + 1) 
 $
 
 These two equations form the basis of all reinforcement learning #pause
+- DQN
+- DDPG/SAC
+- A3C/PPO/GRPO
 
 *Goal:* find the $theta_pi$ (policy parameters) to maximize the expected return
 
@@ -372,7 +386,7 @@ Valuable states lead to good returns *under the current policy* #pause
 #side-by-side[
     $s = 240 "km/h"$  #pause
 ][
-    $theta_pi =$ Grandpa #pause
+    $theta_pi =$ Grandma #pause
 ][
     $V(s, theta_pi) = "not good"$ #pause
 ]
@@ -388,21 +402,21 @@ The state does not need to be the start of a trajectory #pause
 
 *Example:* Consider the sequence of states 
 
-$ s_a, s_b, s_c $ #pause
+$ s_0=S_a, s_1=S_b, s_2=S_c, dots $ #pause
 
 We can compute 
 
-$ V(s_a, theta_pi), V(s_b, theta_pi), V(s_c, theta_pi) $
+$ V(s_0=S_a, theta_pi), V(s_0=S_b, theta_pi), V(s_0=S_c, theta_pi) $
 
-To find the value of any state
+To find the value of any state $S_a, S_b, S_c, dots$
 
 ==
 
-*Question:* Why does Prof. Steven keep showing stupid equations? How is the value function useful? #pause
+*Question:* Why does Prof. Steven keep showing stupid equations? He writes the return 100 different ways. How is the value function useful? #pause
 
-We can use the value of a state to make decisions #pause
+*Answer:* We can use the value of a state to make decisions #pause
 
-$ s_a = "Live in Macau", s_b = "Live in Beijing" $ #pause
+$ S_a = "Live in Macau", S_b = "Live in Beijing" $ #pause
 
 Given all your preferences ($cal(R)$) and thoughts ($theta_pi$), we can determine which life is better for you #pause
 
@@ -411,19 +425,19 @@ $V(s, theta_pi)$ considers your future friends, income, wife/husband, etc #pause
 Combines all this info into one value, a single number of "goodness" #pause
 
 #side-by-side[
-$ V(s_a, theta_pi) = 1032 $ #pause
+$ V(S_a, theta_pi) = 1032 $ #pause
 ][
-$ V(s_b, theta_pi) = 945 $ #pause
+$ V(S_b, theta_pi) = 945 $
 ]
 
 ==
-$ s_a = "Live in Macau", s_b = "Live in Beijing" $ #pause
+$ S_a = "Live in Macau", S_b = "Live in Beijing" $ #pause
 
 #side-by-side[
-$ V(s_a, theta_pi) = 1032 $ 
+$ V(S_a, theta_pi) = 1032 $ 
 
 ][
-$ V(s_b, theta_pi) = 945 $ #pause
+$ V(S_b, theta_pi) = 945 $ #pause
 ]
 
 This value leads us to the right decisions #pause
@@ -434,37 +448,34 @@ With value, we can be sure we make the right decision
 
 = Exercise
 ==
-- Think of two places you want to live after graduation $s_a, s_b$ #pause
+- Think of two places you want to live after graduation $s_0 in {S_a, S_b}$ #pause
 - Consider your behavior ($theta_pi$) and what is important to you ($cal(R)$) #pause
-- 3 life goals as states $s_x, s_y, s_z in G$ (e.g., friends, money, hobby, etc) #pause
+- 3 life goals as states $S_x, S_y, S_z in G$ (e.g., friends, money, hobby, etc) #pause
 - Assign a reward $cal(R)$ for each goal, and choose discount factor $gamma$ #pause
 
-For each location $s_0 in { s_a, s_b }$: #pause
-- Estimate probability of reaching each goal $Pr(s_g | s_0); s_g in {s_x, s_y, s_z} $ #pause
-- Estimate time to accomplish each goal $t = ...$  #pause
+For each location $s_0 in { S_a, S_b }$: #pause
+- Write probability of reaching goals $Pr(s_g | s_0); s_g in {S_x, S_y, S_z} $ #pause
+- Estimate time to accomplish each goal $t_g; g in {S_x, S_y, S_z}$  #pause
 
-$ V(s_0, theta_pi) =  sum_(s_g in {s_x, s_y, s_z}) gamma^(t_g) cal(R)(s_g) dot Pr (s_g | s_0; theta_pi) $
+$ V(s_0, theta_pi) =  sum_(s_g in {S_x, S_y, S_z}) gamma^(t_g) cal(R)(s_g) dot Pr (s_g | s_0; theta_pi) $ #pause
+
+
+Where should you live?
 
 = TD Value Functions
 ==
 
-*Note:* We define the value function in many different ways #pause
+*Note:* We can define the value function in different ways #pause
 
-It always approximates the expected discounted return from $s_0$ #pause
+Always approximates the expected discounted return starting from $s_0$ #pause
 
 We call the following equation the *Monte Carlo* value function 
 
 $ V(s_0, theta_pi) =  sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; theta_pi) $ #pause
 
 Difficult to compute the Monte Carlo value function #pause
-- Must either have a terminal states #pause
-- Or build the infinite decision tree
 
-==
-
-$ V(s_0, theta_pi) = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(t=0)^oo gamma^t sum_(s_(t + 1) in S) cal(R)(s_(t+1)) dot Pr (s_(t + 1) | s_0; theta_pi) $ #pause
-
-Infinite sums make things difficult and intractable #pause
+Must have a terminal state, we cannot compute infinite sum #pause
 
 Let us try to delete the infinite sum
 
@@ -521,15 +532,22 @@ $ V(s_1, theta_pi) = sum_(t=0)^oo gamma^t sum_(s_(t + 2) in S) cal(R)(s_(t+2)) d
 
 $ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + sum_(s_1) Pr (s_(1) | s_0; theta_pi) gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(t+1); theta_pi) $ #pause
 
+Replace infinite sum with value function
+
+$ V(s_0, theta_pi) = (sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi)) + gamma V(s_1, theta_pi) $ 
+
+==
 $ V(s_0, theta_pi) = (sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi)) + gamma V(s_1, theta_pi) $ #pause
 
-$ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $ #pause
+First term is expected reward #pause
 
-This is a huge finding!
+$ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $
 
 ==
 
 $ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $ #pause
+
+This is a huge finding! #pause
 
 Value function has a recursive definition #pause
 
@@ -539,7 +557,7 @@ We call this the *Temporal Difference* (TD) value function #pause
 
 Compute the return with a single transition $s_0 -> s_1$ #pause
 
-Evaluate infinite-depth decision tree with a single function call
+Evaluate infinite-depth decision tree with one function 
 
 ==
 To summarize, we can represent the value function in two ways: #pause
@@ -554,7 +572,7 @@ $ #pause
 The Temporal Difference value function #pause
 
 $ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi)
-$
+$ #pause
 
 They produce the same result, but with different computation
 
@@ -569,7 +587,7 @@ The value function relies on a policy #pause
 
 But our goal was to find a policy, so how does value help? #pause
 
-There is a special connection between an optimal policy and the value function #pause
+Special connection between an optimal policy and the value function #pause
 
 We can use the value function to find an optimal policy
 
@@ -597,19 +615,17 @@ $ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] $
 ==
 $ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] $ #pause
 
-Means: #pause
+This expectation means: #pause
 - Take a specific action $a_0$ (trajectory optimization) #pause
-- Follow $pi (a | s; theta_pi)$ for all future actions $a_1, a_2, dots$ (value function)
-
-==
-
-$ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] $ #pause
+- Follow $pi (dot | s_t; theta_pi)$ for all future actions $a_1, a_2, dots$ (value function)
 
 We call this the *Q function* #pause
 
 $ Q(s, a, theta_pi) = bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] $ #pause
 
-We can derive the Q function from the value function #pause
+We can derive the Q function from the value function
+
+==
 
 $ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $ #pause
 
@@ -617,7 +633,6 @@ First, introduce the action $a_0$ #pause
 
 $ V(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $
 
-==
 $ V(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $ #pause
 
 Condition the initial reward on the action #pause
@@ -649,8 +664,7 @@ $ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1
 This is a very powerful equation #pause
 - Compute $Q(s_0, a_0)$ for all $a_0$ #pause
 - Pick the $a_0$ that maximizes $Q(s_0, a_0)$ #pause
-
-This $a_0$ is *guaranteed* to be the optimal action #pause
+- This $a_0$ is *guaranteed* to be the optimal action #pause
 
 This considers the effect of $a_0$ on the *infinite* future #pause
 
@@ -723,7 +737,7 @@ Q learning is still popular today #pause
 
 Works well with deep neural networks #pause
 
-Researchers are still improving it#footnote[_Simplifying Deep Temporal Difference Learning._ ICLR. 2024.] #pause
+Researchers are still improving it#footnote[_Simplifying Deep Temporal Difference Learning._ ICLR. 2024.] #footnote[_Exclusively Penalized Q-Learning for Offline Reinforcement Learning._ NeurIPS. 2025.] #pause
 
 In fact, our lab is using it in our research right now #pause
 
@@ -792,9 +806,13 @@ Now that we know the policy, we can simplify the value function #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[$argmax_(a in A)$] #pause
 
-*Question:* What is the value function for an optimal policy? 
+*Question:* What is the value function for an optimal policy? #pause
 
-$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi) $ #pause
+$ V(s_0, theta_pi) = max_(a in Q) Q(s_0, a, theta_pi) $ #pause
+
+Plug this back into $Q$ #pause
+
+$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi) $ 
 
 ==
 
@@ -859,9 +877,9 @@ Assume $Q (s, a, theta_pi)$ has error $eta$ with right hand side #pause
 
 Use the error to update the Q function #pause
 
-$ Q_(i + 1)(s, a, theta_pi) = Q_i (s, a, theta_pi) - eta $
+$ Q_(i + 1)(s, a, theta_pi) = Q_i (s, a, theta_pi) - eta $ #pause
 
-Improve convergence with a learning rate $alpha$
+Improve convergence with a learning rate $alpha$ #pause
 
 $ Q_(i + 1)(s, a, theta_pi) = alpha(Q_i (s, a, theta_pi) - eta) $
 
@@ -872,9 +890,11 @@ $ Q_(i+1)(s_0, a_0, theta_pi) = \ alpha (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + su
 
 *Temporal Difference update:* #pause
 
-$ Q_(i+1)(s_0, a_0, theta_pi) =  alpha (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + d gamma max_(a in A) Q_i (s_1, a, theta_pi) - Q_i (s_0, a_0, theta_pi)) $ 
+$ Q_(i+1)(s_0, a_0, theta_pi) =  alpha (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + d gamma max_(a in A) Q_i (s_1, a, theta_pi) - Q_i (s_0, a_0, theta_pi)) $ #pause
 
-Updates guarantee convergence to the true Q function ($lim_(i -> oo) eta = 0$)
+If we visit all $s, a in S times A$, guaranteed convergence to true Q function #pause
+
+$lim_(i -> oo) eta = 0$
 
 ==
 
@@ -906,7 +926,7 @@ $ pi (a_0 | s_0; theta_pi) = cases(
 
 *Question:* Any issues? #pause
 
-*Answer:* Always sample the same action #pause
+*Answer:* Always sample the same action (exploit, no exploration) #pause
 
 If Q function is wrong, always sample bad actions #pause
 
@@ -930,7 +950,7 @@ $ pi (a_0 | s_0; theta_pi) = cases(
 
 Sample random action with probability $epsilon$ #pause
 
-In the limit, sample all possible actions in all states
+In the limit, we sample all possible actions in all states
 
 ==
 
@@ -944,18 +964,19 @@ Next time, we will use deep neural networks #pause
 Today and for homework, use a simple matrix
 
 ==
+Model the Q function as a matrix #pause
 
 Each state is a row, each action is a column in a matrix #pause
 
 $
 mat(
-    Q(s_a, a_a), Q(s_b, a_b), dots;
-    Q(s_b, a_a), Q(s_b, a_b), dots;
-    dots.v, dots.v, dots.v, dots.v
+    Q(S_1, A_1), Q(S_1, A_2), dots;
+    Q(S_2, A_1), Q(S_2, A_2), dots;
+    dots.v, dots.v, dots.down, 
 )
 $ #pause
 
-$Q_(i,j)$ gives Q value for state $s=i$ and action $a=j$
+$Q_(i,j)$ gives Q value for state $s=S_i$ and action $a=A_j$
 
 = Homework
 

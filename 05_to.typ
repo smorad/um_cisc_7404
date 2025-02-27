@@ -12,6 +12,8 @@
 
 // TODO: Move policy conditioned return and MCTS from lecture 6 into this lecture
 
+// TODO: Should always factorize into P(s_n | s_0, a_0, ...) and R(s_n)
+// much easier for students and less writing (also done in future lectures)
 // TODO: Rename policy as pi (not theta_pi)
 // Later, just introduce pi_theta as needed, say pi_theta = (pi, theta)
 // Important for Q learning to depend on policy
