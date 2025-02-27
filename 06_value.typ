@@ -1,6 +1,6 @@
 #import "@preview/algorithmic:0.1.0"
 #import algorithmic: algorithm
-#import "@preview/touying:0.6.0": *
+#import "@preview/touying:0.6.1": *
 #import themes.university: *
 #import "common.typ": *
 #import "@preview/cetz:0.3.2"
@@ -127,6 +127,9 @@
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
 )
+
+// TODO: Optimal policy derivation from Q doesn't make sense
+// TODO: Derivation of max Q as value function doesn't make sense
 
 
 // Problems with MPC, cannot do infinite
@@ -509,18 +512,18 @@ $ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_p
 
 Split $Pr$ using Markov property #pause
 
-$ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) sum_(s_1) Pr (s_(t + 2) | s_(t+1); theta_pi) Pr (s_(1) | s_0; theta_pi) $
+$ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) sum_(s_1) Pr (s_(t + 2) | s_(1); theta_pi) Pr (s_(1) | s_0; theta_pi) $
 
 ==
-$ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) sum_(s_1) Pr (s_(t + 2) | s_(t+1); theta_pi) Pr (s_(1) | s_0; theta_pi) $ #pause
+$ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) sum_(s_1) Pr (s_(t + 2) | s_(1); theta_pi) Pr (s_(1) | s_0; theta_pi) $ #pause
 
 Move sum and $Pr$ outside #pause
 
-$ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + sum_(s_1) Pr (s_(1) | s_0; theta_pi) gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(t+1); theta_pi) $
+$ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + sum_(s_1) Pr (s_(1) | s_0; theta_pi) gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); theta_pi) $
 
 
 ==
-$ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + sum_(s_1) Pr (s_(1) | s_0; theta_pi) gamma #pin(1)sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(t+1); theta_pi)#pin(2) $ #pause
+$ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + sum_(s_1) Pr (s_(1) | s_0; theta_pi) gamma #pin(1)sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); theta_pi)#pin(2) $ #pause
 
 *Question:* What is this term? #pinit-highlight(1,2) #pause
 
@@ -530,7 +533,7 @@ $ V(s_1, theta_pi) = sum_(t=0)^oo gamma^t sum_(s_(t + 2) in S) cal(R)(s_(t+2)) d
 
 ==
 
-$ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + sum_(s_1) Pr (s_(1) | s_0; theta_pi) gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(t+1); theta_pi) $ #pause
+$ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + sum_(s_1) Pr (s_(1) | s_0; theta_pi) gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); theta_pi) $ #pause
 
 Replace infinite sum with value function
 
@@ -632,8 +635,6 @@ $ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi)
 First, introduce the action $a_0$ #pause
 
 $ V(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $
-
-$ V(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $ #pause
 
 Condition the initial reward on the action #pause
 
@@ -859,8 +860,7 @@ $ bold(E) = mat(s_0, s_1, s_2, dots; a_0, a_1, a_2, dots; r_0, r_1, r_2, dots)^t
 
 
 #side-by-side[
-    *TD:* (Careful with terminal states)
-     $not d dot gamma max_(a in A) Q(s_(t+1), a, theta_pi) $ #pause
+    *TD:* $gamma max_(a in A) Q(s_(t+1), a, theta_pi) $ #pause
 ][
     *MC:* $gamma r_(t+1) + gamma^2 r_(t+2) + dots$ #pause
 ]
@@ -881,16 +881,43 @@ $ Q_(i + 1)(s, a, theta_pi) = Q_i (s, a, theta_pi) - eta $ #pause
 
 Improve convergence with a learning rate $alpha$ #pause
 
-$ Q_(i + 1)(s, a, theta_pi) = alpha(Q_i (s, a, theta_pi) - eta) $
+$ Q_(i + 1)(s, a, theta_pi) = Q_i (s, a, theta_pi) - alpha dot eta $
 
 ==
 *Monte Carlo update:* #pause
 
-$ Q_(i+1)(s_0, a_0, theta_pi) = \ alpha (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + sum_(t=1)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_1; theta_pi] - Q_i (s_0, a_0, theta_pi)) $  #pause
+$ Q_(i+1)(s_0, a_0, theta_pi) = Q_(i)(s_0, a_0, theta_pi) - alpha dot eta $ #pause
 
+The error $eta$ is the difference between true and predicted value #pause
+
+#v(1em)
+
+$ eta = #pin(1)Q_(i)(s_0, a_0, theta_pi)#pin(2) - #pin(3) (hat(bb(E)) #pin(5) [cal(R)(s_1) | s_0, a_0] + sum_(t=1)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_1; theta_pi]) #pin(4) $ #pause
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Predicted value] #pause
+
+#pinit-highlight-equation-from((3,4), (5), fill: blue, pos: bottom, height: 1.2em)[Empirical value] #pause
+
+If we visit all $s, a in S times A$, guaranteed convergence to true Q function #pause
+
+$lim_(i -> oo) eta = 0$
+
+==
 *Temporal Difference update:* #pause
 
-$ Q_(i+1)(s_0, a_0, theta_pi) =  alpha (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + d gamma max_(a in A) Q_i (s_1, a, theta_pi) - Q_i (s_0, a_0, theta_pi)) $ #pause
+$ Q_(i+1)(s_0, a_0, theta_pi) = Q_(i)(s_0, a_0, theta_pi) - alpha dot eta $ #pause
+
+The error $eta$ is the difference between true and predicted value #pause
+
+#v(1em)
+
+$ eta = #pin(1)Q_(i)(s_0, a_0, theta_pi)#pin(2) - #pin(3) (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + #redm[$not d$] gamma max_(a in A) Q_i (s_1, a, theta_pi)) #pin(4) $ #pause
+
+#text(fill: red)[小心!] If $s_1$ is a terminal state, the future value is 0 ($d="terminated"$) #pause
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Predicted value] #pause
+
+#pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: bottom, height: 1.2em)[Empirical value] #pause
 
 If we visit all $s, a in S times A$, guaranteed convergence to true Q function #pause
 

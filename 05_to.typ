@@ -1,10 +1,10 @@
 #import "@preview/algorithmic:0.1.0"
 #import algorithmic: algorithm
-#import "@preview/touying:0.5.4": *
+#import "@preview/touying:0.6.1": *
 #import themes.university: *
 #import "common.typ": *
-#import "@preview/cetz:0.3.1"
-#import "@preview/fletcher:0.5.4" as fletcher: diagram, node, edge
+#import "@preview/cetz:0.3.2"
+#import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
 #set math.vec(delim: "[")
@@ -29,7 +29,7 @@ $ Pr (s_(n+1) | s_0; pi, theta_pi) = sum_(a_0, dots, a_n in A) sum_(s_1, dots, s
 $ 
 bb(E)[cal(G)(bold(tau)) | s_0; pi, theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr(s_(n + 1) | s_n, a_n)
 $
-/*
+*/
 
 #let traj_opt_mdp = diagram({
 
@@ -186,9 +186,6 @@ https://arxiv.org/pdf/2006.11239
 
 
 = Algorithms
-
-==
-// https://www.youtube.com/watch?v=3FNPSld6Lrg // Do after the algorithm
 
 
 ==
