@@ -342,12 +342,9 @@ $ Pr (s_(n+1) | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum
 
 = Value Functions
 
-
-
-
 ==
 
-$ Pr (s_(n+1) | s_0; theta_pi) &= sum_(a_0, dots, a_n in A) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) \ #pause
+$ Pr (s_(n+1) | s_0; theta_pi) &= sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta) ) \ #pause
  
 bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] &= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; theta_pi) #pause
 $
@@ -360,7 +357,7 @@ These two equations form the basis of all reinforcement learning #pause
 *Goal:* find the $theta_pi$ (policy parameters) to maximize the expected return
 
 ==
-$ Pr (s_(n+1) | s_0; theta_pi) &= sum_(a_0, dots, a_n in A) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) \
+$ Pr (s_(n+1) | s_0; theta_pi) &= sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta) ) \ 
  
 bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] &= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; theta_pi)
 $ #pause
