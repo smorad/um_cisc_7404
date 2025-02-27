@@ -436,14 +436,14 @@ With value, we can be sure we make the right decision
 ==
 - Think of two places you want to live after graduation $s_a, s_b$ #pause
 - Consider your behavior ($theta_pi$) and what is important to you ($cal(R)$) #pause
-- Top 3 life goals as states $s_x, s_y, s_z in G$ (e.g., friends, money, hobby, etc) #pause
+- 3 life goals as states $s_x, s_y, s_z in G$ (e.g., friends, money, hobby, etc) #pause
 - Assign a reward $cal(R)$ for each goal, and choose discount factor $gamma$ #pause
 
 For each location $s_0 in { s_a, s_b }$: #pause
-- Estimate probability of reaching each goal $Pr(s_g | s_0); s_g in {s_x, s_y, s_z} $ 
-- Estimate time to accomplish each goal $t = ...$ 
+- Estimate probability of reaching each goal $Pr(s_g | s_0); s_g in {s_x, s_y, s_z} $ #pause
+- Estimate time to accomplish each goal $t = ...$  #pause
 
-$ V(s_0, theta_pi) =  sum_(s_g in {s_x, s_y, s_z}) gamma^t cal(R)(s_g) dot Pr (s_g | s_0; theta_pi) $
+$ V(s_0, theta_pi) =  sum_(s_g in {s_x, s_y, s_z}) gamma^(t_g) cal(R)(s_g) dot Pr (s_g | s_0; theta_pi) $
 
 = TD Value Functions
 ==
@@ -464,9 +464,7 @@ Difficult to compute the Monte Carlo value function #pause
 
 $ V(s_0, theta_pi) = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(t=0)^oo gamma^t sum_(s_(t + 1) in S) cal(R)(s_(t+1)) dot Pr (s_(t + 1) | s_0; theta_pi) $ #pause
 
-Infinite sums are icky #pause
-
-They make everything difficult and intractable #pause
+Infinite sums make things difficult and intractable #pause
 
 Let us try to delete the infinite sum
 
@@ -548,14 +546,17 @@ To summarize, we can represent the value function in two ways: #pause
 
 The Monte Carlo value function #pause
 
-$ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi)
-$ #pause 
+$
+V(s_0, theta_pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, theta_pi] 
+$ #pause
+
 
 The Temporal Difference value function #pause
 
+$ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi)
 $
-V(s_0, theta_pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, theta_pi] 
-$
+
+They produce the same result, but with different computation
 
 
 = Q Functions
@@ -566,81 +567,92 @@ We saw two forms of the value function #pause
 
 The value function relies on a policy #pause
 
-But it does not tell us the policy #pause
+But our goal was to find a policy, so how does value help? #pause
 
-How can we use the value function to find an optimal policy?
+There is a special connection between an optimal policy and the value function #pause
+
+We can use the value function to find an optimal policy
 
 ==
 
-Consider the value function
+Consider the Temporal Difference value function #pause
 
 $ 
 V(s_0, theta_pi) = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]
 = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) 
-$
-
-With trajectory optimization we conditioned on actions
-
-$ bb(E)[cal(G)(bold(tau)) | s_0, a_0, a_1, dots] $
+$ #pause
 
 We conditioned the value function on policy parameters
 
-$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] $
+$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] $ #pause
+
+With trajectory optimization we conditioned on actions
+
+$ bb(E)[cal(G)(bold(tau)) | s_0, a_0, a_1, dots] $ #pause
 
 What if we wanted a mix of both?
 
 $ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] $
 
 ==
+$ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] $ #pause
 
-$ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] $
+Means: #pause
+- Take a specific action $a_0$ (trajectory optimization) #pause
+- Follow $pi (a | s; theta_pi)$ for all future actions $a_1, a_2, dots$ (value function)
 
-We call this the *Q function*
+==
 
-$ Q(s, a, theta_pi) = bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] $
+$ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] $ #pause
 
-We can derive the Q function from the value function
+We call this the *Q function* #pause
 
-$ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $
+$ Q(s, a, theta_pi) = bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] $ #pause
 
-First, introduce the action $a_0$
+We can derive the Q function from the value function #pause
+
+$ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $ #pause
+
+First, introduce the action $a_0$ #pause
 
 $ V(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $
 
 ==
-$ V(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $
+$ V(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0; theta_pi] + gamma V(s_1, theta_pi) $ #pause
 
-Condition the initial reward on the action
+Condition the initial reward on the action #pause
 
-$ V(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $
+$ V(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $ #pause
 
-Call it the Q function
+Call it the Q function #pause
 
 $ Q(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $
 
 ==
-$ Q(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $
+$ Q(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $ #pause
 
-The Q function tells us:
-- The value of an action $a_0$
-- In state $s_0$
-- If we follow $pi ( a_t | s_t;theta_pi)$ afterwards
+The Q function tells us: #pause
+- The value of an action $a_0$ #pause
+- In state $s_0$ #pause
+- If we follow $pi ( a_t | s_t;theta_pi)$ afterwards #pause
 
-*Question:* How can we use the Q function for decision making?
+*Question:* How can we use the Q function for decision making? #pause
 
-Hint: We can evaluate $Q$ for every possible action
+Hint: We can evaluate $Q$ for every possible action #pause
 
-$ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $
+$ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) ) $
 
 ==
 
-$ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $
+$ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) ) $ #pause
 
-This is a very powerful equation
-- Compute $Q(s_0, a_0)$ for all $a_0$
-- Pick the $a_0$ that maximizes $Q(s_0, a_0)$
+This is a very powerful equation #pause
+- Compute $Q(s_0, a_0)$ for all $a_0$ #pause
+- Pick the $a_0$ that maximizes $Q(s_0, a_0)$ #pause
 
-This $a_0$ is *guaranteed* to be the optimal action for the *infinite* future
+This $a_0$ is *guaranteed* to be the optimal action #pause
+
+This considers the effect of $a_0$ on the *infinite* future #pause
 
 We collapsed the infinite decision tree into a single level
 
@@ -651,16 +663,6 @@ We collapsed the infinite decision tree into a single level
 ==
 
 #text(size: 22pt)[#q_opt_tree]
-
-==
-$ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) ) $
-
-==
-$ Q(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $
-
-We will use either $Q$ or $V$ in every other algorithm in the course!
-
-It is the core of decision making
 
 /*
 ==
@@ -696,75 +698,275 @@ $ Q(s_0, a_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Tr (s_( 1) | s_0, a_
 // Bellman equation
 // off-policy depends on which value function
 
-Q learning is a model-free algorithm first invented in the 1980s
+Q learning is a *model-free* algorithm first discovered in the 1980s #pause
 
-It is still used heavily today
+#side-by-side[
+  *Model-based* #pause
 
-In fact, I am using it in our research right now 
+  We know $Tr(s_(t+1) | s_t, a_t)$ #pause
+
+  Cheap to train, expensive to use #pause
+
+  Closer to traditional control theory #pause
+][
+  *Model-free* #pause
+  
+  We do not know $Tr(s_(t+1) | s_t, a_t)$  #pause
+
+  Expensive to train, cheap to use #pause
+
+  Closer to deep learning #pause
+]
+==
+
+Q learning is still popular today #pause
+
+Works well with deep neural networks #pause
+
+Researchers are still improving it#footnote[_Simplifying Deep Temporal Difference Learning._ ICLR. 2024.] #pause
+
+In fact, our lab is using it in our research right now #pause
 
 We now have all the information we need to implement Q learning
 
 ==
 
-Our Q function relies on the value function for some $theta_pi$
+Our Q function relies on the value function for some $theta_pi$ #pause
 
-Right now, it is not clear what the policy is
+Right now, it is not clear what the policy is #pause
 
-So how can we use the Q function without knowing the policy?
+So how can we use the Q function without knowing the policy? #pause
+
+Let us find out
 
 ==
-Start with the Q function
+Start with the Q function #pause
 
-$  Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi)  $
+$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $ #pause
 
-We want to take the action that maximizes Q
+We want to take the action that maximizes Q #pause
 
-$ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) ) $
+$ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) ) $ #pause
 
-Recall the definition of value function
+Recall the definition of value function #pause
 
 $ V(s_0, theta_pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $
 
 ==
-$ V(s_0, theta_pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $
-
-//$V(s_0, theta_pi) = gamma^0 bb(E)[R(s_1) | s_0; theta_pi] + sum_(t=1)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi]$
-
-====
-
-What should our policy be?
-
-Well we know the following is optimal
-
 $ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) ) $
 
-What if we say we follow a policy that maximizes Q?
+$ V(s_0, theta_pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $ #pause
+
+*Question:* What should our policy be? #pause
+
+Hint: The first equation provides the optimal action $a_0$ #pause
 
 $ pi (a_0 | s_0; theta_pi) = cases(
     1 "if" a_0 = argmax_(a in A) Q(s_0, a, theta_pi),
     0 "otherwise"
 ) $
 
-What is the value function for this policy?
+==
+$ pi (a_0 | s_0; theta_pi) = cases(
 
-$ V(s_0, theta_pi) = max_(a in A) Q(s_0, a, theta_pi) $
+    1 "if" a_0 = argmax_(a in A) Q(s_0, a, theta_pi),
+    0 "otherwise"
+) $ #pause
 
-So we can rewrite the Q function without V
+The policy uses the Q function #pause
 
-$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $
+$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $ #pause
 
-$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma argmax_(a in A) Q(s_1, a, theta_pi) $
+The Q function uses the policy (using the value function)
+
+==
+$ pi (a_0 | s_0; theta_pi) = cases(
+
+    1 "if" a_0 = argmax_(a in A) Q(s_0, a, theta_pi),
+    0 "otherwise"
+) $
+
+$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, #pin(1)theta_pi#pin(2)) $ #pause
+
+Now that we know the policy, we can simplify the value function #pause
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[$argmax_(a in A)$] #pause
+
+*Question:* What is the value function for an optimal policy? 
+
+$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi) $ #pause
+
+==
+
+*Definition:* In Temporal Difference Q learning, we learn $Q$ using #pause
+
+$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi) $ #pause
+
+*Definition:* In Monte Carlo Q learning, we learn $Q$ using #pause
+
+$ Q(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + #pin(1)sum_(t=1)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_1; theta_pi]#pin(2) $ #pause
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 1.2em)[Return following $pi$] 
+
+==
+$ Q(s_0, a_0, theta_pi) =  #pin(1)bb(E)[cal(R)(s_1) | s_0, a_0]#pin(2) + gamma max_(a in A) Q(s_1, a, theta_pi) $ 
+
+$ Q(s_0, a_0, theta_pi) = #pin(3)bb(E)[cal(R)(s_1) | s_0, a_0]#pin(4) + sum_(t=1)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_1; theta_pi] $ #pause
+
+If we want to learn the left hand side, we must know the right hand side #pause
+
+*Question:* How do we find these terms? #pinit-highlight(1, 2) #pinit-highlight(3, 4)
+
+==
+$ Q(s_0, a_0, theta_pi) =  #pin(1)hat(bb(E))[cal(R)(s_1) | s_0, a_0]#pin(2) + gamma max_(a in A) Q(s_1, a, theta_pi) $ 
+
+$ Q(s_0, a_0, theta_pi) = #pin(3)hat(bb(E))[cal(R)(s_1) | s_0, a_0]#pin(4) + sum_(t=1)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_1; theta_pi] $ 
+
+*Question:* How do we find these terms? #pinit-highlight(1, 2) #pinit-highlight(3, 4)
+
+*Answer:* Empirical expectation from episode data ($s_t, a_t, cal(R)(s_(t+1))$) #pause
+
+$ bold(E) = mat(s_0, s_1, s_2, dots; a_0, a_1, a_2, dots; r_0, r_1, r_2, dots)^top $
+
+//Take action $a_t$ in state $s_t$ and receive reward $cal(R)(s_(t+1))$
+
+==
+$ Q(s_0, a_0, theta_pi) =  hat(bb(E))[cal(R)(s_1) | s_0, a_0]+ #pin(1)gamma max_(a in A) Q(s_1, a, theta_pi)#pin(2) $ 
+
+$ Q(s_0, a_0, theta_pi) = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + #pin(3)sum_(t=1)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_1; theta_pi]#pin(4) $ #pause
+
+#side-by-side[*Question:* How to find these terms? #pinit-highlight(1, 2) #pinit-highlight(3, 4) #pause][
+$ bold(E) = mat(s_0, s_1, s_2, dots; a_0, a_1, a_2, dots; r_0, r_1, r_2, dots)^top $ #pause
+]
 
 
+#side-by-side[
+    *TD:* (Careful with terminal states)
+     $not d dot gamma max_(a in A) Q(s_(t+1), a, theta_pi) $ #pause
+][
+    *MC:* $gamma r_(t+1) + gamma^2 r_(t+2) + dots$ #pause
+]
+
+We know the right hand side, use it to learn the left hand side
+
+==
+
+$ Q(s_0, a_0, theta_pi) &=  hat(bb(E))[cal(R)(s_1) | s_0, a_0]+ not d gamma max_(a in A) Q(s_1, a, theta_pi) \
+
+Q(s_0, a_0, theta_pi) &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + sum_(t=1)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_1; theta_pi] $ #pause
+
+Assume $Q (s, a, theta_pi)$ has error $eta$ with right hand side #pause
+
+Use the error to update the Q function #pause
+
+$ Q_(i + 1)(s, a, theta_pi) = Q_i (s, a, theta_pi) - eta $
+
+Improve convergence with a learning rate $alpha$
+
+$ Q_(i + 1)(s, a, theta_pi) = alpha(Q_i (s, a, theta_pi) - eta) $
+
+==
+*Monte Carlo update:* #pause
+
+$ Q_(i+1)(s_0, a_0, theta_pi) = \ alpha (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + sum_(t=1)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_1; theta_pi] - Q_i (s_0, a_0, theta_pi)) $  #pause
+
+*Temporal Difference update:* #pause
+
+$ Q_(i+1)(s_0, a_0, theta_pi) =  alpha (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + d gamma max_(a in A) Q_i (s_1, a, theta_pi) - Q_i (s_0, a_0, theta_pi)) $ 
+
+Updates guarantee convergence to the true Q function ($lim_(i -> oo) eta = 0$)
+
+==
+
+Last thing, we must collect episodes to train Q! #pause
+
+Can run policy in environment to create episodes #pause
+
+```python
+states, next_states, rewards, terminateds = [], [], [], []
+state = environment.reset()
+while not terminated:
+    action = policy.sample(state)
+    next_state, reward, terminated = environment.step(action)
+
+    states.append(state), next_states.append(next_state), ...
+    state = next_state
+
+episode = (states, next_states, rewards, terminateds)
+```
+
+==
+What policy do we sample actions from? #pause
+
+$ pi (a_0 | s_0; theta_pi) = cases(
+
+    1 "if" a_0 = argmax_(a in A) Q(s_0, a, theta_pi),
+    0 "otherwise"
+) $ #pause
+
+*Question:* Any issues? #pause
+
+*Answer:* Always sample the same action #pause
+
+If Q function is wrong, always sample bad actions #pause
+
+Without correct actions, Q function will not improve! #pause
+
+*Question:* What can we do?
+
+==
+$ pi (a_0 | s_0; theta_pi) = cases(
+
+    1 "if" a_0 = argmax_(a in A) Q(s_0, a, theta_pi),
+    0 "otherwise"
+) $ #pause
+
+Epsilon greedy policy! #pause
+
+$ pi (a_0 | s_0; theta_pi) = cases(
+    (1 - epsilon) "if" a_0 = argmax_(a in A) Q(s_0, a, theta_pi),
+    epsilon / (|A|) "for" a in A
+) $ #pause
+
+Sample random action with probability $epsilon$ #pause
+
+In the limit, sample all possible actions in all states
+
+==
+
+So far: #pause
+- Defined training objective (TD and MC updates) #pause
+- Defined dataset (episodes) #pause
+- Need to define model (Q function)! #pause
+
+Next time, we will use deep neural networks #pause
+
+Today and for homework, use a simple matrix
+
+==
+
+Each state is a row, each action is a column in a matrix #pause
+
+$
+mat(
+    Q(s_a, a_a), Q(s_b, a_b), dots;
+    Q(s_b, a_a), Q(s_b, a_b), dots;
+    dots.v, dots.v, dots.v, dots.v
+)
+$ #pause
+
+$Q_(i,j)$ gives Q value for state $s=i$ and action $a=j$ 
 
 = Homework
 
 ==
-Due in 2 weeks (Weds 12 March, 23:59)
+You have everything you need to solve homework #pause
 
-Download and submit `.py` and `.ipynb` files
+Due in 2 weeks (Weds 12 March, 23:59) #pause
 
-Uses turnitin for checking
+Download and submit `.py` and `.ipynb` files #pause
+
+Uses turnitin for checking #pause
 
 https://colab.research.google.com/drive/1xtBxAaVc3ax6_j59RC3NLQQPFcIEoau-?usp=sharing
 

@@ -11,6 +11,7 @@
 // TODO: Mario example too complex, just have them do the discounted return. Give them the four states in the return
 // TODO: Mario should have zero reward for in-between states
 // TODO: Terminal states should have zero reward
+// TODO: Add terminated to episode
 
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
