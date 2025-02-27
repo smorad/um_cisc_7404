@@ -592,7 +592,9 @@ But our goal was to find a policy, so how does value help? #pause
 
 Special connection between an optimal policy and the value function #pause
 
-We can use the value function to find an optimal policy
+We can modify the value function to find an optimal policy #pause
+
+We call the modified value function, a Q function
 
 ==
 
@@ -763,23 +765,41 @@ We want to take the action that maximizes Q #pause
 
 $ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) ) $ #pause
 
-Recall the definition of value function #pause
+Recall Monte Carlo value function #pause
 
 $ V(s_0, theta_pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $
 
 ==
+// TODO: Rewrite below using MC return
+// See that all previous actions are the same for E[r_1], E[r_2], ...
+
 $ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) ) $
 
 $ V(s_0, theta_pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $ #pause
 
-*Question:* What should our policy be? #pause
+Take optimal action $a_0$, now must find optimal $a_1$ #pause
 
-Hint: The first equation provides the optimal action $a_0$ #pause
+$ argmax_(a_1 in A) Q(s_1, a_1, theta_pi) = argmax_(a_1 in A) ( bb(E)[cal(R)(s_2) | s_1, a_1] + gamma V(s_2, theta_pi) ) $ #pause
+
+Take optimal action $a_1$, now must find optimal $a_2$ #pause
+
+$ argmax_(a_2 in A) Q(s_2, a_2, theta_pi) = argmax_(a_2 in A) ( bb(E)[cal(R)(s_3) | s_2, a_2] + gamma V(s_3, theta_pi) ) $
+
+==
+
+$ argmax_(a_0 in A) Q(s_0, a_0, theta_pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) ) $
+
+$ argmax_(a_1 in A) Q(s_1, a_1, theta_pi) = argmax_(a_1 in A) ( bb(E)[cal(R)(s_2) | s_1, a_1] + gamma V(s_2, theta_pi) ) $
+
+$ argmax_(a_2 in A) Q(s_2, a_2, theta_pi) = argmax_(a_2 in A) ( bb(E)[cal(R)(s_3) | s_2, a_2] + gamma V(s_3, theta_pi) ) $
+
+There is a pattern. What policy causes this pattern? #pause
 
 $ pi (a_0 | s_0; theta_pi) = cases(
     1 "if" a_0 = argmax_(a in A) Q(s_0, a, theta_pi),
     0 "otherwise"
 ) $
+
 
 ==
 $ pi (a_0 | s_0; theta_pi) = cases(
@@ -790,9 +810,13 @@ $ pi (a_0 | s_0; theta_pi) = cases(
 
 The policy uses the Q function #pause
 
-$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) $ #pause
+$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma underbrace(V(s_1, theta_pi), "Following" pi) $ #pause
 
-The Q function uses the policy (using the value function)
+The Q function uses the policy #pause
+
+*Question:* Can we simplify the Q function using the policy? #pause
+
+$ V(s_0, theta_pi) = max_(a in Q) Q(s_0, a, theta_pi) $ 
 
 ==
 $ pi (a_0 | s_0; theta_pi) = cases(
@@ -801,19 +825,13 @@ $ pi (a_0 | s_0; theta_pi) = cases(
     0 "otherwise"
 ) $
 
-$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, #pin(1)theta_pi#pin(2)) $ #pause
-
-Now that we know the policy, we can simplify the value function #pause
-
-#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[$argmax_(a in A)$] #pause
-
-*Question:* What is the value function for an optimal policy? #pause
+$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, #pin(1)theta_pi#pin(2)) $ 
 
 $ V(s_0, theta_pi) = max_(a in Q) Q(s_0, a, theta_pi) $ #pause
 
-Plug this back into $Q$ #pause
+Replace $V$ with $Q$ #pause
 
-$ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi) $ 
+$ Q(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi) $ 
 
 ==
 
@@ -913,7 +931,7 @@ The error $eta$ is the difference between true and predicted value #pause
 
 $ eta = #pin(1)Q_(i)(s_0, a_0, theta_pi)#pin(2) - #pin(3) (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + #redm[$not d$] gamma max_(a in A) Q_i (s_1, a, theta_pi)) #pin(4) $ #pause
 
-#text(fill: red)[小心!] If $s_1$ is a terminal state, the future value is 0 ($d="terminated"$) #pause
+#text(fill: red)[小心!] If $s_1$ is a terminal state, future value is 0 ($not d="not terminated"$) #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Predicted value] #pause
 
