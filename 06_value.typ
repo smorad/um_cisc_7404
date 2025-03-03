@@ -130,6 +130,7 @@
 
 // TODO: Optimal policy derivation from Q doesn't make sense
 // TODO: Derivation of max Q as value function doesn't make sense
+// TODO: Maybe move done flag stuff to deep value
 
 
 // Problems with MPC, cannot do infinite
