@@ -583,9 +583,10 @@ $ f(bold(x), bold(theta)) = bold(y) $ #pause
 
 #pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: bottom)[$bold(x)$] #pause
 
+#pinit-highlight-equation-from((7,8), (7,8), fill: orange, pos: bottom)[$bold(theta)$] #pause
+
 #pinit-highlight-equation-from((5,6), (5,6), fill: green, pos: bottom)[$bold(y)$] 
 
-#pinit-highlight-equation-from((7,8), (7,8), fill: orange, pos: bottom)[$bold(theta)$] 
 
 ==
 
@@ -631,18 +632,18 @@ Need to replace $bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi]$ #pause
 $ argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, theta_Q) -  sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0; theta_pi] )^2 ]  $
 
 *Temporal Difference Objective:* 
-$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, theta_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0; theta_pi] + not d gamma max_(a in A) Q(s_1, a, theta_pi, theta_Q)))^2 ] $
+$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, theta_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, theta_pi, theta_Q)))^2 ] $
 
 ==
 #only("1-3")[
 $ argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, theta_Q) -  sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0; theta_pi] )^2 ]  $
 
-$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, theta_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0; theta_pi] + not d gamma max_(a in A) Q(s_1, a, theta_pi, theta_Q)))^2 ] $ 
+$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, theta_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, theta_pi, theta_Q)))^2 ] $ 
 ]
 #only(4)[
 $ argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, theta_Q) -  sum_(t=0)^oo gamma^t #redm[$hat(bb(E))$] [cal(R)(s_(t+1)) | s_0, a_0; theta_pi] )^2 ]  $
 
-$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, theta_Q) - ( #redm[$hat(bb(E))$] [cal(R)(s_1) | s_0, a_0; theta_pi] + not d gamma max_(a in A) Q(s_1, a, theta_pi, theta_Q)))^2 ] $ 
+$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, theta_Q) - ( #redm[$hat(bb(E))$] [cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, theta_pi, theta_Q)))^2 ] $ 
 ]
 
 #only((2,3,4))[Still have expectations, which we do not know]
@@ -654,7 +655,7 @@ $ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, th
 $ argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, theta_Q) -  sum_(t=0)^oo gamma^t hat(bb(E)) [cal(R)(s_(t+1)) | s_0, a_0; theta_pi] )^2 ]  $
 
 $ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ 
-&(#pin(1)Q(s_0, a_0, theta_pi, theta_Q)#pin(2) - ( hat(bb(E)) [cal(R)(s_1) | s_0, a_0; theta_pi] + not d gamma #pin(3)max_(a in A) Q(s_1, a, theta_pi, theta_Q)#pin(4)))^2 ] $ #pause
+&(#pin(1)Q(s_0, a_0, theta_pi, theta_Q)#pin(2) - ( hat(bb(E)) [cal(R)(s_1) | s_0, a_0] + not d gamma #pin(3)max_(a in A) Q(s_1, a, theta_pi, theta_Q)#pin(4)))^2 ] $ #pause
 
 *Question:* Which is harder to optimize? #pause
 
@@ -692,7 +693,6 @@ $ argmin_(bold(theta)_Q) cal(L)(bold(X), bold(theta)_Q) = argmin_(theta_Q) \ sum
 
 ==
 
-
 Can optimize both loss functions using gradient descent #pause
 
 RL optimization is more difficult than supervised learning #pause
@@ -715,6 +715,211 @@ RL optimization is more difficult than supervised learning #pause
     - Bad $theta_pi$ means bad dataset
     - Overfitting no problem
 ]
+
+= Experience Replay
+==
+Optimization is difficult in RL #pause
+
+Most RL papers train for 10M-10B environment steps #pause
+
+It takes a long time to train a deep Q function #pause
+
+Let us see if we can improve training speed
+
+==
+```python
+for epoch in range(num_epochs):
+  terminated = False
+  s = env.reset()
+  episode = []
+  # Step between 1 and infinity times to get one episode
+  while not terminated:
+    a = policy(s, theta_Q)
+    next_s, r, d = env.step(action)
+    episode.append([s, a, r, d, next_s])
+  # Compute gradient over episode
+  J = grad(L)(theta_Q, episode)
+  theta_Q = update(theta_Q, grad)
+``` #pause
+
+*Question:* Which part is slowest? #pause *Answer:* Collecting episodes
+
+==
+```python
+for epoch in range(num_epochs):
+  terminated = False
+  s = env.reset()
+  episode = []
+  # Step between 1 and infinity times to get one episode
+  while not terminated:
+    a = policy(s, theta_Q)
+    next_s, r, d = env.step(action)
+    episode.append([s, a, r, d, next_s])
+  # Compute gradient over episode
+  J = grad(L)(theta_Q, episode)
+  theta_Q = update(theta_Q, grad)
+``` #pause
+
+Collect episode, train, throw away episode, start again
+
+==
+What if we reuse episodes? #pause
+ 
+```python
+episodes = []
+for epoch in range(num_epochs):
+  terminated = False
+  s = env.reset()
+  episode = []
+  while not terminated:
+    a = policy(s, theta_Q)
+    next_s, r, d = env.step(action)
+    episode.append([s, a, r, d, next_s])
+  episodes.append(episode)
+  J = grad(L)(theta_Q, episodes) # Train over ALL episodes
+  theta_Q = update(theta_Q, grad)
+``` 
+
+==
+When we reuse episodes, we call it *experience replay* #pause
+
+#side-by-side[
+  Store episodes in a *replay buffer* (list) #pause
+][
+$ bold(B)_t = mat(
+  bold(s)_1, bold(a)_1, bold(r)_1, bold(d)_1;
+  dots.v, dots.v, dots.v, dots.v;
+  bold(s)_t, bold(a)_t, bold(r)_t, bold(d)_t
+) 
+$
+] #pause
+
+
+#side-by-side[
+  Create a dataset from the buffer #pause
+][
+$ bold(X)_t = mat(
+  bold(s)_31, bold(a)_31, bold(r)_31, bold(d)_31;
+  dots.v, dots.v, dots.v, dots.v;
+  bold(s)_4, bold(a)_4, bold(r)_4, bold(d)_4
+)  $ 
+] #pause
+
+#side-by-side[
+  Train on the dataset #pause
+][
+  $ argmin_(bold(theta)_Q) cal(L)(bold(X)_t, bold(theta)_Q) $
+] #pause
+
+Humans do experience replay when they dream!
+
+
+==
+*On-policy* algorithms must throw away episodes after training #pause
+
+Must collect data using the current policy, cannot use experience replay #pause
+
+*Off-policy* algorithms can reuse old episodes and use experience replay #pause
+
+In fact, for off policy algorithms, data can come from anywhere #pause
+- Previous policy #pause
+- Previous training run #pause
+- Human policy #pause
+
+*Question:* Which is Q learning? #pause 
+
+Let us find out!
+
+==
+Start with the Monte Carlo return #pause
+
+$ argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, theta_Q) -  sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0; #pin(1)theta_pi#pin(2)] )^2 ] $ #pause
+
+*Question:* On-policy or off-policy? #pause *Answer:* On-policy. Why? #pause
+
+#pinit-highlight(1, 2)
+
+Our return is conditioned on the policy #pause
+
+If the policy changes, the return $r_0 + gamma r_1 + gamma^2 r_2 + dots $ is not valid! #pause
+
+Old episode gives us $bb(E)[cal(R)(s_(t+1)) | s_0, a_0; theta_("old")]$  #pause
+
+We need $bb(E)[cal(R)(s_(t+1)) | s_0, a_0; theta_pi]$
+
+==
+What about TD return? #pause
+
+$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, theta_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, #pin(1)theta_pi#pin(2), theta_Q)))^2 ] $ #pause
+
+*Question:* On-policy or off-policy? #pause *Answer:* Off-policy. Why? #pause
+
+#pinit-highlight(1, 2) #pause
+
+Q function depends on $theta_pi$, but reward does not!
+
+Do we know $argmax_(a in A) Q(s_1, a, #pin(1)theta_pi#pin(2), theta_Q)$? #pause Yes! Just plug in $s_1$
+
+==
+
+To summarize: #pause
+
+Monte Carlo Q learning is on-policy #pause
+
+Cannot reuse data, takes a long time to train #pause
+
+Temporal Difference Q learning is special! #pause
+
+It is off-policy, can reuse data and train faster #pause
+
+TD is not always better than MC #pause
+
+MC needs more training data, but TD has harder optimization
+
+= Target Networks
+==
+If you train a deep Q network using TD, you will find
+
+$ Q(s_0, a_0, theta_pi, theta_Q) = oo $ #pause
+
+$ (Q(s_0, a_0, theta_pi, theta_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, #pin(1)theta_pi#pin(2), theta_Q)))^2 $ #pause
+
+*Question:* Can you see why? #pause Hint: What if $s_0 approx s_1$? #pause
+
+$ Q(s_0, a_0, theta_pi, theta_Q) = r_0 + max_(a in A) Q(s_0, a_0, theta_pi, theta_Q) $ #pause
+
+*Question:* If $r_0 = 1$, what happens? #pause
+
+$ Q_(i+1) = 1 + Q_i #pause quad quad lim_(i -> oo) ? $
+
+==
+It is difficult to train deep neural networks recursively #pause
+
+The label depends on the function we train! #pause
+
+$ (Q(s_0, a_0, theta_pi, theta_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, #pin(1)theta_pi#pin(2), theta_Q)))^2 $ #pause
+
+We use *target networks* to break this dependence #pause
+
+$ (Q(s_0, a_0, theta_pi, theta_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, #pin(1)theta_pi#pin(2), theta_#redm[$T$])))^2 $ 
+
+==
+Usually, the target parameters are older parameters
+
+```python
+theta_Q = ... # Initialize parameters
+theta_T = theta_Q.copy()
+
+for epoch in range(num_epochs):
+  grad = grad(L)(theta_Q, theta_T, X)
+  theta_Q = optimizer.update(theta_Q, grad)
+  if epoch % 200 == 0:
+    # Update target parameters
+    theta_T = theta_Q.copy()
+```
+
+
+
 
 
 
@@ -766,19 +971,74 @@ They used multiple GPUs to train in the DQN paper #pause
 
 We see this very often in deep learning #pause
 
-Add more compute, and things become interesting #pause
+Add more compute, and find interesting results #pause
 
 http://www.incompleteideas.net/IncIdeas/BitterLesson.html #pause
 
 We will see that many decisions in DQN focus on efficiency
 
 = DQN: Architecture
+// CNN + MLP
+// Is markov? 
+// Frame stacking
 
 ==
-// Add action to output
-// CNN + MLP
-// # params
+We must understand the problem before the model architecture #pause
 
+The authors design the architecture to solve the problem #pause
+
+The Atari video game system has 57 games #pause
+
+Each game has a resolution of $160 times 192$ pixels and up to 18 actions #pause
+
+$ S = bb(Z)_(0: 255)^(160 times 192 times 3), A = {"left", "up left", dots}, quad |A| = 18 $
+
+*Question:* How many possible states? #pause $256 times 160 times 192 times 3 approx 23M $
+
+*Question:* Size of Q matrix? #pause  $23M times 18 approx 500M $
+
+Too big for a Q value matrix! Use deep neural network instead
+
+==
+*Question:* What neural network should we use for images? #pause
+
+*Answer:* Convolutional network! #pause
+
+#cimage("fig/07/cnn.png")
+
+==
+We are moving too quickly! #pause *Question:* Is the state space Markov? #pause
+
+#cimage("fig/07/framestack-0.png", height: 85%)
+
+==
+
+*Question:* Which way is the ball moving?
+
+#cimage("fig/07/framestack-0.png", height: 85%)
+
+==
+
+*Question:* Which way is the ball moving?
+
+#cimage("fig/07/framestack.png", height: 85%)
+
+==
+#cimage("fig/07/framestack.png", height: 85%)
+
+Not Markov, velocity! $Tr(s_(t+1) | s_t, a_t) != Tr(s_(t+1) | s_t, a_t, s_(t-1), a_(t-1))$
+
+==
+State must contain velocity for Markov property! #pause
+
+The authors use last four images as the state #pause
+
+$ S = bb(Z)_(0: 255)^(4 times 160 times 192 times 3) $ #pause
+
+Neural network can infer velocity from multiple images
+
+
+==
 Normally, the Q function takes action as input #pause
 
 $ Q: S times A times Theta_pi times Theta_Q |-> bb(R) $ #pause
@@ -816,6 +1076,22 @@ This is $|A|$ times faster!
 
 
 = DQN: Experience Replay
+==
+// Sample efficiency
+// Can forget other trajectories
+// On policy and off policy
+// Future return relies on theta for MC
+// Not the case for TD next reward only relies on taken action
+
+The joint state action space is very large #pause
+
+Need hundreds of billions of samples to learn #pause
+
+Atari is slow and collecting this many samples is impossible #pause
+
+
+
+= DQN: Target Networks
 
 
 
