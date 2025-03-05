@@ -947,23 +947,17 @@ Deep reinforcement learning was first discovered in the 1980s #pause
 
 However, it did not work very well and could only solve simple tasks #pause
 
-Deep Q Networks (DQN) was the first big achievement of deep RL #footnote[Human-level control through deep reinforcement learning. _Nature._ 2014.] #pause
+We discovered deep learning, experience replay, and target networks
 
-They achieved human performance on many Atari games #pause
+Deep Q Networks (DQN) combined them to beat humans on Atari #footnote[Human-level control through deep reinforcement learning. _Nature._ 2014.] #pause
 
-The paper introduced many tricks to make deep Q learning work #pause
+After this paper, people realized that RL can work for hard tasks #pause
 
-Today, we will review these tricks
+You have all the tools you need to implement DQN, except for one
 
+/*
 ==
-- Compute #pause
-- Model architecture #pause
-- Replay buffer #pause
-- Target networks
-
-= DQN: Compute
-==
-Perhaps the most important part of DQN is compute #pause
+One important part of DQN is compute #pause
 
 In 2014, GPUs were not popular for deep learning #pause
 
@@ -975,13 +969,11 @@ Add more compute, and find interesting results #pause
 
 http://www.incompleteideas.net/IncIdeas/BitterLesson.html #pause
 
-We will see that many decisions in DQN focus on efficiency
+Next, let us understand the neural network architecture
 
-= DQN: Architecture
 // CNN + MLP
 // Is markov? 
 // Frame stacking
-
 ==
 We must understand the problem before the model architecture #pause
 
@@ -991,13 +983,13 @@ The Atari video game system has 57 games #pause
 
 Each game has a resolution of $160 times 192$ pixels and up to 18 actions #pause
 
-$ S = bb(Z)_(0: 255)^(160 times 192 times 3), A = {"left", "up left", dots}, quad |A| = 18 $
+$ S = bb(Z)_(0: 255)^(160 times 192 times 3) #pause , A = {"left", "up left", dots}, quad |A| = 18 $ #pause
 
 *Question:* How many possible states? #pause $256 times 160 times 192 times 3 approx 23M $
 
 *Question:* Size of Q matrix? #pause  $23M times 18 approx 500M $
 
-Too big for a Q value matrix! Use deep neural network instead
+Too big for a Q value matrix! Use deep Q function instead
 
 ==
 *Question:* What neural network should we use for images? #pause
@@ -1036,7 +1028,7 @@ The authors use last four images as the state #pause
 $ S = bb(Z)_(0: 255)^(4 times 160 times 192 times 3) $ #pause
 
 Neural network can infer velocity from multiple images
-
+*/
 
 ==
 Normally, the Q function takes action as input #pause
@@ -1074,29 +1066,40 @@ This is $|A|$ times faster!
 
 #cimage("fig/07/dqn-arch.jpg")
 
-
-= DQN: Experience Replay
 ==
-// Sample efficiency
-// Can forget other trajectories
-// On policy and off policy
-// Future return relies on theta for MC
-// Not the case for TD next reward only relies on taken action
+```python
+Q = nn.Sequential([...])
+theta_T = partition(Q, is_array)[0]
+replay_buffer = deque(maxsize=50_000) 
+for epoch in range(num_epochs):
+  while not terminated:
+    a = random_action if epoch < k else epsilon_greedy(Q)
+    s, r, d, next_s = env.step(a)
+    replay_buffer.insert((s, a, r, d, next_s))
+    X = random.sample(replay_buffer, batch_size)
+    theta_Q, model = eqx.partition(Q, is_array) 
+    theta_Q = td_update(theta_Q, theta_T, Q, X)
+    theta_T = copy(theta_Q) if epoch % j == 0 else theta_T
+    Q = eqx.combine(theta_Q, model)
+```
 
-The joint state action space is very large #pause
+==
+Finally, let us look at some successes of deep Q learning #pause
 
-Need hundreds of billions of samples to learn #pause
+https://huggingface.co/learn/deep-rl-course/en/unit3/hands-on #pause
 
-Atari is slow and collecting this many samples is impossible #pause
+//Mario Kart https://www.youtube.com/watch?v=VIwGxOdXGfw #pause
 
+Mario Kart: https://www.youtube.com/watch?v=lnnHmVNO07Q #pause
 
-
-= DQN: Target Networks
-
-
+Super Smash Bros: https://www.youtube.com/watch?v=7rDfIcdszxQ
 
 
-= Modern Deep Q Learning
+Pokemon https://youtu.be/DcYLT37ImBY?si=AeR2WkQg4X-tWa5v
+
+
+
+// = Modern Deep Q Learning
 // Exploration vs exploitation
   // Boltzmann policy
 // PER?
