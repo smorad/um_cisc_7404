@@ -132,6 +132,9 @@
 // TODO: Derivation of max Q as value function doesn't make sense
 // TODO: Maybe move done flag stuff to deep value
 
+// TODO: Should change from s_0 to s_i here as its required for homework
+// To train over the whole episode, not just the initial timestep -- make it clear 
+
 
 // Problems with MPC, cannot do infinite
 // What if I told you we could build an infinitely deep tree?
