@@ -518,17 +518,46 @@ $
 $ // Move gradient further inside
 ]
 ==
+#text(size: 23pt)[
 $ 
 = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(theta_pi) [ product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ]
 $ #pause
 
-Cannot move $nabla_(theta_pi)$ further inside, as all $s_(t+1)$ depends on $pi (a_0 | s_0; theta_pi)$ #pause
+Want to move $nabla$ inside, split product #pause
 
-$ nabla_(theta_pi) [ dots dot pi (a_1 | s_1; theta_pi) dot Tr(s_(1) | s_0, a_0) dot pi (a_0 | s_0; theta_pi)] $
+$ 
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(theta_pi) [ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot (product_(t=0)^n pi (a_t | s_t; theta_pi)) ] // Split product
+$
+]
+
+//Cannot move $nabla_(theta_pi)$ further inside, as all $s_(t+1)$ depends on $pi (a_0 | s_0; theta_pi)$ #pause
+
+==
+#text(size: 23pt)[
+$ 
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(theta_pi) [ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot (product_(t=0)^n pi (a_t | s_t; theta_pi)) ]
+$ #pause
+
+First term is a constant factor, pull out constant #pause
+
+$ 
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot nabla_(theta_pi)[product_(t=0)^n pi (a_t | s_t; theta_pi) ]
+$
+]
+==
+$ 
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot nabla_(theta_pi)[product_(t=0)^n pi (a_t | s_t; theta_pi) ]
+$ #pause
 
 Can use chain and product rule, but will create a mess of terms #pause
 
-Have to backpropagate through $n^2$ products, which is intractable
+$ nabla_(theta_pi) [ pi (a_n | s_n; theta_pi) dots dot pi (a_0 | s_0; theta_pi)] = \
+ nabla_(theta_pi) [ pi (a_n | s_n; theta_pi) ] dot pi (a_(n-1) | s_(n-1); theta_pi) dots $
+
+It will be very expensive/intractable to compute all terms!
+
+
+//Have to backpropagate through $n^2$ products, which is intractable
 
 
 /*
@@ -562,57 +591,68 @@ $
 ==
 
 #text(size: 23pt)[
-#side-by-side(align: horizon)[$ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(theta_pi) [ product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ]
-$ #pause ][
+#side-by-side(align: horizon)[
+
+$ 
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot nabla_(theta_pi)[product_(t=0)^n pi (a_t | s_t; theta_pi) ]
+$ #pause
+    
+][
    $ nabla_x f(x)  = f(x) nabla_x log f(x) $ #pause
 ]
 
 Apply log-derivative trick to $nabla product$ #pause
 
+/*
 $ 
 = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) nabla_(theta_pi) [ log( product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) ]
 $ // log trick: grad f(x) = f(x) grad log f(x)
+*/
+$ 
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot nabla_(theta_pi)[log( product_(t=0)^n pi (a_t | s_t; theta_pi) ) ]
+$ #pause // log trick: grad f(x) = f(x) grad log f(x)
 ]
 ==
 #text(size: 23pt)[
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) nabla_(theta_pi) [ log( product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot nabla_(theta_pi)[log( product_(t=0)^n pi (a_t | s_t; theta_pi) ) ]
 $ #pause // log trick: grad f(x) = f(x) grad log f(x)
 
 The log of products is the sum of logs: $log(a b) = log(a) + log(b)$ #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) nabla_(theta_pi) [ sum_(t=0)^n log( Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) ]
-$ // log prod is one big sum
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot nabla_(theta_pi)[sum_(t=0)^n log pi (a_t | s_t; theta_pi)  ]
+$ #pause // split log prods to sum logs
+
 ]
 
 ==
 #text(size: 23pt)[
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) nabla_(theta_pi) [ sum_(t=0)^n log( Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) ]
-$ #pause
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot nabla_(theta_pi)[sum_(t=0)^n log pi (a_t | s_t; theta_pi)  ]
+$ #pause 
 
-The log of products is the sum of logs (again) #pause
+Gradient of sum is sum of gradients #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) nabla_(theta_pi) [ sum_(t=0)^n log Tr(s_(t+1) | s_t, a_t) + log pi (a_t | s_t; theta_pi) ]
-$ // log(Tr * pi) is a sum of logs
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot [sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  ]
+$ // Distribute grad into sum
 ]
 
 ==
-
 #text(size: 23pt)[
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) nabla_(theta_pi) [ sum_(t=0)^n log Tr(s_(t+1) | s_t, a_t) + log pi (a_t | s_t; theta_pi) ]
-$ #pause
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot [sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  ]
+$  #pause
 
-Gradient with respect to $theta$, no $theta$ in $Tr$, $Tr$ is constant that  disappears #pause
+Last step, recombine product #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) [ sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) dot [sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  ]
 $ 
+
 ]
+
 
 ==
 $ 
@@ -742,6 +782,8 @@ $ #pause
 We call this *actor-critic*, more discussion next time
 
 = Coding
+
+
 ==
 We can implement our policy using all sorts of action distributions #pause
 
@@ -749,34 +791,62 @@ For discrete tasks, we often use *categorical* distributions #pause
 
 For continuous tasks, we usually use *normal* distributions #pause
 
-However, some people say Beta distributions work better! #footnote["Improving stochastic policy gradients in continuous control with deep reinforcement learning using the beta distribution." International conference on machine learning. PMLR, 2017.]
+However, some people say beta distributions work better! #footnote["Improving stochastic policy gradients in continuous control with deep reinforcement learning using the beta distribution." International conference on machine learning. PMLR, 2017.]
+
+==
+The coding looks a little bit different than the math #pause
+
+We often separate the model, policy distribution, and sampled action
+
+```python
+# Compute "logits", unnormalized probabilities
+z = model(x) 
+# Create distribution pi(a | s; theta_pi)
+p_a = dist(z) # For loss function
+# Sample action that we use in environment
+a = sample(p_a) # For env step
+```
 
 
 ==
-Create a policy for discrete action spaces #pause
+Create a model for discrete action spaces #pause
 
 ```python
-discrete_action_policy = nn.Sequential([
+discrete_action_model = nn.Sequential([
     nn.Linear(state_size, hidden_size),
     nn.Lambda(leaky_relu),
     nn.Linear(hidden_size, hidden_size),
     nn.Lambda(leaky_relu)
+    # Output logits for possible actions
     nn.Linear(hidden_size, action_size),
-    # Probability over possible actions
-    nn.Lambda(jax.nn.log_softmax) # log(softmax(x))
 ])
 ``` #pause
 
-We use `log_softmax` for numerically stable gradients 
+==
+
+Need a function to get actions for our environment
+
+```python
+def sample_action(model, state, key):
+    z = model(state)
+    # BE VERY CAREFUL, always read documentation
+    # Sometimes takes UNNORMALIZED logits, sometimes probs
+    action_probs = softmax(model, state)
+    a = categorical(key, action_probs)
+    a = categorical(key, z) # Does not even use pi
+    return a
+
+```
 
 ==
 
 ```python
-def REINFORCE_loss(theta_pi, episode):
+def REINFORCE_loss(model, episode):
     """REINFORCE for discrete actions"""
     G = compute_return(rewards) # empirical return
-    # Policy already outputs log(softmax(x)) 
-    log_probs = pi(episode.states, theta_pi) 
+    # We need log(pi(a | s)), softmax => probs
+    # log_softmax more stable than log(softmax(x))
+    log_probs = log_softmax(model(episode.states))
     # We only update the policy for the actions we took
     # Discrete/categorical actions
     # Can use sum or mean
@@ -789,7 +859,7 @@ def REINFORCE_loss(theta_pi, episode):
 What about continuous action spaces? #pause
 
 ```python
-continuous_action_policy = nn.Sequential([
+continuous_action_model = nn.Sequential([
     nn.Linear(state_size, hidden_size),
     nn.Lambda(leaky_relu),
     nn.Linear(hidden_size, hidden_size),
@@ -797,18 +867,27 @@ continuous_action_policy = nn.Sequential([
     nn.Linear(hidden_size, 2 * action_size),
     # Like to use a diagonal multivariate Gaussian
     # Assumes independence between actions (approximation)
-    # Produce mu and log_sigma for each action dim
     nn.Lambda(lambda x: split(x, 2))
 ])
 ```
 
 ==
 ```python
-def REINFORCE_loss(theta_pi, episode):
+def sample_action(model, state, key):
+    # Log(sigma) because neural network outputs +/-
+    # sigma only + but log_sigma can be +/-
+    mu, log_sigma = model(state)
+    a = normal(key, mu, exp(sigma))
+    return a
+```
+
+==
+```python
+def REINFORCE_loss(model, episode):
     """REINFORCE for continuous actions using Gaussian pi"""
     G = compute_return(rewards) # empirical return
     # Policy outputs mean and log(std dev)
-    mus, log_sigmas = pi(episode.states, theta_pi)
+    mus, log_sigmas = model(episode.states)
     # Log probability from equation of Gaussian
     log_probs = -(
         (episode.actions - mus) ** 2 
@@ -816,7 +895,7 @@ def REINFORCE_loss(theta_pi, episode):
         + log_sigmas
     )
     policy_gradient = mean(G * log_probs)
-    # Want gradient ascent, most library do gradient descent
+    # Want gradient ascent, library does gradient descent
     return -policy_gradient
 ```
 
@@ -825,7 +904,7 @@ def REINFORCE_loss(theta_pi, episode):
 ==
 Homework 2 is the final homework, and it is a little special #pause
 
-You can choose one of two Assignments #pause
+Choose only one assignment #pause
 - Policy gradient (easier, max 80/100) #pause
 - Deep Q learning (harder, max 100/100) #pause
 
@@ -848,6 +927,12 @@ If you have bugs, you will need to restart training #pause
 If you wait until the day before, you will not succeed #pause
 
 Due in 3 weeks (04.09)
+
+==
+
+https://colab.research.google.com/drive/1JWfMYviwt7tgU08QDeIZV82MuzVQZbX1?usp=sharing
+
+https://colab.research.google.com/drive/1qKXsaOpT27paCmPA-Hbh_-PtbQnrrkla?usp=sharing
 
 /*
 
