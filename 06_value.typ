@@ -817,7 +817,7 @@ The Q function uses the policy #pause
 
 *Question:* Can we simplify the Q function using the policy? #pause
 
-$ V(s_0, theta_pi) = max_(a in Q) Q(s_0, a, theta_pi) $ 
+$ V(s_0, theta_pi) = max_(a in A) Q(s_0, a, theta_pi) $ 
 
 ==
 $ pi (a_0 | s_0; theta_pi) = cases(
@@ -828,7 +828,7 @@ $ pi (a_0 | s_0; theta_pi) = cases(
 
 $ Q(s_0, a_0, theta_pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, #pin(1)theta_pi#pin(2)) $ 
 
-$ V(s_0, theta_pi) = max_(a in Q) Q(s_0, a, theta_pi) $ #pause
+$ V(s_0, theta_pi) = max_(a in A) Q(s_0, a, theta_pi) $ #pause
 
 Replace $V$ with $Q$ #pause
 

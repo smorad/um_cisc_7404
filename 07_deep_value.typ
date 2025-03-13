@@ -838,7 +838,7 @@ for epoch in range(num_epochs):
   s = env.reset()
   episode = []
   # Step between 1 and infinity times to get one episode
-  while not terminated:
+  for step in range(max_steps):
     a = policy(s, theta_Q)
     next_s, r, d = env.step(action)
     episode.append([s, a, r, d, next_s])
