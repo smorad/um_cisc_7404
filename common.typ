@@ -55,6 +55,16 @@
   )
 }
 
+#let normal_fn(mu, sigma, x) = {
+  1 / (sigma * calc.sqrt(2 * 3.14)) * calc.pow(
+    2.73,
+    -calc.pow( 
+      (x - mu),
+      2
+    ) / (2 * calc.pow(sigma, 2))
+  )
+} 
+
 // Plots of activation functions
 #let sigmoid = { 
     set text(size: 25pt)

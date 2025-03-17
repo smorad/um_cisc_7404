@@ -134,6 +134,9 @@
 
 // TODO: Should change from s_0 to s_i here as its required for homework
 // To train over the whole episode, not just the initial timestep -- make it clear 
+// TODO: derivation error marked in value function, search for "where does P(s_1 | s_0; theta) go?"
+// TODO MAYBE: Get rid of s_0, a_0 -- eventually transition to s_t, a_t?
+// Required for PG later on?
 
 
 // Problems with MPC, cannot do infinite
@@ -535,6 +538,8 @@ $ V(s_1, theta_pi) = sum_(t=0)^oo gamma^t sum_(s_(t + 2) in S) cal(R)(s_(t+2)) d
 ==
 
 $ V(s_0, theta_pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; theta_pi) \ + sum_(s_1) Pr (s_(1) | s_0; theta_pi) gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); theta_pi) $ #pause
+
+// TODO: Error here, where does P(s_1 | s_0; theta) go?
 
 Replace infinite sum with value function
 

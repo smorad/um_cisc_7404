@@ -1,4 +1,4 @@
-/**/#import "@preview/algorithmic:0.1.0"
+#import "@preview/algorithmic:0.1.0"
 #import algorithmic: algorithm
 #import "@preview/touying:0.6.1": *
 #import themes.university: *
@@ -159,6 +159,13 @@
     outline(title: none, indent: 1em, depth: 1)
 )
 
+// TODO: Keep G in sum in final results
+// Then, instead of sum_(s, a in tau)
+// Can do sum_(s in S, a in A) G * nabla log pi
+// $ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(t=0)^oo bb(E)[cal(G)(bold(tau)) | s_t; theta_pi] dot nabla_(theta_pi) log pi (a_t | s_t; theta_pi) $
+// But need to be careful as this is all t
+// Left side should also sum over all t
+
 
 // Two core algorithms for model-free decision making
 // One is Q learning the other is policy gradient
@@ -200,7 +207,7 @@ Right now, the following students have full participation marks: #pause
 - ZHANG BORONG
 - HE ENHAO
 - QIAO YULIN
-- YAO CHENYU
+- ZHUANG HANQIN
 - KAM KA HOU
 ]
 
@@ -246,6 +253,8 @@ http://www.incompleteideas.net/IncIdeas/BitterLesson.html
 
 // Still want to maximize the return (restate this), dependent on theta
 
+= Review
+
 = Parameterized Policies
 // Example with continuous actions
 // Q learning with continuous actions not possible
@@ -256,7 +265,7 @@ http://www.incompleteideas.net/IncIdeas/BitterLesson.html
 
 ==
 There are two types of algorithms #pause
-- Value based methods (Q learning, trajectory optimization) #pause
+- Value based methods (Q learning) #pause
 - Policy gradient methods (today's material) #pause
 
 All other algorithms are some combination of these two methods #pause
@@ -603,14 +612,9 @@ $ #pause
 
 Apply log-derivative trick to $nabla product$ #pause
 
-/*
-$ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) nabla_(theta_pi) [ log( product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) ]
-$ // log trick: grad f(x) = f(x) grad log f(x)
-*/
 $ 
 = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot nabla_(theta_pi)[log( product_(t=0)^n pi (a_t | s_t; theta_pi) ) ]
-$ #pause // log trick: grad f(x) = f(x) grad log f(x)
+$ // log trick: grad f(x) = f(x) grad log f(x)
 ]
 ==
 #text(size: 23pt)[
@@ -622,7 +626,7 @@ The log of products is the sum of logs: $log(a b) = log(a) + log(b)$ #pause
 
 $ 
 = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot nabla_(theta_pi)[sum_(t=0)^n log pi (a_t | s_t; theta_pi)  ]
-$ #pause // split log prods to sum logs
+$ // split log prods to sum logs
 
 ]
 
@@ -635,20 +639,20 @@ $ #pause
 Gradient of sum is sum of gradients #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot [sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  
 $ // Distribute grad into sum
 ]
 
 ==
 #text(size: 23pt)[
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot [sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  
 $  #pause
 
 Last step, recombine product #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) dot [sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) dot sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  
 $ 
 
 ]
@@ -656,18 +660,28 @@ $
 
 ==
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) [ sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) ]
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi))  sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)
 $ #pause
 
-This is the *policy gradient* #pause
+*Definition:* This is the *policy gradient* #pause
 
-Rewrote the gradient of the return in terms of the gradient of policy
+Rewrote the gradient of the return in terms of the gradient of policy #pause
 
+But this is a bit messy, and we don't know how to train it yet!
+
+==
+We have the policy gradient #pause
+
+$ 
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi))  sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)
+$ #pause
+
+Can we write it in a simpler form so we can approximate it?
 
 ==
 #text(size: 23pt)[
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) \ #pin(1)dot sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi))#pin(2) [ sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) ]
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) \ #pin(1)dot sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi))#pin(2)  sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
 $ #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 2em)[*Question:* Is this familiar?] #pause
@@ -675,7 +689,7 @@ $ #pause
 #v(2em)
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) #pin(5)Pr (s_(n+1) | s_0; theta_pi)#pin(6) [ sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) ]
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) #pin(5)Pr (s_(n+1) | s_0; theta_pi)#pin(6)  sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
 $
 
 #pinit-highlight(5, 6)
@@ -683,7 +697,7 @@ $
 
 ==
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ #pin(1)sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; theta_pi)#pin(2) [ sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) ]
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ #pin(1)sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; theta_pi)#pin(2)  sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
 $ #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 2em)[*Question:* Is this familiar?] #pause
@@ -694,65 +708,98 @@ $ #redm[$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] $] $
 
 ==
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; theta_pi) [ sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) ]
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; theta_pi) sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
 $ #pause
 
-Careful rewriting as return because $pi$ relies on $n$ #pause
+Would like to rewrite as 
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] dot sum_(s, a in bold(tau)) nabla_(theta_pi) log pi (a | s; theta_pi) 
-$
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
+$ #pause
 
-We can write the gradient of the return in terms of the policy gradient
+Careful, $pi$ relies on $n$ -- cannot write this way
 
 ==
+$ 
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; theta_pi) sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
+$ #pause
 
+#math.cancel(angle: 90deg)[$ 
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
+$] #pause
+
+$sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)$ must be inside the expectation #pause
+
+Just consider a single $s_0, a_0$ #pause
+
+$ 
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold(tau)) mid(|) s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
+$ 
+
+==
 *Definition:* The policy gradient family of algorithms #pause
 
 Update the parameters iteratively until convergence #pause
 
 $ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] $ #pause
 
-Using the policy gradient 
+Using the policy gradient #pause
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] dot sum_(s, a in bold(tau)) nabla_(theta_pi) log pi (a | s; theta_pi) 
-$
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold(tau)) mid(|) s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
+$ 
+
+= REINFORCE
+==
+$ 
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold(tau)) mid(|) s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
+$  #pause
+
+This is our formula #pause
+
+*Question:* How do we compute this expectation? #pause
+
+*Answer:* Empirically! #pause
+
+$ 
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] approx hat(bb(E))[ cal(G)(bold(tau)) mid(|) s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
+$ 
 
 ==
-$ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] $
-
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = #pin(1)bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]#pin(2) dot sum_(s, a in bold(tau)) nabla_(theta_pi) log pi (a | s; theta_pi) 
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] approx hat(bb(E))[ cal(G)(bold(tau)) mid(|) s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
 $ #pause
 
-#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 2em)[*Question:* How to find this?] #pause
+Requires a full trajectory to compute one sample of $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$ #pause
 
-#v(2em)
+*Question:* Can we do better? #pause
 
-*Answer:* Estimate expectation empirically #pause
+*Answer:* Approximate expectation starting at $s_0, s_1, dots$ in $tau$! #pause
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] approx hat(bb(E))[cal(G)(bold(tau)) | s_0; theta_pi] dot sum_(s, a in bold(tau)) nabla_(theta_pi) log pi (a | s; theta_pi) 
+bold(tau)_0 &= (s_A, a_A, s_B, a_B, s_C, a_C, dots) \ #pause
+bold(tau)_1 &= (s_B, a_B, s_C, a_C, dots) \ #pause
 $
 
-==
-*Definition:* The REINFORCE algorithm updates $theta_pi$ with empirical returns #pause
+$ 
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s; theta_pi] approx sum_(t=0)^oo underbrace(hat(bb(E))[ cal(G)(bold(tau))  mid(|) s_t; theta_pi], "Return starting at" t) dot nabla_(theta_pi) log pi (a_t | s_t; theta_pi)
+$ 
 
-Monte-Carlo variant of policy gradient #pause
+==
+*Definition:* The REINFORCE algorithm updates $theta_pi$ with empirical (Monte Carlo) returns #pause
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] approx hat(bb(E))[cal(G)(bold(tau)) | s_0; theta_pi] dot sum_(s, a in bold(tau)) nabla_(theta_pi) log pi (a | s; theta_pi) 
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s; theta_pi] approx sum_(t=0)^oo underbrace(hat(bb(E))[ cal(G)(bold(tau))  mid(|) s_t; theta_pi], "Return starting at" t) dot nabla_(theta_pi) log pi (a_t | s_t; theta_pi)
 $ #pause
 
-$ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] $
+$ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s; theta_(pi, i)] $
 
 ==
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] approx hat(bb(E))[cal(G)(bold(tau)) | s_0; #pin(1)theta_pi#pin(2)] dot sum_(s, a in bold(tau)) nabla_(theta_pi) log pi (a | s; theta_pi) 
-$
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s; theta_pi] approx sum_(t=0)^oo hat(bb(E))[ cal(G)(bold(tau))  mid(|) s_t; #pin(1)theta_pi#pin(2)] dot nabla_(theta_pi) log pi (a_t | s_t; theta_pi)
+$  #pause
 
-$ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] $
+$ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s; theta_(pi, i)] $
 
 *Question:* Is REINFORCE on-policy or off-policy? #pause
 
@@ -766,17 +813,18 @@ HINT:
 
 ==
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] dot sum_(s, a in bold(tau)) log pi (a | s; theta_pi) 
-$
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s; theta_pi] approx sum_(t=0)^oo hat(bb(E))[ cal(G)(bold(tau))  mid(|) s_t;#pin(1)theta_pi#pin(2)] dot nabla_(theta_pi) log pi (a_t | s_t; theta_pi) \ #pause
 
-$ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] $ #pause
+theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s; theta_(pi, i)] $ #pause
 
-*Question:* Any other ways to express $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$? #pause
+*Question:* Any other ways to express $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$? #pause 
 
-*Answer:* Value function or Q function #pause
+*Answer:* Value or Q function #pause
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = V(s_0; theta_pi, theta_V) dot sum_(s, a in bold(tau)) log pi (a | s; theta_pi) 
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] &= V(s_0, theta_pi) dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) \
+
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] &= Q(s_0, a_0, theta_pi) dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi)
 $ #pause
 
 We call this *actor-critic*, more discussion next time
@@ -796,7 +844,7 @@ However, some people say beta distributions work better! #footnote["Improving st
 ==
 The coding looks a little bit different than the math #pause
 
-We often separate the model, policy distribution, and sampled action
+We often separate the model, policy distribution, and sampled action #pause
 
 ```python
 # Compute "logits", unnormalized probabilities
@@ -820,7 +868,7 @@ discrete_action_model = nn.Sequential([
     # Output logits for possible actions
     nn.Linear(hidden_size, action_size),
 ])
-``` #pause
+``` 
 
 ==
 
@@ -888,11 +936,11 @@ def REINFORCE_loss(model, episode):
     G = compute_return(rewards) # empirical return
     # Policy outputs mean and log(std dev)
     mus, log_sigmas = model(episode.states)
-    # Log probability from equation of Gaussian
+    # Log probability of action we took under action dist 
+    # log pi(a = episode.a | s)
     log_probs = -(
         (episode.actions - mus) ** 2 
-        / (2 * exp(log_sigmas) ** 2) 
-        + log_sigmas
+        / (2 * exp(log_sigmas) ** 2) + log_sigmas
     )
     policy_gradient = mean(G * log_probs)
     # Want gradient ascent, library does gradient descent

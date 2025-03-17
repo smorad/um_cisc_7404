@@ -8,7 +8,7 @@
   [Instructor], [
     Steven Morad \<smorad at um.edu.mo\>
   ],
-  [Office Hours], [10:00-12:00 Mondays and Tuesdays],
+  [Office Hours], [10:00-12:00 Thursdays],
   [Grading], [
     - Assignments: 30%
     - Quizzes: 30%
