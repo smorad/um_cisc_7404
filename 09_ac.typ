@@ -113,7 +113,7 @@
 #show: university-theme.with(
   aspect-ratio: "16-9",
   config-info(
-    title: [Policy Gradient],
+    title: [Actor Critic I],
     subtitle: [CISC 7404 - Decision Making],
     author: [Steven Morad],
     institution: [University of Macau],
@@ -158,22 +158,29 @@
 ==
 How is homework 2?
 
+==
+
 Quiz next week
 
-Study policy gradient, Q learning, etc
+Study:
+- Policy gradient
+- Deep Q learning 
+- Expected returns
 
+= Final Project
 ==
-Changing final project
 
-Simulator is based on web interface, cannot install packages, etc
+Final project information is released
 
-I do not want you to waste time with this
+Suggest project and group members by next Friday (28th)
 
-Instead, find (or create) a gymnasium environment
+Find (or create) a gymnasium environment
 - Ensure your task is MDP
 - Can also try POMDP, but make sure you are prepared!
-- Groups of 5, should be impressive results
-- Due date either last day of class or during finals week
+- Groups of 5, results should be impressive
+- Due just before final exam study week
+
+https://ummoodle.um.edu.mo/pluginfile.php/6900679/mod_resource/content/6/project.pdf
 
 = Review
 
@@ -185,6 +192,15 @@ Instead, find (or create) a gymnasium environment
 // Called actor critic
 // Policy is "actor" because it picks action
 // Q function is "critic" because it scores the actor
+
+==
+Today, we will investigate modern forms of policy gradient
+
+This is what many researchers use today for impressive tasks
+
+For example, one algorithm we learn today can play Pokemon
+
+https://youtu.be/DcYLT37ImBY?si=jJfZyYwFkPYMJYMy
 
 ==
 $ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) $ 
@@ -335,9 +351,12 @@ How can we determine value for action $a_0$ in $s_0$
 $ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] = Q(s_0, a_0, theta_pi) $
 
 ==
-$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = V(s_0, theta_pi) $
+#side-by-side[
+    $ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = V(s_0, theta_pi) $
+][
+    $ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] = Q(s_0, a_0, theta_pi) $
+]
 
-$ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] = Q(s_0, a_0, theta_pi) $
 
 *Question:* How to measure the advantage of an action $a_0$?
 
@@ -346,6 +365,14 @@ $ A(s_0, a_0, theta_pi) &=
     & = Q(s_0, a_0, theta_pi) - V(s_0, theta_pi)
 $
 
+*Question:* Q/V function related, can we write in terms of $V$ only?
+
+HINT: $A(s_0, theta_pi)$, consider reward TODO write as TD error so we can reuse in A2C objective later
+
+$ A(s_0, theta_pi) &= 
+    bb(E)[cal(G)(bold(tau)) | s_0, a_0 ; theta_pi] - bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] \ 
+    & = V(s_1, theta_pi) - (bb(E)[cal(R)(s_(1)) | s_0; theta_pi] + V(s_0, theta_pi))
+$
 
 ==
 $ A(s_0, a_0, theta_pi) = bb(E)[cal(G) | s_0, a_0, theta_pi] - bb(E)[cal(G) | s_0, theta_pi] $
@@ -358,6 +385,9 @@ Plug into policy gradient
 
 $ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] dot nabla_(theta_pi) log pi (a | s; theta_pi) $
 
+$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = A(s_0, a_0, theta_pi) dot nabla_(theta_pi) log pi (a | s; theta_pi) $
+
+/*
 $ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]  = (A(s_0, a_0, theta_pi) + mu) dot  nabla_(theta_pi) log pi (a | s; theta_pi) $
 
 $ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]  = (A(s_0, a_0, theta_pi) + mu) dot  nabla_(theta_pi) log pi (a | s; theta_pi) $
@@ -366,13 +396,137 @@ $ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]  = (A(s_0, a_0, thet
 $ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] - b  =  sum_(s, a in bold(tau)) A(s, a, theta_pi) dot nabla_(theta_pi) log pi (a | s; theta_pi) $
 
 Is advantage a biased estimator?
-
+*/
 = Advantage Actor Critic
 // When we use advantage with policy gradient, call it A2C
 // Written by same guy as DQN (Mnih)
 
-= Importance Sampling
+==
+*Definition:* Advantage actor critic (A2C) iterative updates the policy and value function parameters until convergence
 
-= Trust Region Policy Optimization
+$ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] $ 
+
+$ theta_(V, i+1) = theta_(V, i) + alpha dot gradient_(theta_(V, i)) $ //(V(s_0, theta_pi, theta_V) - (bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + gamma V(s_1, theta_pi, theta_V))^2 ) $ 
+
+==
+
+Using the advantage policy gradient 
+
+$ 
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = A(s_0, theta_pi, theta_V) dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
+$ 
+
+$ 
+A(s_0, s_1, theta_pi, theta_V) = V(s_1, theta_pi, theta_v) - (bb(E)[cal(R)(s_1) | s_0; theta_pi] + V(s_1, theta_pi, theta_v))
+$
+
+= Off-Policy Gradient
+// Policy gradient is an on-policy method
+// Off policy vs on policy
+// Return relies on parameters
+// But what if the policy has only changed slightly
+// Can we still somehow reuse this data
+// Introduce importance sampling
+==
+$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) $ 
+
+*Question:* Is policy gradient off-policy or on-policy?
+
+*Answer:* On-policy, expected return depends on $theta_pi$
+
+*Question:* Why do we care about being off-policy?
+
+*Answer:* Algorithm can reuse data, much more efficient
+
+Could we make policy gradient off-policy?
+
+
+
+==
+Want to estimate 
+
+$ bb(E)[f(x) | x tilde Pr (dot space ; theta_a)] $
+
+Unfortunately, we only have data from
+
+$ bb(E)[f(x) | x tilde Pr (dot space ; theta_b)] $
+
+We can use *importance sampling* to estimate TODO
+
+$ bb(E)[f(x) | x tilde Pr(dot | theta_a)] = bb(E)[
+    f(x) dot (Pr (dot space ; theta_a) ) /  (Pr (dot space ; theta_b)) mid(|) x tilde Pr (dot space ; theta_b) ] 
+$
+
+*Question:* How can this make policy gradient off policy?
+
+==
+
+$ bb(E)[f(x) | x tilde Pr(dot | theta_a)] = bb(E)[
+    f(x) dot (Pr (dot space ; theta_a) ) /  (Pr (dot space ; theta_b)) mid(|) x tilde Pr (dot space ; theta_b) ] 
+$
+
+Consider our current policy is $theta_pi$
+
+We use a *behavior policy* $theta_beta$ to collect data
+
+$theta_beta$ can be an old policy or some other policy
+
+$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[
+    #pin(1)cal(G)(bold(tau))#pin(2) dot (pi (a | s_0 ; theta_pi) ) /  (pi (a | s_0 ; theta_beta)) mid(|) s_0; #pin(3)theta_beta#pin(4)] 
+$
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 2em)[Return following $theta_beta$] 
+#pinit-highlight(3, 4)
+
+==
+If we have importance sampling, why did I tell you policy gradient is on policy?
+
+Importance sampling has exponential variance on the trajectory length
+
+$ Pr (s_(n+1) | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ) $
+
+$ Pr (s_(n+1) | s_0; theta_beta) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_beta) ) $
+
+A small difference in action $a_0$ leads to a huge difference in $a_n$
+
+Requires exponentially more samples for accurate estimate
+
+In practice, importance sampling only works when $ pi (a | s; theta_pi) approx pi (a | s; theta_beta) $
+
+
+
+//= Trust Region Policy Optimization
 
 = Proximal Policy Optimization
+==
+Proximal policy optimization combines advantage actor critic with off-policy gradient
+
+*Proximal*, keeps the new policy close to the old policy (in proximity)
+There are three variants:
+- PPO Clip
+- PPO KL Penalty
+- PPO Clip + KL Penalty
+
+Penalty has better theory and I find it often works better
+
+Read the paper for the clip variant
+
+There are a few variants, I will show you my favorite (KL pentaly)
+
+$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] approx J dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) $ 
+
+#v(1em)
+
+$ J = hat(bb(E))[
+    (#pin(1) pi (a | s; theta_pi ) #pin(2)) / 
+    (#pin(3) pi (a | s; theta_beta )#pin(4)) dot
+    #pin(5)A(s, theta_beta, theta_V)#pin(6) - 
+    #pin(7)rho op("KL")(pi (a | s; theta_pi), pi (a | s; theta_beta))#pin(8)
+    mid(|) s_0; theta_beta
+]
+$
+
+#pinit-highlight-equation-from((1,4), (3,4), fill: red, pos: bottom, height: 2em)[Importance sampling/off-policy correction] 
+
+#pinit-highlight-equation-from((5,6), (5,6), fill: blue, pos: top, height: 2em)[Advantage] 
+
+#pinit-highlight-equation-from((7,8), (7,8), fill: orange, pos: top, height: 2em)[Bound policy change] 
