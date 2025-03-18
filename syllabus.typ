@@ -40,8 +40,8 @@
     - Week 6 (02.27): Q Learning (S&B 6)
     - Week 7 (03.06): Deep Q Learning (S&B 6)
     - Week 8 (03.13): Policy Gradient (S&B 13)
-    - Week 9 (03.20): Actor Critic (S&B 13)
-    - Week 10 (03.27): Model-Based RL
+    - Week 9 (03.20): Actor Critic I (S&B 13)
+    - Week 10 (03.27): Actor Critic II (S&B 13)
     - Week 11 (04.03): Offline RL
     - Week 12 (04.10): Memory and POMDPs
     - Week 13 (04.17): Imitation Learning
@@ -50,7 +50,7 @@
   [Assignment], [
     - Due Week 8 (03.19): Linear Q Learning 
     - Due Week 11 (04.09): Deep Q Learning and Policy Gradient
-    - Due Week 15 (04.30): Final Project
+    - Due Week 15 (05.04): Final Project
   ],
   [Quiz], [
     - Week 4 (02.13): Bandits and MDPs

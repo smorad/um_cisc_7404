@@ -163,6 +163,7 @@ How is homework 2?
 Quiz next week
 
 Study:
+- Actor critic (today)
 - Policy gradient
 - Deep Q learning 
 - Expected returns
@@ -198,7 +199,7 @@ Today, we will investigate modern forms of policy gradient
 
 This is what many researchers use today for impressive tasks
 
-For example, one algorithm we learn today can play Pokemon
+One algorithm we learn today can play Pokemon
 
 https://youtu.be/DcYLT37ImBY?si=jJfZyYwFkPYMJYMy
 
@@ -216,44 +217,61 @@ $ bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = sum_(t=0)^oo gamma^t hat(bb(E))[ca
 ==
 $ bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = sum_(t=0)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_0; theta_pi] $
 
-*Question:* Alternative to Monte Carlo?
+*Question:* Alternative to Monte Carlo return?
 
-$ bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = V(s_0, theta_pi) $
-
-*Answer:* TD-Value function
+Can use $Q$ or $V$ function with TD objective
 
 $ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, theta_pi] + gamma V(s_1, theta_pi) $
 
-==
-$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = & bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) \ 
+$ Q(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0, theta_pi] + gamma Q(s_1, a_1, theta_pi) $
 
-& bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = sum_(t=0)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_0; theta_pi] $
+#side-by-side[
+Before: \ $a_0 = argmax_(a in A) Q(s, a, theta_pi)$
+][
+Now: $a tilde pi (dot | s; theta_pi)$
+
+$V = Q$ in this case
+]
+
+==
+Policy gradient objective uses the return
+
+$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] =  bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) $
+
+Estimate return using value function
+
+$ bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = V(s_0, theta_pi) $
+
+Combining $V"/"Q$ with policy gradient called *actor-critic*
 
 #v(1em)
 $ 
 nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = #pin(1)V(s_0, theta_pi)#pin(2) dot nabla_(theta_pi) log #pin(3)pi (a_0 | s_0; theta_pi)#pin(4)
 $
 
+
+
 #pinit-highlight-equation-from((3,4), (3,4), fill: red, pos: top, height: 1.2em)[Actor pick action] 
 
-#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 1.2em)[Critic score actor $theta_pi$] 
-
-#v(2em)
-
-*Actor-critic* algorithms combine V/Q learning with policy gradient
+#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 1.2em)[Critic gives actor score] 
 
 ==
-Actor-critic methods follow one of two forms
-- Policy gradient but replace return with V/Q
-- Learn V/Q but replace argmax policy with policy gradient
 
-Today, we focus on the first
+*Definition:* Value Policy Gradient is an iterative process that jointly trains a policy network and value function 
+
+$ 
+theta_(pi, i+1) = theta_(pi, i) + alpha dot underbrace(V(s_0, theta_(pi, i), theta_(V, i)), "Expected return") dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; theta_(pi, i))
+$
+
+$ theta_(V, i+1) = \ argmin_theta_(V, i) underbrace((V(s_0, theta_(pi, i), theta_(V,i)) - (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_pi]+ not d dot gamma dot V(s_0, theta_(pi, i), theta_(V,i) )))^2, "TD error") $
 
 
+Repeat process until convergence
 
-= Advantages
+Can train policy with single transition $s_0, a_0, s_1, r_0, d_0$
 
-==
+
+= Advantage Actor Critic
 // Pathology where overflow/underflow of logits
     // All rewards negative, just pushes all probabilities down
     // All rewards positive, explodes
@@ -317,9 +335,11 @@ What if we cannot sample all possible actions?
 
 ]
 
-Policy keeps forgetting, can destabilize learning
+Policy keeps oscillating, can destabilize learning
 
 *Question:* If we take 8 actions, will this fix it?
+
+https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGdqZm56NDgzcmY2Ym95dG13Ynczdm9lbDY0cGpjczdtMHBmcnJmMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MVUyVpyjakkRW/giphy.gif
 
 #pathology_fix
 
@@ -329,96 +349,85 @@ Hint: Think about the mean of the return
 
 *Answer:* Recenter return such that mean is zero
 
-Only updates policy when we do better/worse than average
+But we can do even better!
 
 ==
-Want to update the policy when we do better/worse than average
+What if we:
+- Almost never update policy
+- Update the policy *only* if action is better/worse than expected
 
-We call this the *advantage*
-
-$ A(s_0, a_0, theta_pi) $
-
-If action $a_0$ is better than average, it has an advantage
-
-Let us implement the advantage
-
-How can we determine the "average" performance of the policy in some state $s_0$?
+*Question:* What is the expected performance of the policy?
 
 $ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = V(s_0, theta_pi) $
 
-How can we determine value for action $a_0$ in $s_0$
+*Question:* How can we tell the performance of a specific action?
 
 $ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] = Q(s_0, a_0, theta_pi) $
 
-==
-#side-by-side[
-    $ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = V(s_0, theta_pi) $
-][
-    $ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] = Q(s_0, a_0, theta_pi) $
-]
+*Question:* How can we tell if an action is better/worse than expected?
 
-
-*Question:* How to measure the advantage of an action $a_0$?
-
-$ A(s_0, a_0, theta_pi) &= 
-    bb(E)[cal(G)(bold(tau)) | s_0, a_0 ; theta_pi] - bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] \ 
-    & = Q(s_0, a_0, theta_pi) - V(s_0, theta_pi)
-$
-
-*Question:* Q/V function related, can we write in terms of $V$ only?
-
-HINT: $A(s_0, theta_pi)$, consider reward TODO write as TD error so we can reuse in A2C objective later
-
-$ A(s_0, theta_pi) &= 
-    bb(E)[cal(G)(bold(tau)) | s_0, a_0 ; theta_pi] - bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] \ 
-    & = V(s_1, theta_pi) - (bb(E)[cal(R)(s_(1)) | s_0; theta_pi] + V(s_0, theta_pi))
-$
+$ bb(E)[cal(G)(bold(tau)) | s_0, a_0 ; theta_pi] - bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]  
+     = Q(s_0, a_0, theta_pi) - V(s_0, theta_pi) $
 
 ==
-$ A(s_0, a_0, theta_pi) = bb(E)[cal(G) | s_0, a_0, theta_pi] - bb(E)[cal(G) | s_0, theta_pi] $
-
-$ A(s_0, a_0, theta_pi) = Q(s_0, a_0, theta_pi) - bb(E)[cal(G) | s_0, theta_pi] $
 
 $ A(s_0, a_0, theta_pi) = Q(s_0, a_0, theta_pi) - V(s_0, theta_pi) $
 
-Plug into policy gradient
+We call this the *advantage*, tells us if we should change policy
 
-$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] dot nabla_(theta_pi) log pi (a | s; theta_pi) $
+If action $a_0$ better than expected, increase policy probability
 
-$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = A(s_0, a_0, theta_pi) dot nabla_(theta_pi) log pi (a | s; theta_pi) $
+$ 
+theta_pi = theta_pi + | A(s_0, a_0, theta_pi) | dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi)
+$
 
-/*
-$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]  = (A(s_0, a_0, theta_pi) + mu) dot  nabla_(theta_pi) log pi (a | s; theta_pi) $
+If action $a_0$ worse than expected, reduce probability
 
-$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]  = (A(s_0, a_0, theta_pi) + mu) dot  nabla_(theta_pi) log pi (a | s; theta_pi) $
+$ 
+theta_pi = theta_pi - | A(s_0, a_0, theta_pi) | dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi)
+$
 
+If action $a_0$ is as expected, do nothing
 
-$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] - b  =  sum_(s, a in bold(tau)) A(s, a, theta_pi) dot nabla_(theta_pi) log pi (a | s; theta_pi) $
+$ 
+theta_pi = theta_pi + 0 dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi)
+$
 
-Is advantage a biased estimator?
-*/
-= Advantage Actor Critic
+==
+
+*Definition:* The advantage $A$ determines the relative advantage/disadvantage of taking an action $a_0$ in state $s_0$ for a policy $theta_pi$
+
+$ A(s_0, a_0, theta_pi) = Q(s_0, a_0, theta_pi) - V(s_0, theta_pi) $
+
+==
+$ A(s_0, a_0, theta_pi) = Q(s_0, a_0, theta_pi) - V(s_0, theta_pi) $
+
+Advantage requires both $Q$ and $V$
+
+But earlier, we saw $Q=V$ in some circumstances
+
+*Question:* Can we replace $Q$ with $V$? How? 
+
+HINT: Think about TD error, use $s_1$
+
+$ A(s_0, theta_pi) = -underbrace(V(s_0, theta_pi), "What we expect") + underbrace((bb(E)[cal(R)(s_(1)) | s_0; theta_pi] + not d gamma V(s_1, theta_pi)), "What happens")
+$
+Better than expected: $|A| > 0$, worse $|A| < 0$
+
 // When we use advantage with policy gradient, call it A2C
 // Written by same guy as DQN (Mnih)
 
 ==
-*Definition:* Advantage actor critic (A2C) iterative updates the policy and value function parameters until convergence
+*Definition:* Advantage actor critic (A2C) updates the policy and value functions using the advantage, and repeats until convergence
 
-$ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] $ 
-
-$ theta_(V, i+1) = theta_(V, i) + alpha dot gradient_(theta_(V, i)) $ //(V(s_0, theta_pi, theta_V) - (bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + gamma V(s_1, theta_pi, theta_V))^2 ) $ 
-
-==
-
-Using the advantage policy gradient 
-
-$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = A(s_0, theta_pi, theta_V) dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
-$ 
-
-$ 
-A(s_0, s_1, theta_pi, theta_V) = V(s_1, theta_pi, theta_v) - (bb(E)[cal(R)(s_1) | s_0; theta_pi] + V(s_1, theta_pi, theta_v))
+$ A(s_0, theta_pi, theta_V) = -V(s_0, theta_pi, theta_V) + (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_pi] + not d gamma V(s_1, theta_pi, theta_V))
 $
+
+$ 
+theta_(pi, i+1) = theta_(pi, i) + alpha dot underbrace(A(s_0, theta_(pi, i), theta_(V, i)), "Advantage") dot underbrace(nabla_(theta_(pi, i)) log pi (a_0 | s_0; theta_(pi, i)), "Policy gradient")
+$
+
+$ theta_(V, i+1) = \ argmin_theta_(V, i) underbrace((V(s_0, theta_(pi, i), theta_(V,i)) - (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_pi] + not d gamma V(s_0, theta_(pi, i), theta_(V,i) )))^2, "TD error") $
 
 = Off-Policy Gradient
 // Policy gradient is an on-policy method
@@ -438,12 +447,16 @@ $ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold
 
 *Answer:* Algorithm can reuse data, much more efficient
 
-Could we make policy gradient off-policy?
+*Question:* What do we need to make policy gradient off-policy?
+
+Need to be able to approximate $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$ using $bb(E)[cal(G)(bold(tau)) | s_0; theta_?]$
+
+*Question:* Any math students know how to do this?
 
 
 
 ==
-Want to estimate 
+In *importance sampling*, we want to estimate 
 
 $ bb(E)[f(x) | x tilde Pr (dot space ; theta_a)] $
 
@@ -451,7 +464,7 @@ Unfortunately, we only have data from
 
 $ bb(E)[f(x) | x tilde Pr (dot space ; theta_b)] $
 
-We can use *importance sampling* to estimate TODO
+We can use their ratio to approximate the expectation
 
 $ bb(E)[f(x) | x tilde Pr(dot | theta_a)] = bb(E)[
     f(x) dot (Pr (dot space ; theta_a) ) /  (Pr (dot space ; theta_b)) mid(|) x tilde Pr (dot space ; theta_b) ] 
@@ -461,13 +474,13 @@ $
 
 ==
 
-$ bb(E)[f(x) | x tilde Pr(dot | theta_a)] = bb(E)[
+$ bb(E)[f(x) | x tilde Pr (dot space ; theta_a)] = bb(E)[
     f(x) dot (Pr (dot space ; theta_a) ) /  (Pr (dot space ; theta_b)) mid(|) x tilde Pr (dot space ; theta_b) ] 
 $
 
-Consider our current policy is $theta_pi$
+Consider our current policy is $theta_pi$, we want $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$
 
-We use a *behavior policy* $theta_beta$ to collect data
+We use a *behavior policy* $theta_beta$ to collect data $bb(E)[cal(G)(bold(tau)) | s_0; theta_beta]$
 
 $theta_beta$ can be an old policy or some other policy
 
