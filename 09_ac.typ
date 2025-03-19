@@ -8,6 +8,9 @@
 #import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
+#set math.vec(delim: "[")
+#set math.mat(delim: "[")
+
 #let pathology_left = { 
     set text(size: 25pt)
     canvas(length: 1cm, 
@@ -449,11 +452,9 @@ $ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold
 
 *Question:* What do we need to make policy gradient off-policy?
 
-Need to be able to approximate $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$ using $bb(E)[cal(G)(bold(tau)) | s_0; theta_?]$
+Need to be able to approximate $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$ using $bb(E)[cal(G)(bold(tau)) | s_0; theta_beta]$
 
 *Question:* Any math students know how to do this?
-
-
 
 ==
 In *importance sampling*, we want to estimate 
@@ -484,62 +485,255 @@ We use a *behavior policy* $theta_beta$ to collect data $bb(E)[cal(G)(bold(tau))
 
 $theta_beta$ can be an old policy or some other policy
 
-$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[
-    #pin(1)cal(G)(bold(tau))#pin(2) dot (pi (a | s_0 ; theta_pi) ) /  (pi (a | s_0 ; theta_beta)) mid(|) s_0; #pin(3)theta_beta#pin(4)] 
+#v(1.2em)
+
+$ bb(E)[#pin(5)cal(R)(s_(1))#pin(6) | s_0; #pin(7)theta_pi#pin(8)] = bb(E)[
+    #pin(1)cal(R)(s_1)#pin(2) dot (pi (a | s_0 ; theta_pi) ) /  (pi (a | s_0 ; theta_beta)) mid(|) s_0; #pin(3)theta_beta#pin(4)] 
 $
-#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 2em)[Return following $theta_beta$] 
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 2em)[Reward following $theta_beta$] 
 #pinit-highlight(3, 4)
 
+#pinit-highlight-equation-from((5,6), (5,6), fill: blue, pos: top, height: 2em)[Reward following $theta_pi$] 
+#pinit-highlight(7, 8, fill: blue.transparentize(80%))
+
 ==
-If we have importance sampling, why did I tell you policy gradient is on policy?
+$ bb(E)[cal(R)(s_(1)) | s_0; theta_pi] = bb(E)[
+    cal(R)(s_1) dot (pi (a | s_0 ; theta_pi) ) /  (pi (a | s_0 ; theta_beta)) mid(|) s_0; theta_beta] 
+$
 
-Importance sampling has exponential variance on the trajectory length
+How does this actually work?
 
-$ Pr (s_(n+1) | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ) $
+Rewrite without expectation to clarify
 
-$ Pr (s_(n+1) | s_0; theta_beta) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_beta) ) $
+$ bb(E)[cal(R)(s_(1)) | s_0; theta_pi] = 
+    underbrace(sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; theta_beta), "Expected reward") underbrace((pi (a_0 | s_0 ; theta_pi) ) /  (pi (a_0 | s_0 ; theta_beta)), "Correction") 
+$
 
-A small difference in action $a_0$ leads to a huge difference in $a_n$
+==
 
-Requires exponentially more samples for accurate estimate
+$ bb(E)[cal(R)(s_(1)) | s_0; theta_pi] = 
+    underbrace(sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; theta_beta), "Expected reward") underbrace((pi (a_0 | s_0 ; theta_pi) ) /  (pi (a_0 | s_0 ; theta_beta)), "Correction") 
+$
 
-In practice, importance sampling only works when $ pi (a | s; theta_pi) approx pi (a | s; theta_beta) $
+Terms cancel!
 
+$ bb(E)[cal(R)(s_(1)) | s_0; theta_pi] = 
+    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) cancel(pi (a_0 | s_0; theta_beta)) (pi (a_0 | s_0 ; theta_pi) ) /  cancel(pi (a_0 | s_0 ; theta_beta)) 
+$
+$ bb(E)[cal(R)(s_(1)) | s_0; theta_pi] = 
+    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0 ; theta_pi)  
+$
+Left with expression for expected reward following $theta_pi$
 
+==
+$ bb(E)[cal(R)(s_(1)) | s_0; theta_pi] = bb(E)[
+    cal(R)(s_1) dot (pi (a | s_0 ; theta_pi) ) /  (pi (a | s_0 ; theta_beta)) mid(|) s_0; theta_beta] 
+$
 
-//= Trust Region Policy Optimization
+$ bb(E)[cal(R)(s_(1)) | s_0; theta_pi] = 
+    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; theta_beta)(pi (a_0 | s_0 ; theta_pi) ) /  (pi (a_0 | s_0 ; theta_beta)) 
+$
+
+We can apply the same approach to find the off-policy return
+
+I won't derive it, just trust me
+
+$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[
+cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; theta_pi) ) /  (pi (a_t | s_t ; theta_beta)) mid(|) s_0; theta_beta
+]
+$
+
+==
+// TODO: Should I use hat/approx here?
+
+*Definition:* Off-policy gradient uses importance sampling to learn from off-policy data
+
+$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[
+cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; theta_pi) ) /  (pi (a_t | s_t ; theta_beta)) mid(|) s_0; theta_beta
+]
+$
+
+$ 
+theta_(pi, i+1) = theta_(pi, i) + alpha dot bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; theta_(pi, i))
+$
+
+==
+$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[
+cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; theta_pi) ) /  (pi (a_t | s_t ; theta_beta)) mid(|) s_0; theta_beta
+]
+$
+
+*Question:* Why did I tell you policy gradient is on policy?
+
+*Answer:* Off-policy gradient does not work in most cases
+
+*Question:* Why? HINT: What happens to $product$?
+
+$ product_(t=0)^oo (pi (a_t | s_t ; theta_pi) ) /  (pi (a_t | s_t ; theta_beta)) -> 0, oo $
+
+Only works if $pi (a_t | s_t ; theta_pi)  approx pi (a_t | s_t ; theta_beta)$
+
+= Trust Regions
+// Catastrophic forgetting
+    // Focus on state space for a while
+// Keep new policy close to old
+// Focus on sample efficiency, just slightly off-policy
+    // However, we often consider it on-policy
+    // Reuses very recent data using off-policy gradient
+    // Can do this because old policy is very similar to new policy
+
+==
+Training policies in RL is difficult
+
+We often see behavior like this
+
+#side-by-side[
+    #cimage("fig/09/collapse.png", height: 70%)][
+    *Question:* Any idea why?
+]
+
+==
+#side-by-side[
+
+    #cimage("fig/09/spikes.png", height: 70%)
+][
+    See it in supervised learning too
+
+    Sometimes, the gradient is inaccurate producing a bad update
+
+    In supervised learning, the network can easily recover
+
+    With policy gradient, it is much harder to recover
+]
+
+*Question:* Why?
+
+==
+
+#side-by-side[
+    #cimage("fig/09/collapse.png", height: 70%)
+][
+    Our policy provides the training data $a tilde pi (dot | s; theta_pi)$
+
+    One bad update breaks the policy
+
+    Policy collects useless data
+
+    Off-policy methods recover from "good" data from replay buffer
+
+    On-policy methods cannot!
+
+]
+
+We must be very careful when updating our neural network policy
+
+==
+*Question:* How can we make sure our policy does not change too much?
+
+Lower learning rate? Can help a little 
+
+Small parameter updates cause large changes in deep networks
+
+#side-by-side[
+    $ pi (a | s_A; theta_(pi, i)) = vec(0.4, 0.6) $
+][
+    $ pi (a | s_A; theta_(pi, i + 1)) = vec(1.0, 0.0) $
+]
+
+Constraining changes in parameter space does not work!
+
+*Question:* What else can we constrain?
+
+*Answer:* The action distributions
+
+==
+Can measure the difference in distributions using KL divergence
+
+$ KL [Pr(X), Pr(Y)] in [0, oo] $
+
+Policies are just action distributions
+
+$ KL[pi (a | s; theta_(pi, i)), pi (a | s; theta_(pi, i + 1))] $
+
+//Adding a KL term to loss can prevent large policy changes 
+
+Introduce *trust region* $k$ to prevent large policy changes
+
+$ nabla_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] = V(s_0, theta_(pi, i)) dot nabla_(theta_pi) log pi (a_0 | s_0; theta_(pi, i)) \ s.t. space KL[pi (a | s; theta_(pi, i - 1)), pi (a | s; theta_(pi, i))] < k $ 
+
+See Trust Region Policy Optimization (TRPO), Natural Policy Gradient
+
+==
+
+$ nabla_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] = V(s_0, theta_(pi, i)) dot nabla_(theta_pi) log pi (a_0 | s_0; theta_(pi, i)) \ s.t. space KL[pi (a | s; theta_(pi, i - 1)), pi (a | s; theta_(pi, i))] < k $ 
+
+Constrained optimization can be expensive and tricky to implement
+
+Often requires computing the Hessian (second-order gradient)
+
+*Hack:* Add KL term to the objective (soft constraint)
+
+$ nabla_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] = V(s_0, theta_(pi, i)) dot \ nabla_(theta_pi) [ log pi (a_0 | s_0; theta_(pi, i)) - KL[pi (a | s; theta_(pi, i - 1)), pi (a | s; theta_(pi, i))] ] $ 
 
 = Proximal Policy Optimization
+
 ==
-Proximal policy optimization combines advantage actor critic with off-policy gradient
+Proximal policy optimization (PPO) combines everything we learned today
+- Value function
+- Advantage
+- Off-policy gradient
+- Trust regions
 
-*Proximal*, keeps the new policy close to the old policy (in proximity)
-There are three variants:
-- PPO Clip
-- PPO KL Penalty
-- PPO Clip + KL Penalty
+PPO designed to be very sample efficient
 
-Penalty has better theory and I find it often works better
+It is _almost_ on-policy (but very slightly off-policy)
 
-Read the paper for the clip variant
+==
 
-There are a few variants, I will show you my favorite (KL pentaly)
+```python
+for epoch in range(epochs):
+    batch = collect_rollout(theta_pi)
+    # Minibatching learns faster
+    # but is very slightly off-policy!
+    for minibatch in batch:
+        theta_pi = update_theta_pi(theta_pi, theta_V, batch) 
+        theta_V = update_theta_V(theta_V, batch)
+```
 
-$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] approx J dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) $ 
+==
+There are different variations of PPO
+- PPO clip
+- PPO KL penalty
+- PPO clip + KL penalty
+- PPO clip + KL penalty + entropy
 
-#v(1em)
+Today, we will focus on the simplest version (PPO KL penalty)
+
+==
+
+//*Definition:* Proximal policy optimization
+
+$ 
+theta_(pi, i+1) = theta_(pi, i) + alpha dot J dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; theta_(pi, i))
+$
+
+#v(1.2em)
 
 $ J = hat(bb(E))[
-    (#pin(1) pi (a | s; theta_pi ) #pin(2)) / 
-    (#pin(3) pi (a | s; theta_beta )#pin(4)) dot
+    (#pin(1)pi (a | s; theta_pi )#pin(2)) / 
+    (#pin(3)pi (a | s; theta_beta )#pin(4)) dot
     #pin(5)A(s, theta_beta, theta_V)#pin(6) - 
-    #pin(7)rho op("KL")(pi (a | s; theta_pi), pi (a | s; theta_beta))#pin(8)
+    rho#pin(7)KL(pi (a | s; theta_pi), pi (a | s; theta_beta))#pin(8)
     mid(|) s_0; theta_beta
 ]
 $
 
-#pinit-highlight-equation-from((1,4), (3,4), fill: red, pos: bottom, height: 2em)[Importance sampling/off-policy correction] 
+#pinit-highlight-equation-from((1,4), (3,4), fill: red, pos: bottom, height: 2em)[Off-policy correction for minibatch]
 
 #pinit-highlight-equation-from((5,6), (5,6), fill: blue, pos: top, height: 2em)[Advantage] 
 
-#pinit-highlight-equation-from((7,8), (7,8), fill: orange, pos: top, height: 2em)[Bound policy change] 
+#pinit-highlight-equation-from((7,8), (7,8), fill: orange, pos: top, height: 2em)[Trust region] 
+
+#v(2em)
+
+$ theta_(V, i+1) = \ argmin_theta_(V, i) (V(s_0, theta_(pi, i), theta_(V,i)) - (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_pi]+ not d gamma V(s_0, theta_(pi, i), theta_(V,i) )))^2 $
