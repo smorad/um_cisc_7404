@@ -714,28 +714,31 @@ We will focus on the simplest version (PPO KL penalty)
 
 ==
 
-#text(size: 23pt)[
+#text(size: 24pt)[
+#v(2em)
 $ 
-theta_(pi, i+1) = theta_(pi, i) + alpha J nabla_(theta_(pi, i)) [ log pi (a_0 | s_0; theta_(pi, i)) - rho #pin(7)KL(pi (a_0 | s_0; theta_(pi, i)), pi (a_0 | s_0; theta_beta))#pin(8) ]
+theta_(pi, i+1) = theta_(pi, i) + alpha dot 
+    underbrace((
+        (#pin(1)pi (a | s; theta_(pi, i) )#pin(2)) / 
+        (#pin(3)pi (a | s; theta_beta )#pin(4))
+
+        #pin(5)A(s, theta_beta, theta_V)#pin(6)
+    ), "Value") 
+    \ dot (#pin(9)nabla_(theta_(pi, i)) [ log pi (a_0 | s_0; theta_(pi, i))]#pin(10) 
+    - rho nabla_(theta_(pi, i + 1))[ #pin(7)KL[pi (a_0 | s_0; theta_(pi, i + 1)), pi (a_0 | s_0; theta_beta)]#pin(8) ] )
 $
 
-#v(1.5em)
 
-$ J = hat(bb(E))[
-    (#pin(1)pi (a | s; theta_(pi, i) )#pin(2)) / 
-    (#pin(3)pi (a | s; theta_beta )#pin(4)) dot
-    #pin(5)A(s, theta_beta, theta_V)#pin(6)
-    mid(|) s_0; theta_beta
-]
-$
-
-#pinit-highlight-equation-from((1,4), (3,4), fill: red, pos: bottom, height: 1.2em)[Off-policy correction for minibatch]
+#pinit-highlight-equation-from((1,4), (1,2), fill: red, pos: top, height: 2em)[Off-policy correction for minibatch]
 
 #pinit-highlight-equation-from((5,6), (5,6), fill: blue, pos: top, height: 1.2em)[Advantage] 
 
 #pinit-highlight-equation-from((7,8), (7,8), fill: orange, pos: bottom, height: 1.2em)[Trust region] 
 
-#v(1.5em)
+#pinit-highlight-equation-from((9,10), (9,10), fill: green, pos: bottom, height: 1.2em)[Policy gradient] 
+
+#v(1.2em)
+
 
 $ A(s_0, theta_beta, theta_V) = -V(s_0, theta_beta, theta_V) + (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_beta] + not d gamma V(s_1, theta_beta, theta_V)) $
 
@@ -743,9 +746,7 @@ $ theta_(V, i+1) = argmin_theta_(V, i) (V(s_0, theta_beta, theta_(V,i)) - (hat(b
 ]
 
 ==
-*Personal opinion:* PPO is overrated
-
-For some reason, it is very popular
+*Personal opinion:* PPO is overrated, for some reason very popular
 
 Many hyperparameters, hard to implement, computationally expensive
 
@@ -758,3 +759,4 @@ Our experiments find that Q learning outperforms PPO
 *My suggestion:* 
 - Try A2C first, solid actor-critic method, easy to implement
 - Regularization (weight decay, layer norm, etc) helpful
+- You can make any algorithm work with enough effort!
