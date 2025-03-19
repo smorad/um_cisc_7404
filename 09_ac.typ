@@ -692,12 +692,15 @@ It is _almost_ on-policy (but very slightly off-policy)
 
 ```python
 for epoch in range(epochs):
-    batch = collect_rollout(theta_pi)
+    batch = collect_rollout(theta_beta)
     # Minibatching learns faster
     # but is very slightly off-policy!
     for minibatch in batch:
-        theta_pi = update_theta_pi(theta_pi, theta_V, batch) 
-        theta_V = update_theta_V(theta_V, batch)
+        theta_pi = update_pi(
+            theta_pi, theta_beta, theta_V, batch
+        ) 
+        theta_V = update_V(theta_V, batch)
+    theta_beta = theta_pi
 ```
 
 ==
@@ -707,33 +710,51 @@ There are different variations of PPO
 - PPO clip + KL penalty
 - PPO clip + KL penalty + entropy
 
-Today, we will focus on the simplest version (PPO KL penalty)
+We will focus on the simplest version (PPO KL penalty)
 
 ==
 
-//*Definition:* Proximal policy optimization
-
+#text(size: 23pt)[
 $ 
-theta_(pi, i+1) = theta_(pi, i) + alpha dot J dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; theta_(pi, i))
+theta_(pi, i+1) = theta_(pi, i) + alpha J nabla_(theta_(pi, i)) [ log pi (a_0 | s_0; theta_(pi, i)) - rho #pin(7)KL(pi (a_0 | s_0; theta_(pi, i)), pi (a_0 | s_0; theta_beta))#pin(8) ]
 $
 
-#v(1.2em)
+#v(1.5em)
 
 $ J = hat(bb(E))[
-    (#pin(1)pi (a | s; theta_pi )#pin(2)) / 
+    (#pin(1)pi (a | s; theta_(pi, i) )#pin(2)) / 
     (#pin(3)pi (a | s; theta_beta )#pin(4)) dot
-    #pin(5)A(s, theta_beta, theta_V)#pin(6) - 
-    rho#pin(7)KL(pi (a | s; theta_pi), pi (a | s; theta_beta))#pin(8)
+    #pin(5)A(s, theta_beta, theta_V)#pin(6)
     mid(|) s_0; theta_beta
 ]
 $
 
-#pinit-highlight-equation-from((1,4), (3,4), fill: red, pos: bottom, height: 2em)[Off-policy correction for minibatch]
+#pinit-highlight-equation-from((1,4), (3,4), fill: red, pos: bottom, height: 1.2em)[Off-policy correction for minibatch]
 
-#pinit-highlight-equation-from((5,6), (5,6), fill: blue, pos: top, height: 2em)[Advantage] 
+#pinit-highlight-equation-from((5,6), (5,6), fill: blue, pos: top, height: 1.2em)[Advantage] 
 
-#pinit-highlight-equation-from((7,8), (7,8), fill: orange, pos: top, height: 2em)[Trust region] 
+#pinit-highlight-equation-from((7,8), (7,8), fill: orange, pos: bottom, height: 1.2em)[Trust region] 
 
-#v(2em)
+#v(1.5em)
 
-$ theta_(V, i+1) = \ argmin_theta_(V, i) (V(s_0, theta_(pi, i), theta_(V,i)) - (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_pi]+ not d gamma V(s_0, theta_(pi, i), theta_(V,i) )))^2 $
+$ A(s_0, theta_beta, theta_V) = -V(s_0, theta_beta, theta_V) + (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_beta] + not d gamma V(s_1, theta_beta, theta_V)) $
+
+$ theta_(V, i+1) = argmin_theta_(V, i) (V(s_0, theta_beta, theta_(V,i)) - (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_beta]+ not d gamma V(s_0, theta_beta, theta_(V,i) )))^2 $
+]
+
+==
+*Personal opinion:* PPO is overrated
+
+For some reason, it is very popular
+
+Many hyperparameters, hard to implement, computationally expensive
+
+Cohere finds REINFORCE better than PPO for LLM training
+
+https://arxiv.org/pdf/2402.14740v1
+
+Our experiments find that Q learning outperforms PPO
+
+*My suggestion:* 
+- Try A2C first, solid actor-critic method, easy to implement
+- Regularization (weight decay, layer norm, etc) helpful
