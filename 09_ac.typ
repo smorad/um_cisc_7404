@@ -229,17 +229,41 @@
 = Admin
 
 ==
-How is homework 2?
+How is homework 2? #pause
+
+Deadlines #pause
+- 1 Quiz next week #pause
+- Final project proposal due day after quiz #pause
+- Homework 2 due in 2 weeks #pause
+- Last quiz in #sym.tilde 1 month
+- Final project #sym.tilde 6 weeks
 
 ==
 
-Quiz next week #pause
+Quiz next week, topics: #pause
 
-Study: #pause
-- Actor critic (today) #pause
-- Policy gradient #pause
-- Deep Q learning #pause
-- Expected returns
+#side-by-side[
+- Actor critic 
+    - Basic algorithm
+    - Advantages
+    - Off-policy gradient
+    - Trust regions
+    - Will not cover PPO #pause
+][
+- Policy gradient 
+    - Expectations, returns, notation
+    - Optimization objective
+    - REINFORCE #pause
+][
+- Q learning 
+    - Expectations, returns, notation
+    - Different objectives
+    - Relationships between $V$ and $Q$ #pause
+]
+
+Format/difficulty will be similar to last time (3-4 questions, 75 mins) #pause
+
+Continue lecture after quiz next week? Will you be too tired?
 
 = Final Project
 ==
