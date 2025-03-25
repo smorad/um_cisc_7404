@@ -646,11 +646,11 @@ One small problem: deterministic policy means no exploration! #pause
 
 We must visit other states/actions to find optimal $theta_Q, theta_mu$ #pause
 
-With Q learning, we had greedy policy #pause
+With Q learning, we had epsilon greedy policy #pause
 
 $ pi (a | s; theta_pi) =  cases( 
-  1 "if" a = argmax_(a in A) Q(s, a, theta_pi), 
-  0 "otherwise"
+  1 - epsilon : a = argmax_(a in A) Q(s, a, theta_pi), 
+  epsilon : "uniform"(A)
 ) $ #pause
 
 *Question:* What about DDPG exploration? HINT: Continuous actions #pause
@@ -685,6 +685,7 @@ Here, `action_dims` correspond to the number of continuous dimensions #pause
 BenBen: $A = [0, 2 pi]^12$, so `action_dims=12`
 ==
 Now, we need to make sure actions do not leave action space! #pause
+- BenBen: $A in [0, 2 pi]^12$, `lower=[0, 0, ...]`, `upper=[2pi, 2pi, ...]`
 
 $tanh$ keeps actions in $[-1, 1]$, scale $tanh$ to action space limits #pause
 - Can also use `clip(action, lower, upper)`, but this zeros gradients #pause
@@ -724,23 +725,22 @@ Q = Sequential([
 ```python
 while not terminated:
     # Exploration: make sure actions within action space!
-    action = sample_action(mu, state, bounds, noise)
+    action = sample_action(mu, state, bounds, std)
     transition = env.step(action)
     replay_buffer.append(transition)
     data = replay_buffer.sample()
     # Theta_pi params are in mu neural network
     # Argnums tells us differentiation variable
-    J_Q = Q_TD_loss(theta_Q, theta_T, mu, data)
-    J_mu = mu_loss(mu, theta_Q, data)
+    J_Q = grad(Q_loss, argnums=0)(theta_Q, theta_T, mu, data)
+    J_mu = grad(mu_loss, argnums=0)(mu, theta_Q, data)
     theta_Q, mu = apply_updates(J_Q, J_mu, ...)
-    # Target network usually necessary
-    if step % 200 == 0:
+    if step % 200 == 0: # Target network necessary
         theta_T = theta_Q
 ```
 
 ==
 ```python
-def Q_TD_loss(theta_Q, theta_T, theta_pi, data):
+def Q_loss(theta_Q, theta_T, theta_pi, data):
     Qnet = combine(Q, theta_Q)
     Tnet = combine(Q, theta_T) # Target network
     # Predict Q values for action we took
@@ -780,103 +780,212 @@ def mu_loss(mu, theta_Q, data):
 // SAC
 
 ==
-Entropy of a policy tells us how random it is 
+Many algorithms add improvements to DDPG #pause
 
-$ H(pi (a | s; theta_pi)) $
+The most popular algorithm based on DDPG is *Soft Actor Critic* (SAC) #pause
 
-#side-by-side[
-    #high_ent
-][
-    #low_ent
-]
+SAC is arguably the "best" model-free algorithm #pause
 
-*Question:* Which policy has higher entropy?
+The motivation for SAC comes from *max-entropy RL* #pause
 
-Left policy, more random
+We will very briefly cover max-entropy RL #pause
+
+First, let us introduce entropy
 
 ==
-In maximum entropy RL, we change the objective
+Entropy measures the uncertainty of a distribution #pause
 
-$ argmax_(theta_pi) bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $
+$ H(pi (a | s; theta_pi)) $ #pause
 
-$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t (bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + H(pi (dot | s_t; theta_pi))) $
+#side-by-side[
+    #high_ent #pause
+][
+    #low_ent #pause
+]
+
+*Question:* Which policy has higher entropy? #pause
+
+Left policy, more uncertain/random
+
+==
+In maximum entropy RL, we change the objective #pause
+
+$ argmax_(theta_pi) bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $ #pause
+
+We consider the entropy in the return #pause
+
+$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + gamma^t H(pi (a | s_t; theta_pi)) $ #pause
 
 We want a policy that is both random and maximizes the return
 
 ==
-$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t (bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + H(pi (dot | s_t; theta_pi))) $
+$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t (bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + H(pi (dot | s_t; theta_pi))) $ #pause
 
-*Question:* Why do want policy entropy? Less optimal returns?
+*Question:* Why do want policy entropy? Lowers the return
 
-*Answer:* No theoretical reason, helpful in practice
-- Better exploration during training
-- More robust in uncertain environments (robotics)
-    - If one approach fails, can try another
-- More stable optimization (explain further in offline RL)
-
-==
-DDPG based on deterministic policy, how can we use a random policy?
-
-Reparameterization trick (used in VAE) 
-
-Policy is deterministic, given inputs
-$ a = f(theta_pi, s, sigma, eta) = mu(s, theta_pi) + sigma * eta; quad eta tilde N(0, 1) $
-
-Abuse notation, write as 
-
-$ a tilde pi (a | s; theta_pi) $
-
-But really, $pi$ is deterministic if we know $eta$
-$ a = mu(s, theta_pi, eta) $
-
-Just cannot control one input...
+*Answer:* No good theoretical reason, helpful in practice #pause
+- There are theoretical reasons, but they are not very good #pause
+- Better exploration during training #pause
+- More stable training (explain further in offline RL)
 
 ==
+DDPG is based on a deterministic policy $mu$ #pause
 
-*Definition:* Soft Actor Critic (SAC) is DDPG + max entropy objective 
+A deterministic policy $mu$ has no entropy (it is not random) #pause
 
-*Step 1:* Learn a $Q$ function for $mu$
+But for SAC, I talk about $pi$ and policy entropy #pause
 
-#text(size: 23pt)[
-$ theta_(Q, i+1) = argmin_(theta_(Q, i)) \ (Q(s_0, a_0, theta_(pi, i), theta_(Q, i)) - (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + H(pi(a | s_0)) + gamma Q(s_1, a_1, theta_(pi, i), theta_(Q, i))))^2 $
-]
+How is this possible? #pause
 
-*Step 2:* Learn a $pi$ that maximizes $Q$
+Consider a function $f: S times Theta times bb(R) |-> A$ #pause
 
-$ theta_(pi, i+1) = theta_(pi, i) + alpha dot Q(s_0, mu(s_0, theta_pi, eta) ) $
-
-Where $eta tilde N(0, 1); quad a_1 tilde pi (dot | s_1; theta_pi)$
+$ a = f(s, theta_mu, eta) = mu(s, theta_mu) + eta
+$ 
 
 ==
-Like PPO, there are many variants of SAC
-    - Double Q function
-    - Lagrangian entropy adjustment
-    - Reduced variance gradients
+$ a = f(s, theta_mu, eta) = mu(s, theta_mu) + eta
+$ #pause
 
-Like PPO, SAC is also very complicated
+If $eta tilde "Normal"(0, 1)$ our function $f$ is still deterministic #pause
 
-It also introduces a number of necessary "implementation tricks"
+We call this the *reparameterization trick*, used in variational autoencoders (VAE) #pause
 
-I will not show code, because I don't remember all the tricks
+Mathematically, this is a "deterministic" policy #pause
 
-CleanRL describes many necessary tricks
+$ bb(E)[cal(G)(bold(tau)) | s_0, eta_0, eta_1, dots; theta_mu] $ 
 
-https://docs.cleanrl.dev/rl-algorithms/sac/#implementation-details_1
+==
+$ a = f(s, theta_mu, eta) = mu(s, theta_mu) + eta \
+bb(E)[cal(G)(bold(tau)) | s_0, eta_0, eta_1, dots; theta_mu] $ 
+
+In practice, $f$ behaves just like a stochastic policy $pi$ #pause
+
+Gradient descent will learn $theta_mu$ that generalize over $eta$ #pause
+
+We abuse notation and write $f$ as a random policy #pause
+
+$ pi (a | s; theta_pi) $ #pause
+
+But $f$ is deterministic when we know $eta$
+
+==
+What happens when we combine max entropy RL #pause
+
+$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + gamma^t H(pi (a | s_t; theta_pi)) $ #pause
+
+
+With the reparameterization trick? #pause
+
+$ a = mu(s, theta_mu) + eta tilde.equiv 
+a tilde pi (dot | s; theta_pi)
+$ #pause
+
+We get SAC!
+
+==
+*Definition:* Soft Actor Critic (SAC) adds a max entropy objective and stochastic policy to DDPG #pause
+
+*Step 1:* Learn a $Q$ function for max entropy policy (Q learning) #pause
+
+$ theta_(Q, i+1) = argmin_(theta_(Q, i)) (Q(s_0, a_0, theta_(pi, i), theta_(Q, i)) - y)^2 $ #pause
+
+$ y = #pin(5)hat(bb(E))[cal(R)(s_1) | s_0, a_0]#pin(6) + #pin(3)H(pi (a | s_0; theta_mu))#pin(4) + gamma Q(s_1, #pin(1)mu(s_1, theta_mu, eta)#pin(2), theta_(pi, i), theta_(Q, i)) #pause $ #pause
+
+#pinit-highlight-equation-from((5,6), (5,6), fill: orange, pos: bottom, height: 1.2em)[Reward] #pause
+
+#pinit-highlight-equation-from((3,4), (3,4), fill: red, pos: bottom, height: 1.2em)[Entropy bonus] #pause
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 1.2em)[Deterministic $a$] #pause
+
+#v(1.5em)
+
+where $eta$ is randomly sampled
+
+==
+
+*Step 2:* Learn a $pi$ that maximizes $Q$ (policy gradient) #pause
+
+#v(1.5em)
+$ theta_(pi, i+1) = theta_(pi, i) + alpha dot underbrace(Q(s_0, #pin(1)mu(s_0, theta_mu, eta)#pin(2), theta_pi, theta_Q), "Replaces" bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]) $  #pause
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: top, height: 1.2em)[Deterministic $a$] #pause
+
+
+where $eta$ is randomly sampled #pause
+
+Repeat until convergence, $theta_(mu, i+1)=theta_(mu, i), quad theta_(Q, i+1)=theta_(Q, i)$
+==
+Like PPO, there are many variants of SAC #pause
+    - Learn separate value and Q functions #pause
+    - Double Q function #pause
+    - Lagrangian entropy adjustment #pause
+    - Reduced variance gradients #pause
+
+Like PPO, SAC is complicated -- uses many "implementation tricks" #pause
+- Often not documented
+- CleanRL describes modern SAC, using tricks from 5+ papers
+- https://docs.cleanrl.dev/rl-algorithms/sac/#implementation-details_1
+
+Coding SAC could take an entire lecture, read CleanRL
 
 ==
 #side-by-side[
-    DDPG $=>$ A2C
+    DDPG $approx$ A2C #pause
+
+    Introduces the concept, simple #pause
 ][
-    SAC $=>$ PPO
+    SAC $approx$ PPO #pause
+
+    Improves the concept, complex #pause
 ]
 
-SAC tends to perform better in papers
+I suggest you try DDPG before SAC #pause
+- DDPG is much easier to implement #pause
+- Fewer hyperparameters #pause
+- Tuned DDPG can likely outperform untuned SAC 
 
-I suggest you try DDPG before SAC
-- DDPG is much easier to implement
-- Fewer hyperparameters/tricks
-- Tuned DDPG can likely outperform untuned SAC
+==
+What algorithm is best in 2025? #pause
 
+For discrete actions (Atari), DQN variants still perform best #pause
+
+For continuous actions (MuJoCo), SAC performs best #pause
+
+PPO is less sensitive to hyperparameters than SAC/DQN #pause
+- Noobs like PPO, they cannot tune hyperparameters #pause
+- Often performs worse than tuned DQN/SAC #pause
+
+Tuned DDPG/A2C perform 95% as good as tuned SAC/PPO #pause
+- Much easier to debug
+
+= Final Project Tips
+==
+Log and plot EVERYTHING #pause
+    - Losses, mean advantage, mean Q, policy entropy, etc
+        - Use these to help debug and tune hyperparameters
+        - E.g., exploding losses, decrease learning rate
+        - E.g., Q values too large? Increase time between target net update #pause
+
+If you get stuck, visualize your policy #pause
+- Record some episodes (videos/frames/etc) #pause
+- Watch the policy, what did it learn to do? #pause
+    - Think about why it learned to do this (exploiting bugs in MDP) 
+
+==
+
+Why does Steven spend so much time on theory instead of coding? #pause
+
+In supervised learning, follow MNIST tutorial and everything works #pause
+
+This is *NOT* the case in RL #pause
+
+In RL, your code never works on the first try #pause
+
+Even if it is correct, you need to play with hyperparameters #pause
+
+Theory is absolutely necessary to understand *why* your policy fails, and *how* to fix it #pause
+
+You must use your brain to be successful!
 
 
 /*
