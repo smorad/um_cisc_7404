@@ -19,6 +19,7 @@
     institution: [University of Macau],
     logo: image("fig/common/bolt-logo.png", width: 4cm)
   ),
+  //config-common(handout: true),
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
 )

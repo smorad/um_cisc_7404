@@ -8,6 +8,7 @@
 #import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
+
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
@@ -192,6 +193,7 @@
     institution: [University of Macau],
     logo: image("fig/common/bolt-logo.png", width: 4cm)
   ),
+  //config-common(handout: true),
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
 )
@@ -297,6 +299,10 @@ Today, we will investigate modern forms of policy gradient #pause
 These forms of policy gradient also learn Q or V functions jointly #pause
 
 We will learn the prerequisites to implement PPO, the most popular RL algorithm #pause
+
+==
+
+#cimage("fig/09/algos.png")
 
 ==
 Recall the policy gradient #pause

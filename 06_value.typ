@@ -124,6 +124,7 @@
     institution: [University of Macau],
     logo: image("fig/common/bolt-logo.png", width: 4cm)
   ),
+  //config-common(handout: true),
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
 )
@@ -137,6 +138,10 @@
 // TODO: derivation error marked in value function, search for "where does P(s_1 | s_0; theta) go?"
 // TODO MAYBE: Get rid of s_0, a_0 -- eventually transition to s_t, a_t?
 // Required for PG later on?
+// TODO: theta_pi in the Q function doesn't make sense later
+// Go ahead and look at lecture 10, even for DDPG it is confusing
+// Solution: keep theta_pi for policy gradient methods
+// Use Q_(theta_pi) for value-based methods
 
 
 // Problems with MPC, cannot do infinite
