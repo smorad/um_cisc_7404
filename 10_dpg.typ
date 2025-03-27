@@ -607,7 +607,7 @@ Writing the code makes it look easy #pause
 ```python
 def V(s, Q_nn, mu_nn):
     a = mu_nn(s)
-    return Q_nn(s, a)
+    return Q_nn(s, a) # Return value
 
 # Learn the policy that maximizes V
 # Make sure to differentiate w.r.t policy parameters!
@@ -621,13 +621,14 @@ We can learn $Q$ for any policy (before we focused on greedy) #pause
 
 $ Q(s_0, a_0, theta_mu, theta_Q) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, mu(s_1, theta_mu), theta_mu, theta_Q) $ #pause
 
-```python
+```python 
 def V(s, Q_nn, mu_nn):
     a = mu_nn(s)
-    return Q_nn(s, a)
-# Before, we learned policy params to maximize Q
+    return Q_nn(s, a) # return value
+def TD_loss(s, a, r, next_s, Q_nn, mu_nn):
+    return (V(s, Q_nn, mu_nn) - td_label) ** 2
 # Now, we learn params of Q following policy (argnums=2)
-J = grad(V, argnums=1)(states, Q_nn, mu_nn)
+J = grad(TD_loss, argnums=1)(s, a, r, next_s, Q_nn, mu_nn)
 Q_nn = optimizer.update(Q_nn, J)
 ```
 ==
@@ -691,10 +692,10 @@ $ pi (a | s; theta_pi) =  cases(
   epsilon & : a = "uniform"(A)
 ) $ #pause
 
-*Question:* What about DDPG exploration? HINT: Continuous actions #pause
+*Question:* What about DDPG exploration (continuous actions)? #pause
 
 $ pi (a | s; theta_mu) =  cases( 
-  1 - epsilon & : a = Q(s, mu(s, theta_mu), theta_mu), 
+  1 - epsilon & : a = mu(s, theta_mu), 
   epsilon & : a = "uniform"(A)
 ) $ 
 
@@ -704,13 +705,17 @@ In practice, we can do something a little smarter #pause
 
 Uniform actions cover the full action space, but can take a while to learn #pause
 
-We can add noise to a good action instead of completely random actions #pause
+Can add noise to a good action instead of completely random actions #pause
 
 $ pi (a | s; theta_mu) = mu(s, theta_mu) + "Normal"(0, sigma) $ #pause
 
 This tends to learn more quickly #pause
 
-Normal noise (infinite support) guarantees full action space coverage
+Normal noise (infinite support) guarantees full action space coverage #pause
+
+*Note:* Original paper uses Ornstein–Uhlenbeck noise #pause 
+- More recent papers find using normal noise produces similar results
+
 
 = Coding
 
@@ -821,6 +826,16 @@ def mu_loss(mu, theta_Q, data):
     return -q_value
 ```
 
+==
+You can also read about Twin Delayed DDPG (TD3) #pause
+
+Adds some improvements to DDPG to improve performance #pause
+- Add noise to target 
+$ Q(s, mu(s, theta_mu) + eta, theta_mu, theta_T) $
+- Learns two Q functions, use the minimum as target
+$ min_(i in 1, 2) Q(s, mu(s, theta_mu) + eta, theta_mu, theta_(T, i)) $
+- Update Q functions more often than policy
+
 
 = Max Entropy RL
 // SAC is arguably the best algorithm we have today
@@ -836,7 +851,7 @@ def mu_loss(mu, theta_Q, data):
 ==
 Many algorithms add improvements to DDPG #pause
 
-The most popular algorithm based on DDPG is *Soft Actor Critic* (SAC) #pause
+The most popular DDPG-based algorithm is *Soft Actor Critic* (SAC) #pause
 
 SAC is arguably the "best" model-free algorithm #pause
 
@@ -862,34 +877,35 @@ $ H(pi (a | s; theta_pi)) $ #pause
 Left policy, more uncertain/random
 
 ==
-In maximum entropy RL, we change the objective #pause
+Consider our RL objective #pause
 
 $ argmax_(theta_pi) bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $ #pause
 
-We consider the entropy in the return #pause
+In max-entropy RL, we consider the entropy in the return #pause
 
 $ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + gamma^t H(pi (a | s_t; theta_pi)) $ #pause
 
-We want a policy that is both random and maximizes the return
+We learn a policy that maximizes the return and *behaves randomly*
 
 ==
 $ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t (bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + H(pi (dot | s_t; theta_pi))) $ #pause
 
-*Question:* Why do want policy entropy? Lowers the return
+*Question:* Why do want policy entropy? Lowers the return #pause
 
 *Answer:* No good theoretical reason, helpful in practice #pause
 - There are theoretical reasons, but they are not very good #pause
 - Better exploration during training #pause
-- More stable training (explain further in offline RL)
+- More stable training (harder for policy to exploit Q function) #pause
+    - Further discussion in offline RL lecture
 
 ==
-DDPG is based on a deterministic policy $mu$ #pause
+We are talking about the policy like it is random $ pi (a | s; theta_pi)$ #pause
+
+DDPG is based on a deterministic policy $a = mu(s, theta_mu)$ #pause
 
 A deterministic policy $mu$ has no entropy (it is not random) #pause
 
-But for SAC, I talk about $pi$ and policy entropy #pause
-
-How is this possible? #pause
+What is going on? How is this possible? #pause
 
 Consider a function $f: S times Theta times bb(R) |-> A$ #pause
 
@@ -906,11 +922,15 @@ We call this the *reparameterization trick*, used in variational autoencoders (V
 
 Mathematically, this is a "deterministic" policy #pause
 
-$ bb(E)[cal(G)(bold(tau)) | s_0, eta_0, eta_1, dots; theta_mu] $ 
+$ bb(E)[cal(G)(bold(tau)) | s_0, #pin(1)eta_0, eta_1, dots#pin(2); theta_mu] $  #pause
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 1.2em)[Noise terms] 
 
 ==
 $ a = f(s, theta_mu, eta) = mu(s, theta_mu) + eta \
-bb(E)[cal(G)(bold(tau)) | s_0, eta_0, eta_1, dots; theta_mu] $ 
+bb(E)[cal(G)(bold(tau)) | s_0, eta_0, eta_1, dots; theta_mu] $ #pause
+
+$f$ is technically deterministic function if we know $eta_0, eta_1, dots$ #pause
 
 In practice, $f$ behaves just like a stochastic policy $pi$ #pause
 
@@ -918,38 +938,45 @@ Gradient descent will learn $theta_mu$ that generalize over $eta$ #pause
 
 We abuse notation and write $f$ as a random policy #pause
 
-$ pi (a | s; theta_pi) $ #pause
+$ f(s, theta_mu, cancel(eta)) =  pi (a | s; theta_pi) $ #pause
 
 But $f$ is deterministic when we know $eta$
 
 ==
-What happens when we combine max entropy RL #pause
+What happens when we combine DDPG #pause
+
+With the max entropy objective #pause
 
 $ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + gamma^t H(pi (a | s_t; theta_pi)) $ #pause
 
 
-With the reparameterization trick? #pause
+And the reparameterization trick? #pause
 
+$ f(s, theta_mu, cancel(eta)) = pi (a | s; theta_pi) $ #pause
+
+/*
 $ a = mu(s, theta_mu) + eta tilde.equiv 
 a tilde pi (dot | s; theta_pi)
 $ #pause
+*/
 
 We get SAC!
 
 ==
-*Definition:* Soft Actor Critic (SAC) adds a max entropy objective and stochastic policy to DDPG #pause
+*Definition:* Soft Actor Critic (SAC) adds a max entropy objective and "stochastic" policy to DDPG #pause
 
 *Step 1:* Learn a $Q$ function for max entropy policy (Q learning) #pause
 
 $ theta_(Q, i+1) = argmin_(theta_(Q, i)) (Q(s_0, a_0, theta_(pi, i), theta_(Q, i)) - y)^2 $ #pause
 
-$ y = #pin(5)hat(bb(E))[cal(R)(s_1) | s_0, a_0]#pin(6) + #pin(3)H(pi (a | s_0; theta_mu))#pin(4) + gamma Q(s_1, #pin(1)mu(s_1, theta_mu, eta)#pin(2), theta_(pi, i), theta_(Q, i)) #pause $ #pause
+$ y = #pin(5)hat(bb(E))[cal(R)(s_1) | s_0, a_0]#pin(6) + #pin(3)H(pi (a | s_0; theta_mu))#pin(4) + gamma Q(s_1, #pin(1)mu(s_1, theta_mu) + eta#pin(2), theta_(pi, i), theta_(Q, i)) #pause $ #pause
 
 #pinit-highlight-equation-from((5,6), (5,6), fill: orange, pos: bottom, height: 1.2em)[Reward] #pause
 
+#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 1.2em)[Deterministic $a$] #pause
+
 #pinit-highlight-equation-from((3,4), (3,4), fill: red, pos: bottom, height: 1.2em)[Entropy bonus] #pause
 
-#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 1.2em)[Deterministic $a$] #pause
 
 #v(1.5em)
 
@@ -960,7 +987,7 @@ where $eta$ is randomly sampled
 *Step 2:* Learn a $pi$ that maximizes $Q$ (policy gradient) #pause
 
 #v(1.5em)
-$ theta_(pi, i+1) = theta_(pi, i) + alpha dot underbrace(Q(s_0, #pin(1)mu(s_0, theta_mu, eta)#pin(2), theta_pi, theta_Q), "Replaces" bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]) $  #pause
+$ theta_(pi, i+1) = theta_(pi, i) + alpha dot underbrace(Q(s_0, #pin(1)mu(s_0, theta_mu) + eta#pin(2), theta_pi, theta_Q), "Replaces" bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]) $  #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: top, height: 1.2em)[Deterministic $a$] #pause
 
@@ -968,29 +995,37 @@ $ theta_(pi, i+1) = theta_(pi, i) + alpha dot underbrace(Q(s_0, #pin(1)mu(s_0, t
 where $eta$ is randomly sampled #pause
 
 Repeat until convergence, $theta_(mu, i+1)=theta_(mu, i), quad theta_(Q, i+1)=theta_(Q, i)$
+
+= Thoughts on Model-Free RL
 ==
 Like PPO, there are many variants of SAC #pause
     - Learn separate value and Q functions #pause
     - Double Q function #pause
     - Lagrangian entropy adjustment #pause
-    - Reduced variance gradients #pause
+    - Reduce gradient variance #pause
 
 Like PPO, SAC is complicated -- uses many "implementation tricks" #pause
-- Often not documented
-- CleanRL describes modern SAC, using tricks from 5+ papers
-- https://docs.cleanrl.dev/rl-algorithms/sac/#implementation-details_1
+- Often not documented #pause
+- CleanRL describes modern SAC, using tricks from 5 papers #pause
+- https://docs.cleanrl.dev/rl-algorithms/sac/#implementation-details_1 #pause
 
 Coding SAC could take an entire lecture, read CleanRL
 
 ==
+Duality between policy gradient actor critic and Q learning actor critic
 #side-by-side[
-    DDPG $approx$ A2C #pause
-
     Introduces the concept, simple #pause
-][
-    SAC $approx$ PPO #pause
 
+    A2C #pause
+
+    DDPG #pause
+
+][
     Improves the concept, complex #pause
+
+    $=>$ PPO #pause
+
+    $=>$ SAC #pause
 ]
 
 I suggest you try DDPG before SAC #pause
@@ -1015,10 +1050,11 @@ Tuned DDPG/A2C perform 95% as good as tuned SAC/PPO #pause
 = Final Project Tips
 ==
 Log and plot EVERYTHING #pause
-    - Losses, mean advantage, mean Q, policy entropy, etc
-        - Use these to help debug and tune hyperparameters
-        - E.g., exploding losses, decrease learning rate
-        - E.g., Q values too large? Increase time between target net update #pause
+    - Losses, mean advantage, mean Q, policy entropy, etc #pause
+        - Use these to help debug and tune hyperparameters #pause
+        - E.g., exploding losses, decrease learning rate #pause
+        - E.g., Q values too large? Increase time between target net updates #pause
+        - E.g., converged to bad policy, add entropy term to loss to increase exploration #pause
 
 If you get stuck, visualize your policy #pause
 - Record some episodes (videos/frames/etc) #pause
