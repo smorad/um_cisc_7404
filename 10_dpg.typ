@@ -545,49 +545,29 @@ $ nabla_(theta_mu) Q(s_0, a_0, theta_mu) $ #pause
 
 Let us try to derive deterministic policy gradient again #pause
 
-This time, take gradient of $Q$ instead of gradient of $bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]$
+This time, take gradient of $V$ instead of gradient of $bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]$
 
 ==
-$ Q(s_0, a_0, theta_mu) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, a, theta_mu); quad a = mu(s_1, theta_mu) $ #pause
+$ V(s_0, theta_mu) = bb(E)[cal(R)(s_1) | s_0; theta_mu] + gamma V(s_0, theta_mu) $ #pause
+
+Rewrite $V$ in terms of $Q$ #pause
+
+$ V(s_0, theta_mu) = Q(s_0, a, theta_mu); quad a = mu(s_1, theta_mu) $ #pause
 
 Plug in $mu$ for $a$ #pause
 
-$ Q(s_0, a_0, theta_mu) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, mu(s_1, theta_mu), theta_mu) $ #pause
+$ V(s_0, theta_mu) = Q(s_0, mu(s_0, theta_mu), theta_mu) $ #pause
 
 Take the gradient of both sides #pause
 
-$ nabla_theta_mu Q(s_0, a_0, theta_mu) = nabla_theta_mu [bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, mu(s_1, theta_mu), theta_mu)] $
+$ nabla_theta_mu V(s_0, a_0, theta_mu) = nabla_theta_mu  Q(s_0, mu(s_0, theta_mu), theta_mu) $
 
 ==
-$ nabla_theta_mu Q(s_0, a_0, theta_mu) = nabla_theta_mu [bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, mu(s_1, theta_mu), theta_mu)] $ #pause
-
-Gradient of sum is sum of gradients #pause
-
-$ nabla_theta_mu Q(s_0, a_0, theta_mu) = nabla_theta_mu [bb(E)[cal(R)(s_1) | s_0, a_0]] + nabla_theta_mu [gamma Q(s_1, mu(s_1, theta_mu), theta_mu)] $ #pause
-
-Initial reward only depends on action, not $theta_mu$ -- gradient is zero #pause
-
-$ nabla_theta_mu Q(s_0, a_0, theta_mu) = nabla_theta_mu [gamma Q(s_1, mu(s_1, theta_mu), theta_mu)] $ #pause
-
-Pull out $gamma$ #pause
-
-$ nabla_theta_mu Q(s_0, a_0, theta_mu) = gamma nabla_theta_mu Q(s_1, mu(s_1, theta_mu), theta_mu) $ 
-
-==
-
-$ nabla_theta_mu Q(s_0, a_0, theta_mu) = gamma nabla_theta_mu Q(s_1, mu(s_1, theta_mu), theta_mu) $ 
+$ nabla_theta_mu V(s_0, theta_mu) = nabla_theta_mu Q(s_0, mu(s_0, theta_mu), theta_mu) $ 
 
 #side-by-side[Use the chain rule][$ nabla_x f(g(x)) = nabla_(g) [f(g(x))] nabla_x g(x)$] #pause
 
-$ nabla_theta_mu Q(s_0, a_0, theta_mu) = gamma nabla_mu Q(s_1, mu(s_1, theta_mu), theta_mu) dot nabla_theta_mu mu(s_1, theta_mu) $ #pause
-
-Gradient ascent on $nabla_theta_mu Q(s_0, a_0, theta_mu)$, can ignore constant $gamma$ #pause
-
-$ nabla_theta_mu Q(s_0, a_0, theta_mu) = nabla_mu Q(s_1, mu(s_1, theta_mu), theta_mu) dot nabla_theta_mu mu(s_1, theta_mu) $ #pause
-
-Can rewrite $Q$ as $V$ because we don't use $a_0$ anymore #pause
-
-$ nabla_theta_mu V(s_0, theta_mu) = nabla_mu Q(s_1, mu(s_1, theta_mu), theta_mu) dot nabla_theta_mu mu(s_1, theta_mu) $ 
+$ nabla_theta_mu V(s_0, theta_mu) = nabla_mu Q(s_0, mu(s_0, theta_mu), theta_mu) dot nabla_theta_mu mu(s_0, theta_mu) $ 
 
 ==
 
@@ -651,7 +631,7 @@ J = grad(V, argnums=1)(states, Q_nn, mu_nn)
 Q_nn = optimizer.update(Q_nn, J)
 ```
 ==
-*Definition:* Deep Deterministic Policy Gradient (DDPG) jointly learns a $Q$ function for deterministic policy $theta_mu$, and the policy parameters $theta_mu$ #pause
+*Definition:* Deep Deterministic Policy Gradient (DDPG) decomposes $V$ into a deterministic policy $mu$ and $Q$, learning them jointly #pause
 
 *Step 1:* Learn a $Q$ function for $theta_mu$ #pause
 
@@ -668,7 +648,7 @@ $ theta_(Q, i+1) = argmin_(theta_(Q, i)) \ (Q(s_0, a_0, theta_(mu, i), theta_(Q,
 
 theta_(mu, i+1) = theta_(mu, i) + alpha dot Q(s_0, mu(s_0, theta_mu), theta_(mu, i), theta_(Q, i+1)) $ #pause
 
-*Question:* Is DDPG on-policy or off-policy? Why? #pause
+*Question:* Is DDPG on-policy or off-policy? #pause
 
 *Answer:* Depends on how we train $Q$: #pause
 - TD $Q$ is off-policy #pause
@@ -681,15 +661,23 @@ Almost *all* good off-policy actor-critic algorithms are based on DDPG
 *Summary:* #pause
 - Wanted to extend Q learning to continuous action spaces #pause
     - Simple greedy policy does not work! #pause
-- Introduced deterministic policy $a = mu(s, theta_mu)$ #pause
-- Failed to find $nabla_theta_mu bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]$ #pause
-    - Must know $Tr$ and $nabla Tr$ #pause
-- Trick: Gradient ascent using $nabla_theta_mu Q$ instead of $nabla_theta_mu bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]$ #pause
-- Iterative optimization of $theta_Q$ and $theta_mu$ #pause
+- Introduced learned deterministic policy $a = mu(s, theta_mu)$ #pause
+- Failed to find deterministic policy gradient $nabla_theta_mu bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]$ #pause
+    - Must know $nabla Tr$ #pause
+- Try gradient ascent on $nabla_theta_mu V$ instead of $nabla_theta_mu bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]$
+    - Trick: Factor $V$ in terms of $Q, mu$
+    - Iterative optimization of $theta_Q$ and $theta_mu$ #pause
+
+==
 
 Another way to think of DDPG: #pause
-- $mu$ neural network approximation of $argmax_(a in A) Q(s, a)$ #pause
-- Policy learning is learning $argmax$ over infinite action space
+
+$ max_(theta_mu) Q(s, mu(s, theta_mu), theta_mu) approx max_(a in A) Q(s, a, theta_mu) $ #pause
+
+$mu$ is a continuous relaxation of the greedy policy #pause
+
+Because $mu$ is a neural network, it can generalize to continuous $s, a$
+
 
 ==
 One small problem: deterministic policy means no exploration! #pause
@@ -699,15 +687,30 @@ We must visit other states/actions to find optimal $theta_Q, theta_mu$ #pause
 With Q learning, we had epsilon greedy policy #pause
 
 $ pi (a | s; theta_pi) =  cases( 
-  1 - epsilon : a = argmax_(a in A) Q(s, a, theta_pi), 
-  epsilon : "uniform"(A)
+  1 - epsilon & : a = argmax_(a in A) Q(s, a, theta_pi), 
+  epsilon & : a = "uniform"(A)
 ) $ #pause
 
 *Question:* What about DDPG exploration? HINT: Continuous actions #pause
 
-Add some random noise to the action $a = mu(s, mu_pi) + eta$ #pause
+$ pi (a | s; theta_mu) =  cases( 
+  1 - epsilon & : a = Q(s, mu(s, theta_mu), theta_mu), 
+  epsilon & : a = "uniform"(A)
+) $ 
 
-$ pi (a | s; mu_pi) = "Normal"(mu(s, mu_pi), sigma) $
+==
+
+In practice, we can do something a little smarter #pause
+
+Uniform actions cover the full action space, but can take a while to learn #pause
+
+We can add noise to a good action instead of completely random actions #pause
+
+$ pi (a | s; theta_mu) = mu(s, theta_mu) + "Normal"(0, sigma) $ #pause
+
+This tends to learn more quickly #pause
+
+Normal noise (infinite support) guarantees full action space coverage
 
 = Coding
 
@@ -717,7 +720,7 @@ Like policy gradient, the math and code is different #pause
 - Sample actions #pause
     - Be careful that random actions are in action space! #pause
     - $A = [0, 2 pi]$, then $a = 2.1 pi$ not ok #pause
-- Train networks
+- Iteratively train $theta_Q, theta_mu$
 
 ==
 First, construct deterministic policy #pause
@@ -735,11 +738,11 @@ Here, `action_dims` correspond to the number of continuous dimensions #pause
 BenBen: $A = [0, 2 pi]^12$, so `action_dims=12`
 ==
 Now, we need to make sure actions do not leave action space! #pause
-- BenBen: $A in [0, 2 pi]^12$, `lower=[0, 0, ...]`, `upper=[2pi, 2pi, ...]`
+- BenBen: $A in [0, 2 pi]^12$, `lower=[0, 0, ...]`, `upper=[2pi, 2pi, ...]` #pause
 
-$tanh$ keeps actions in $[-1, 1]$, scale $tanh$ to action space limits #pause
+Squash actions to limits using $tanh$ #pause
 - Can also use `clip(action, lower, upper)`, but this zeros gradients #pause
-- Agent can get stuck taking limiting actions (e.g., 0 or $2 pi$) #pause
+- Agent can get stuck taking limiting actions (e.g., -0.01 or $2.1 pi$) #pause
 
 ```python
 def bound_action(action, lower, upper): 
@@ -782,8 +785,9 @@ while not terminated:
     # Theta_pi params are in mu neural network
     # Argnums tells us differentiation variable
     J_Q = grad(Q_loss, argnums=0)(theta_Q, theta_T, mu, data)
+    theta_Q = apply_updates(J_Q, ...)
     J_mu = grad(mu_loss, argnums=0)(mu, theta_Q, data)
-    theta_Q, mu = apply_updates(J_Q, J_mu, ...)
+    mu = apply_updates(J_mu, ...)
     if step % 200 == 0: # Target network necessary
         theta_T = theta_Q
 ```
@@ -795,11 +799,11 @@ def Q_loss(theta_Q, theta_T, theta_pi, data):
     Tnet = combine(Q, theta_T) # Target network
     # Predict Q values for action we took
     prediction = vmap(Qnet)(data.state, data.action)
-    # Now compute labels
+    # Now compute labels using TD error
     next_action = vmap(mu)(data.next_state)
-    # NOTE: No argmax! Mu approximates argmax
+    # NOTE: No max! Mu approximates argmax
     next_Q = vmap(Tnet)(data.next_state, next_action)
-    label = reward + gamma * data.done * next_Q
+    label = data.reward + gamma * data.done * next_Q
     return (prediction - label) ** 2
 
 
