@@ -73,6 +73,7 @@
     institution: [University of Macau],
     logo: image("fig/common/bolt-logo.png", width: 4cm)
   ),
+  //config-common(handout: true),
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
 )
@@ -306,25 +307,25 @@ Let us quickly review the Q function and value function
 ==
 Start with general form of Temporal Difference Q function  #pause
 
-$ Q(s_0, a_0, theta_pi) = underbrace(bb(E)[cal(R)(s_(t+1)) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(V(s_1, theta_pi), cal(G) "following" theta_pi) $ #pause
+$ Q(s_0, a_0, theta_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(V(s_1, theta_pi), cal(G) "following" theta_pi) $ #pause
 
 #v(-0.5em)
 We can replace $V$ with $Q$ if $#redm[$a$] tilde pi (dot | s_1; theta_pi)$ #pause
 
-$ Q(s_0, a_0, theta_pi) = underbrace(bb(E)[cal(R)(s_(t+1)) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(Q(s_1, #redm[$a$], theta_pi), cal(G) "following" theta_pi) $ #pause
+$ Q(s_0, a_0, theta_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(Q(s_1, #redm[$a$], theta_pi), cal(G) "following" theta_pi) $ #pause
 
 For the greedy policy, we can reduce $Q$ further #pause
 
-$ Q(s_0, a_0, theta_pi) = underbrace(bb(E)[cal(R)(s_(t+1)) | s_0, a_0], "Reward for taking" a_0) + underbrace(max_(a in A) gamma Q(s_1, a, theta_pi), cal(G) "following" theta_pi) $
+$ Q(s_0, a_0, theta_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + underbrace(max_(a in A) gamma Q(s_1, a, theta_pi), cal(G) "following" theta_pi) $
 
 ==
-$ cancel(Q(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_(t+1)) | s_0, a_0] + max_(a in A) gamma Q(s_1, a, theta_pi))  $ #pause
+$ cancel(Q(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + max_(a in A) gamma Q(s_1, a, theta_pi))  $ #pause
 
 Cannot use the max Q function with BenBen #pause
 
 $
-Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_(t+1)) | s_0, a_0] + gamma V(s_1, theta_pi) \
-Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_(t+1)) | s_0, a_0] + gamma Q(s_1, a, theta_pi); quad a tilde pi (dot | s_1; theta_pi) 
+Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) \
+Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, a, theta_pi); quad a tilde pi (dot | s_1; theta_pi) 
 $ #pause
 
 *Question:* Can we use continuous $a$ with $Q$? #pause *Answer:* Yes  #pause
@@ -336,7 +337,7 @@ Greedy deterministic policy worked well for discrete actions #pause
 Can we learn a different deterministic policy for continuous actions?
 
 ==
-$ Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_(t+1)) | s_0, a_0] + gamma Q(s_1, a, theta_pi); quad a tilde pi (dot | s_1; theta_pi) $
+$ Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, a, theta_pi); quad a tilde pi (dot | s_1; theta_pi) $
 
 *Question:* What method can we use to learn $theta_pi$? #pause
 
@@ -356,7 +357,7 @@ The trick is to consider a *deterministic* policy #pause
     $ mu: S times Theta |-> A $ #pause
 ]
 
-$ Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_(t+1)) | s_0, a_0] + gamma Q(s_1, #redm[$mu$] (s_1, theta_mu), theta_pi) $
+$ Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, #redm[$mu$] (s_1, theta_mu), theta_pi) $
 
 
 
@@ -612,7 +613,7 @@ def V(s, Q_nn, mu_nn):
 # Learn the policy that maximizes V
 # Make sure to differentiate w.r.t policy parameters!
 J = grad(V, argnums=2)(states, Q_nn, mu_nn)
-mu_nn = optimizer.update(mu_nn, J)
+mu_nn = optimizer.update(mu_nn, J) # Grad ascent
 ```
 ==
 This assumes we know the $Q$ function for $theta_mu$ #pause
@@ -627,9 +628,9 @@ def V(s, Q_nn, mu_nn):
     return Q_nn(s, a) # return value
 def TD_loss(s, a, r, next_s, Q_nn, mu_nn):
     return (V(s, Q_nn, mu_nn) - td_label) ** 2
-# Now, we learn params of Q following policy (argnums=2)
-J = grad(TD_loss, argnums=1)(s, a, r, next_s, Q_nn, mu_nn)
-Q_nn = optimizer.update(Q_nn, J)
+# Now, we learn params of Q following policy
+J = grad(TD_loss, argnums=4)(s, a, r, next_s, Q_nn, mu_nn)
+Q_nn = optimizer.update(Q_nn, J) # Grad descent
 ```
 ==
 *Definition:* Deep Deterministic Policy Gradient (DDPG) decomposes $V$ into a deterministic policy $mu$ and $Q$, learning them jointly #pause
