@@ -57,11 +57,35 @@ Highly multimodal distribution #pause
     - Qiao Yulin
     - Fu Zexin
 
-= Getting Over It 
+= Final Projects
 ==
 Project plans turned in #pause
+#side-by-side[
+- Legend of Zelda 
+- Super Mario (7x)
+- LLM finetuning
+- Honor of Kings (3x)
+- Federated learning
+- Sudoku
+- Snake (2x)
+- Health AI system
+][
+- Tetris
+- PacMan (2x)
+- Navigation
+- StarCraft II
+- Getting Over It
+- Gymnax
+- 2048
+- Pokemon Double Battle
+]
 
-Most plans look good, I will email 1-2 groups about their plans #pause
+
+==
+
+Most plans look good #pause
+
+I left some comments/suggestions in Moodle #pause
 
 I want to highlight the most creative project plan (in my opinion) #pause
 
@@ -627,7 +651,7 @@ Sounds very promising, why do we care about RL? #pause
 
 
 ==
-Even where all the data is from a reliable "expert", we have problems
+Even where all the data is from a reliable "expert", we have problems #pause
 
 Consider a human surgeon #pause
 
@@ -660,9 +684,12 @@ One solution to out of distribution error is to collect more data #pause
 *DAgger:* The agent asks an expert for help when it visit an out of distribution state #pause
     - This requires an expert to always be paying attention #pause
 
-*Inverse RL:* We learn the reward function that the expert is following #pause
+*Inverse RL:* We learn the reward function that the expert is maximizing #pause
 
-$ argmax_(theta_R) bb(E)[cal(G)(bold(tau)) | s_0; theta_beta] \ = argmax_(theta_R) sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) underbrace(cal(R)(s_(n+1), theta_R), "Learnable") dot Pr (s_(n + 1) | s_0; theta_beta) $ #pause
+$ argmax_(theta_R) bb(E)[cal(G)(bold(tau)) | s_0; #pin(1)theta_beta#pin(2)] \ = argmax_(theta_R) sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) underbrace(cal(R)(s_(n+1), theta_R), "Learnable") dot Pr (s_(n + 1) | s_0; #pin(3)theta_beta#pin(4)) $ 
+
+#pinit-highlight(1, 2)
+#pinit-highlight(3, 4) #pause
 
 Then, we learn a policy $theta_pi$ using RL. This generalizes better than BC
 
