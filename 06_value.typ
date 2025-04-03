@@ -142,6 +142,8 @@
 // Go ahead and look at lecture 10, even for DDPG it is confusing
 // Solution: keep theta_pi for policy gradient methods
 // Use Q_(theta_pi) for value-based methods
+// TODO: In equations, introduce Q - y, where y is label instead of single equation
+    // Draws parallels to supervised learning
 
 
 // Problems with MPC, cannot do infinite

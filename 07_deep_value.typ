@@ -10,6 +10,9 @@
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
+// TODO: In equations, introduce Q - y, where y is label instead of single equation
+    // Draws parallels to supervised learning
+
 #show: university-theme.with(
   aspect-ratio: "16-9",
   config-info(

@@ -884,12 +884,14 @@ $ argmax_(theta_pi) bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = argmax_(theta_pi
 
 In max-entropy RL, we consider the entropy in the return #pause
 
-$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + gamma^t H(pi (a | s_t; theta_pi)) $ #pause
+$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + lambda gamma^t H(pi (a | s_t; theta_pi)) $ #pause
+
+Here, $lambda$ is a hyperparameter that balances entropy and reward #pause
 
 We learn a policy that maximizes the return and *behaves randomly*
 
 ==
-$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t (bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + H(pi (dot | s_t; theta_pi))) $ #pause
+$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t (bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + lambda H(pi (dot | s_t; theta_pi))) $ #pause
 
 *Question:* Why do want policy entropy? Lowers the return #pause
 
@@ -948,12 +950,12 @@ What happens when we combine DDPG #pause
 
 With the max entropy objective #pause
 
-$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + gamma^t H(pi (a | s_t; theta_pi)) $ #pause
+$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + lambda gamma^t H(pi (a | s_t; theta_pi)) $ #pause
 
 
 And the reparameterization trick? #pause
 
-$ f(s, theta_mu, cancel(eta)) = pi (a | s; theta_pi) $ #pause
+$ f(s, theta_mu, eta) = pi (a | s; theta_mu) $ #pause
 
 /*
 $ a = mu(s, theta_mu) + eta tilde.equiv 
@@ -966,24 +968,29 @@ We get SAC!
 ==
 *Definition:* Soft Actor Critic (SAC) adds a max entropy objective and "stochastic" policy to DDPG #pause
 
+#side-by-side[$ pi (a | s_0; theta_mu) = mu(s_0, theta_mu) + eta $ #pause][
+$ eta tilde "Normal"(0, sigma) $
+] #pause
+
+Learn $sigma$ to balance reward $cal(R)$ and entropy $H$ #pause
+
 *Step 1:* Learn a $Q$ function for max entropy policy (Q learning) #pause
 
-$ theta_(Q, i+1) = argmin_(theta_(Q, i)) (Q(s_0, a_0, theta_(pi, i), theta_(Q, i)) - y)^2 $ #pause
+$ theta_(Q, i+1) = argmin_(theta_(Q, i)) (Q(s_0, a_0, theta_(pi, i), theta_(Q, i)) - y)^2  #pause
+\
+y = overbrace(#pin(5)hat(bb(E))[cal(R)(s_1) | s_0, a_0]#pin(6) + lambda #pin(3)H(pi (a | s_0; theta_mu))#pin(4) + gamma Q(s_1, #pin(1)mu(s_1, theta_mu) + eta#pin(2), theta_(pi, i), theta_(Q, i)), "TD error" + "entropy") #pause $ #pause
 
-$ y = #pin(5)hat(bb(E))[cal(R)(s_1) | s_0, a_0]#pin(6) + #pin(3)H(pi (a | s_0; theta_mu))#pin(4) + gamma Q(s_1, #pin(1)mu(s_1, theta_mu) + eta#pin(2), theta_(pi, i), theta_(Q, i)) #pause $ #pause
+#pinit-highlight-equation-from((5,6), (5,6), fill: orange, pos: bottom, height: 0.9em)[Reward] #pause
 
-#pinit-highlight-equation-from((5,6), (5,6), fill: orange, pos: bottom, height: 1.2em)[Reward] #pause
+#pinit-highlight-equation-from((3,4), (3,4), fill: red, pos: bottom, height: 0.9em)[Entropy bonus] #pause
 
-#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 1.2em)[Deterministic $a$] #pause
-
-#pinit-highlight-equation-from((3,4), (3,4), fill: red, pos: bottom, height: 1.2em)[Entropy bonus] #pause
-
-
-#v(1.5em)
-
-where $eta$ is randomly sampled
+#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 0.9em)[Deterministic $a$] #pause
 
 ==
+
+#side-by-side[$ pi (a | s_0; theta_mu) = mu(s_0, theta_mu) + eta $][
+$ eta tilde "Normal"(0, sigma) $
+] #pause
 
 *Step 2:* Learn a $pi$ that maximizes $Q$ (policy gradient) #pause
 
@@ -992,8 +999,9 @@ $ theta_(pi, i+1) = theta_(pi, i) + alpha dot underbrace(Q(s_0, #pin(1)mu(s_0, t
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: top, height: 1.2em)[Deterministic $a$] #pause
 
+$ pi (a | s_0; theta_mu) = mu(s_0, theta_mu) + eta $ #pause
 
-where $eta$ is randomly sampled #pause
+where $eta tilde N(0, sigma)$ and we learn $sigma$ to balance reward $cal(R)$ and entropy $H$
 
 Repeat until convergence, $theta_(mu, i+1)=theta_(mu, i), quad theta_(Q, i+1)=theta_(Q, i)$
 
@@ -1013,7 +1021,7 @@ Like PPO, SAC is complicated -- uses many "implementation tricks" #pause
 Coding SAC could take an entire lecture, read CleanRL
 
 ==
-Duality between policy gradient actor critic and Q learning actor critic
+Duality between policy gradient actor critic and Q learning actor critic #pause
 #side-by-side[
     Introduces the concept, simple #pause
 
@@ -1029,10 +1037,10 @@ Duality between policy gradient actor critic and Q learning actor critic
     $=>$ SAC #pause
 ]
 
-I suggest you try DDPG before SAC #pause
-- DDPG is much easier to implement #pause
+I suggest you try DDPG or TD3 before SAC #pause
+- Easier to implement #pause
 - Fewer hyperparameters #pause
-- Tuned DDPG can likely outperform untuned SAC 
+- Tuned DDPG/TD3 can outperform untuned SAC 
 
 ==
 What algorithm is best in 2025? #pause
@@ -1055,7 +1063,7 @@ Log and plot EVERYTHING #pause
         - Use these to help debug and tune hyperparameters #pause
         - E.g., exploding losses, decrease learning rate #pause
         - E.g., Q values too large? Increase time between target net updates #pause
-        - E.g., converged to bad policy, add entropy term to loss to increase exploration #pause
+        - E.g., converge to bad policy? Add entropy term to loss to increase exploration #pause
 
 If you get stuck, visualize your policy #pause
 - Record some episodes (videos/frames/etc) #pause
@@ -1066,17 +1074,33 @@ If you get stuck, visualize your policy #pause
 
 Why does Steven spend so much time on theory instead of coding? #pause
 
+"I spent months training policies, it does not learn" #pause
+- Categorical action space of size $2^32$ #pause
+    - *Question:* What is the problem? #pause
+    - Need to try at least $2^32$ actions per state! #pause
+    - Output layer of network is too large ($2^32$ neurons)! #pause
+- Episode is 1000 timestep long with reward at last timestep #pause
+    - $gamma = 0.5$ #pause
+    - *Question:* What is the problem? #pause
+    - $gamma^1000 cal(R)(s_1000) = 0.5^1000 cal(R)(s_1000) approx 1e^(-300) cal(R)(s_1000)$
+
+
+==
+
 In supervised learning, follow MNIST tutorial and everything works #pause
 
 This is *NOT* the case in RL #pause
+
+You must use your brain to be successful! #pause
 
 In RL, your code never works on the first try #pause
 
 Even if it is correct, you need to play with hyperparameters #pause
 
-Theory is absolutely necessary to understand *why* your policy fails, and *how* to fix it #pause
+Theory is absolutely necessary to understand: #pause 
+- *Why* your policy fails #pause
+- *How* to fix it 
 
-You must use your brain to be successful!
 
 
 /*
