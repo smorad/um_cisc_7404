@@ -249,7 +249,7 @@ $ argmin_(theta_pi) (pi (a | s; theta_beta) - pi (a | s; theta_pi))^2 $ #pause
 *Answer:* KL divergence measures difference in distributions
 
 ==
-$ KL(Pr(X), Pr(Y)) = sum_(omega in Omega) Pr(X=omega) log Pr(X=omega) / Pr(Y=omega) $ #pause
+$ KL(Pr(X), Pr(Y)) = sum_(omega in Omega_X) Pr(X=omega) log Pr(X=omega) / Pr(Y=omega) $ #pause
 
 Minimize difference between $underbrace(pi (a | s; theta_beta), Pr(X))$ and $underbrace(pi (a | s; theta_pi), Pr(Y))$ #pause
 
@@ -336,6 +336,7 @@ To ensure we have an analytical solution to this integral: #pause
 
 
 
+/*
 ==
 $ argmin_(theta_pi) sum_(s in bold(X)) integral_(A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) dif a $ #pause
 
@@ -343,90 +344,120 @@ According to the exam, not everyone is comfortable with calculus #pause
 
 We will go back to the infinite sum notation (less scary) #pause
 
-$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $ 
+$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $ #pause
 
+But keep in mind that we select distributions with a analytically-solvable integral
+*/
 ==
-$ argmin_(theta_pi) sum_(s in bold(X)) integral_(A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) dif a $
+$ argmin_(theta_pi) sum_(s in bold(X))  integral_(A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) dif a $ #pause
 
-Many integrals do not have a known solution!
+To ensure we have an analytical solution to this integral: 
+- Use Dirac delta expert policy $pi (a | s; theta_beta) = delta(a - a_*)$ 
+- Use Gaussian learned policy $pi (a | s; theta_pi) = "Normal"(mu, sigma)$ #pause
 
-We must be careful how we model $pi$
+Plug our policies into the cross entropy objective #pause
 
-Let learned policy be Gaussian and expert be Dirac delta, closed form
-
-From exam, calculus can be confusing, pretend infinite sum instead
-
-$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $
-
-==
-
-$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $
-
-Plug in Dirac delta for expert
-
-$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - delta(a - #pin(1)a_*#pin(2)) log pi (a | s; theta_pi) $
-
+#v(1.2em)
+$ argmin_(theta_pi) sum_(s in bold(X)) integral_A - underbrace(delta(a - #pin(1)a_*#pin(2)), "Expert policy") log pi (a | s; theta_pi) dif a $
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Expert action taken] 
 
-Dirac delta zero everywhere except $a_*$, Dirac delta vanishes at $a_*$
+==
 
-$ argmin_(theta_pi) sum_(s in bold(X)) - delta(a - a_*) log pi (a=a_* | s; theta_pi) $
+$ argmin_(theta_pi) sum_(s in bold(X)) integral_(A) - underbrace(delta(a - a_*), "Expert policy") log pi (a | s; theta_pi) dif a $
+
+*Question:* What happens to $integral_(A) delta(a - a_*) f(a) dif a$? #pause
+
+*Answer:* Becomes $f(a=a_*)$ #pause
+
+$ argmin_(theta_pi) sum_(s in bold(X)) cancel(integral_(A) - delta(a - a_*)) log pi (a | s; theta_pi) cancel(dif a) $
 
 $ argmin_(theta_pi) sum_(s in bold(X)) - log pi (a=a_* | s; theta_pi) $
-==
-$ argmin_(theta_pi) sum_(s in bold(X)) - log pi (a=a_* | s; theta_pi) $
-
-Replace learned policy with Gaussian PDF
-
-$ "Normal"(x) = 1/2 sqrt(2 pi sigma) exp(- 1 / 2 ((x - mu) / sigma)^2 ) $
-
-$ argmin_(theta_pi) sum_(s in bold(X)) - log [1/2 sqrt(2 pi sigma) exp(- 1 / 2 ((a_* - mu) / sigma)^2 )] $
 
 ==
-$ argmin_(theta_pi) sum_(s in bold(X)) - log [1/2 sqrt(2 pi sigma) exp(- 1 / 2 ((a_* - mu) / sigma)^2 )] $
+$ argmin_(theta_pi) sum_(s in bold(X)) - log pi (a=a_* | s; theta_pi) $ #pause
 
-Log of products is sum of logs
+Now, plug in Gaussian distribution for learned policy #pause
 
-$ argmin_(theta_pi) sum_(s in bold(X)) - log (1/2 sqrt(2 pi sigma)) - log( exp(- 1 / 2 ((a_* - mu) / sigma)^2 )) $
+$ pi (a=a_* | s; theta_pi) = "Normal"(a=a_* | mu, sigma) = 1 / sqrt(2 pi sigma^2) exp(- (a_* - mu)^2 / (2 sigma^2) ) $ #pause
 
-Log and exp cancel in second term
-
-$ argmin_(theta_pi) sum_(s in bold(X)) - log (1/2 sqrt(2 pi sigma)) + 1 / 2 ((a_* - mu) / sigma)^2  $
+$ argmin_(theta_pi) sum_(s in bold(X)) - log [1 / sqrt(2 pi sigma^2) exp(- (a_* - mu)^2 / (2 sigma^2) )] $ 
 
 ==
-$ argmin_(theta_pi) sum_(s in bold(X)) - log (1/2 sqrt(2 pi sigma)) + 1 / 2 ((a_* - mu) / sigma)^2 $
+$ argmin_(theta_pi) sum_(s in bold(X)) - log [1 / sqrt(2 pi sigma^2) exp(- (a_* - mu)^2 / (2 sigma^2) )] $ #pause
 
-Clean this up slightly
+Log of products is sum of logs #pause
 
-$ argmin_(theta_pi) sum_(s in bold(X)) - log (1/2 sqrt(2 pi sigma)) + 1 / 2 ((a_* - mu) / sigma)^2 $
+$ argmin_(theta_pi) sum_(s in bold(X)) - log (1 / sqrt(2 pi sigma^2)) - log( exp(- (a_* - mu)^2 / (2 sigma^2) )) $ #pause
 
+Log of divisors is difference of logs #pause
 
-==
-$ argmin_(theta_pi) KL(pi (a | s; theta_beta), pi (a | s; theta_pi)) $
-
-For continuous policies, we still want the same objective
-
-The loss function changes depending on the distributions
-
-For some distributions, computing the KL can be difficult/intractable
-
-Model the policy as a normal distribution for closed-form solution
+$ argmin_(theta_pi) sum_(s in bold(X)) - log (1) + log(sqrt(2 pi sigma^2)) - log( exp(- (a_* - mu)^2 / (2 sigma^2) )) $
 
 ==
-Start with the categorical form
+$ argmin_(theta_pi) sum_(s in bold(X)) - log (1) + log(sqrt(2 pi sigma^2)) - log( exp(- (a_* - mu)^2 / (2 sigma^2) )) $ #pause
 
-$ argmin_(theta_pi) sum_(bold(tau) in bold(X)) sum_(s, a in bold(tau)) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $
+$log(1) = 0$ #pause
 
-Reduce for a dirac delta expert policy and normal learned policy
+$ argmin_(theta_pi) sum_(s in bold(X)) log(sqrt(2 pi sigma^2)) - log( exp(- (a_* - mu)^2 / (2 sigma^2) )) $ #pause
 
-$ argmin_(theta_pi) sum_(bold(tau) in bold(X)) sum_(s, a in bold(tau)) - delta(a - a^*) log pi (a | s; theta_pi) $
+Rewrite $sqrt(dots)$ as power #pause
 
+$ argmin_(theta_pi) sum_(s in bold(X)) log((2 pi sigma^2)^(1/2)) - log( exp(- (a_* - mu)^2 / (2 sigma^2) )) $ 
+
+==
+$ argmin_(theta_pi) sum_(s in bold(X)) log((2 pi sigma^2)^(1/2)) - log( exp(- (a_* - mu)^2 / (2 sigma^2) )) $ #pause
+
+Log of power is product of power and log #pause
+
+$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log(2 pi sigma^2) - log( exp(- (a_* - mu)^2 / (2 sigma^2) )) $ #pause
+
+Now simplify the second term, $log$ and $exp$ cancel #pause
+
+$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log(2 pi sigma^2) + (a_* - mu)^2 / (2 sigma^2) $ #pause
+
+==
+For a Gaussian policy, we minimize the following objective #pause
+
+$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log(2 pi sigma^2) + (a_* - mu)^2 / (2 sigma^2) $ #pause
+
+*Note:* We derive the loss function for a Gaussian policy gradient loss the exact same way
+
+/*
+==
+To summarize, for discrete action spaces we use the cross entropy loss #pause
+
+$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $ #pause
+
+For continuous actions, we pick special distributions so the cross entropy loss is tractable #pause
+
+Dirac delta expert and learned Gaussian policy, cross entropy loss #pause
+
+#v(1.5em)
+
+$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log(2 pi #pin(7)sigma#pin(8)^2) + (#pin(1)a_*#pin(2) - #pin(3)mu#pin(4))^2 / (2 #pin(5)sigma#pin(6)^2) $ #pause
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Expert action] 
+#pinit-highlight-equation-from((5,6), (5,6), fill: blue, pos: bottom, height: 1.2em)[Policy outputs] 
+#pinit-highlight(3,4, fill: blue.transparentize(80%))
+#pinit-highlight(7,8, fill: blue.transparentize(80%))
+*/
 
 ==
 
-*Definition:* Behavioral cloning uses *supervised learning* for decision making. We minimize the cross-entropy loss between our dataset policy $theta_beta$ and our learned policy $theta_pi$
+*Definition:* Behavioral cloning uses *supervised learning* for decision making, minimizing the cross-entropy between expert $theta_beta$ and our $theta_pi$
 
 $ argmin_(theta_pi) sum_(s, a in bold(X)) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $
+
+For continuous actions, we pick special distributions so the cross entropy loss is tractable (Dirac delta $theta_beta$, Gaussian $theta_pi$) #pause
+
+#v(1.5em)
+
+$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log(2 pi #pin(7)sigma#pin(8)^2) + (#pin(1)a_*#pin(2) - #pin(3)mu#pin(4))^2 / (2 #pin(5)sigma#pin(6)^2) $ #pause
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Expert action] 
+#pinit-highlight-equation-from((5,6), (5,6), fill: blue, pos: bottom, height: 1.2em)[Policy outputs] 
+#pinit-highlight(3,4, fill: blue.transparentize(80%))
+#pinit-highlight(7,8, fill: blue.transparentize(80%))
 
 ==
 
