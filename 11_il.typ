@@ -413,12 +413,23 @@ $ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log(2 pi sigma^2) - log( exp(- (a_* -
 
 Now simplify the second term, $log$ and $exp$ cancel #pause
 
+$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log(2 pi sigma^2) + (a_* - mu)^2 / (2 sigma^2) $ 
+
+==
 $ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log(2 pi sigma^2) + (a_* - mu)^2 / (2 sigma^2) $ #pause
+
+Since this is an optimization problem, we can drop the constant $2 pi$ #pause
+
+$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log sigma^2 + (a_* - mu)^2 / (2 sigma^2) $ #pause
+
+Clean up a bit by factoring #pause
+
+$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 (log sigma^2 + (a_* - mu)^2 / (sigma^2)) $ #pause
 
 ==
 For a Gaussian policy, we minimize the following objective #pause
 
-$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log(2 pi sigma^2) + (a_* - mu)^2 / (2 sigma^2) $ #pause
+$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 (log sigma^2 + (a_* - mu)^2 / (sigma^2)) $ #pause
 
 *Note:* We derive the loss function for a Gaussian policy gradient loss the exact same way
 
@@ -452,90 +463,30 @@ For continuous actions, we pick special distributions so the cross entropy loss 
 
 #v(1.5em)
 
-$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log(2 pi #pin(7)sigma#pin(8)^2) + (#pin(1)a_*#pin(2) - #pin(3)mu#pin(4))^2 / (2 #pin(5)sigma#pin(6)^2) $ #pause
+//$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 log(2 pi #pin(7)sigma#pin(8)^2) + (#pin(1)a_*#pin(2) - #pin(3)mu#pin(4))^2 / (2 #pin(5)sigma#pin(6)^2) $ #pause
+
+$ argmin_(theta_pi) sum_(s in bold(X)) 1/2 (log#pin(5)sigma#pin(6)^2 + (#pin(1)a_*#pin(2) - #pin(3)mu#pin(4))^2 / (#pin(7)sigma#pin(8)^2)) $ #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Expert action] 
-#pinit-highlight-equation-from((5,6), (5,6), fill: blue, pos: bottom, height: 1.2em)[Policy outputs] 
+#pinit-highlight-equation-from((7,8), (7,8), fill: blue, pos: bottom, height: 1.2em)[Policy outputs] 
 #pinit-highlight(3,4, fill: blue.transparentize(80%))
-#pinit-highlight(7,8, fill: blue.transparentize(80%))
-
-==
-
-Behavioral cloning seems very powerful!
-- No need for reward function
-- No need for exploration, learn from fixed dataset
-
-*Question:* What are some disadvantages of BC?
-
-==
-*Limitation:* Imperfect policy
-
-Usually, we collect datasets with human operators $theta_beta$
-- Human driver
-- Human controlling robot arm
-- Human surgeon
-
-Humans can be very bad drivers!
-
-Humans are bad at controlling robot arms
-
-Human surgeons are not as precise as machines
-
-The best policy we can learn is $pi (a | s; theta_pi ) approx underbrace(pi (a | s; theta_beta), "Human policy")$
-
-==
-Ok, let us assume we have very good human policies
-
-*Question:* Any other disadvantages?
-
-Humans often stay in small regions of state space
-
-==
-
-Consider our state distribution function 
-
-$ Pr (s_(n+1) | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ) $
-
-We can think about which states humans spend time in
-
-$ bb(E) [ Pr (s_(n+1) | s_0; theta_pi) ] $
-
-We call this the stationary state distribution
-
-$ d(theta_pi) = Pr (s_1 | s_0; theta_pi) $
-
-
-
-==
-
-- Limited by the dataset
-    - Human policies are not perfect, we can only be as good as humans
-    - Dataset may not cover
-- Often, dataset collected using humans
-
-TODO Downsides of BC
-// Often dataset is not optimal policy
-// Cannot be better than the dataset
-// Does not necessarily generalize well
-// Quadratic error
-
+#pinit-highlight(5,6, fill: blue.transparentize(80%))
 
 = Coding
 
 ==
-Similar to policy gradient
+Similar to policy gradient, just with different loss function #pause
 
-The policies and methods change depending on action space
+The policies and methods change depending on action space #pause
 
-Discrete actions use a categorical distribution
+Discrete actions use a categorical distribution #pause
 
-Continuous actions usually use normal distribution
-- Can use other distributions (beta, etc)
+Continuous actions usually use normal distribution #pause
 
 Start with discrete actions, then do continous
 
 ==
-Implement a categorical policy network
+Implement a model for a categorical policy #pause
 
 ```python
 model = Sequential([
@@ -546,25 +497,15 @@ model = Sequential([
     # Output logits (real numbers)
     Linear(hidden_size, action_size),
 ])
-```
+``` #pause
+
 Identical to policy gradient
 
-==
-Next, we need to sample actions from our policy network
-```python
-def sample_action(model, state, key):
-    z = model(state)
-    # BE VERY CAREFUL, always read documentation
-    # Sometimes takes UNNORMALIZED logits, sometimes probs
-    action_probs = softmax(model, state)
-    a = categorical(key, action_probs)
-    a = categorical(key, z) # Does not even use pi
-    return a
-```
-Again, identical to policy gradient
+
 
 ==
-Next, implement discrete loss function
+Next, implement discrete loss function #pause
+
 ```python
     def bc_loss(model, states, actions):
         # Often, we can't know the expert action distribution
@@ -579,9 +520,22 @@ Next, implement discrete loss function
         return bce_loss
 ```
 ==
-Now, consider Gaussian policy (continuous actions)
+Finally, to run our policy we sample actions from our policy #pause
 
-Gaussian policy network
+```python
+def sample_action(model, state, key):
+    z = model(state)
+    # BE VERY CAREFUL, always read documentation
+    # Sometimes takes UNNORMALIZED logits, sometimes probs
+    action_probs = softmax(model, state)
+    a = categorical(key, action_probs)
+    a = categorical(key, z) # Does not even use pi
+    return a
+``` #pause
+Identical to policy gradient
+==
+
+Now, consider Gaussian policy (continuous actions) #pause 
 
 ```python
 model = Sequential([
@@ -593,8 +547,25 @@ model = Sequential([
     Linear(hidden_size, 2 * action_size),
     Lambda(x: split(x, 2))
 ])
-```
+``` #pause
+
 Same as policy gradient
+
+==
+Implement continuous loss function #pause
+
+Use simplified cross entropy (Dirac-Gaussian) #pause
+
+```python
+def bc_loss(model, states, actions):
+    expert_probs = actions # Dirac delta
+    mu, log_std = vmap(model)(states)
+    # Gaussian CE, also called Gaus. Neg. Log Likelihood
+    gnll_loss = log_std + 0.5 * ( 
+        (mu - action)**2 / exp(log_std)**2
+    ) 
+    return gnll_loss
+```
 
 ==
 Next, we need to sample actions from our policy network
@@ -606,35 +577,111 @@ def sample_action(model, state, key):
     a = mu + exp(log_sigma) * noise
     return a
 ```
-==
-Finally, implement continuous loss function
-```python
-    def bc_loss(model, states, actions):
-        expert_probs = actions # Dirac delta
-        mu, log_std = vmap(model)(states)
-        log_policy_probs = log_softmax(vmap(model)(states))
-        # Log loss, can reduce over batch using mean or sum
-        bce_loss = -sum(
-            expert_probs * log_policy_probs, axis=1).mean()
-        return bce_loss
-```
 
 ==
-The training loop is much easier than RL
+The training loop is much simpler than RL #pause
+
 ```python
 model = Sequential(...)
+opt_state = ...
 # Just supervised learning
 for batch in dataset:
     states, actions = batch
-    grad(bc_loss)()    
+    J = grad(bc_loss)(model, states, actions)
+    update = optim.update(J, opt_state)
+    model = apply_updates(update, model)
+``` #pause
 
+Then deploy the policy #pause
+
+```python
+a_t = sample_action(model, s_t, key)
 ```
 
+= Applications
 ==
 
-= DAgger
-// Dagger is BC, but we query the person for help
+Behavioral cloning seems very powerful! #pause
+- No need for reward function #pause
+- No need for exploration, learn from fixed dataset #pause
+- Simpler to implement than RL #pause
+- More stable to train than RL #pause
+
+Sounds very promising, why do we care about RL? #pause
+
+*Question:* What are some disadvantages of BC?
+
 ==
+#side-by-side[
+    #cimage("fig/11/texting.jpg", height: 80%)
+
+][
+    *Limitation:* Imperfect expert #pause
+
+    Dataset is following an "expert" $theta_beta$ #pause
+
+    Humans are not reliable experts in many cases #pause
+
+    You will learn a policy that drives like it is texting
+]
+
+
+==
+Even where all the data is from a reliable "expert", we have problems
+
+Consider a human surgeon #pause
+
+Human surgeons are not as fast or precise as machines #pause
+
+Even the best machine will be no better than a human surgeon #pause
+
+$ pi (a | s; theta_pi ) approx underbrace(pi (a | s; theta_beta), "Human policy") $ #pause
+
+*Question:* Any other issues?
+
+==
+*Limitation:* Humans limited to small regions of state space #pause
+
+Humans are very bad at exploring #pause
+
+There will be very few crashes in a self driving dataset #pause
+
+When the policy is about to crash, the state will be out of distribution #pause
+
+The policy will be unable to avoid crashing #pause
+
+In practice, BC policies generalizes much worse than RL policies #pause
+
+Small errors in the learned policy eventually drive the policy to out of distribution states
+
+==
+One solution to out of distribution error is to collect more data #pause
+
+*DAgger:* The agent asks an expert for help when it visit an out of distribution state #pause
+    - This requires an expert to always be paying attention #pause
+
+*Inverse RL:* We learn the reward function that the expert is following #pause
+
+$ argmax_(theta_R) bb(E)[cal(G)(bold(tau)) | s_0; theta_beta] \ = argmax_(theta_R) sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) underbrace(cal(R)(s_(n+1), theta_R), "Learnable") dot Pr (s_(n + 1) | s_0; theta_beta) $ #pause
+
+Then, we learn a policy $theta_pi$ using RL. This generalizes better than BC
+
+
+
+/*
+
+Consider our state distribution function 
+
+$ Pr (s_(n+1) | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ) $
+
+We can think about which states humans spend time in
+
+$ bb(E) [ Pr (s_(n+1) | s_0; theta_pi) ] $
+
+We call this the stationary state distribution
+
+$ d(theta_pi) = Pr (s_1 | s_0; theta_pi) $
+
 
 = Inverse RL
 // One method is policy gradient
@@ -649,3 +696,4 @@ $ sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1), theta_R) | s_0; theta_beta ] >= sum
 
 Many reward functions satisfy these constraints!
 - $cal(R)(s) = 0; quad s in S$
+*/
