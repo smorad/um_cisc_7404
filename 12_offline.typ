@@ -100,29 +100,30 @@
     canvas(length: 1cm, 
     {
         plot.plot(
-            size: (6, 4),
+            size: (10, 4),
             name: "plot",
             x-tick-step: 2,
-            y-tick-step: none,
-            y-ticks: (0, 1),
-            y-min: 0,
-            y-max: 1,
-            x-label: $ a $,
+            y-tick-step: 2,
+            //y-ticks: (0, 1),
+            y-min: -5,
+            y-max: 5,
+            x-label: $ r $,
             y-label: [$ $],
             {
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s_0; theta_(beta)) $,
-                x => math.exp(math.e, x),
+                label: $ r $,
+                x => x,
+            ) 
+            plot.add(
+                domain: (-2, 2), 
+                style: (stroke: (thickness: 5pt, paint: blue)),
+                label: $ f(r) $,
+                x => calc.exp(x),
             ) 
 
             })
-            draw.line((1.5,0), (1.5,4), stroke: orange)
-            draw.content((1.5,5), text(fill: orange)[$ a_+ $])
-
-            draw.line((4.5,0), (4.5,4), stroke: orange)
-            draw.content((4.5,5), text(fill: orange)[$ a_- $])
     }
 )}
 
@@ -648,65 +649,53 @@ $ r_+ > r_- => f(r_+) > f(r_-) $
 
 *Question:* What functions $f: [-oo, oo] |-> [0, oo]$ are monotonic?
 
-$ f(x) = e^x $
+#align(center, exp_plot)
 
-
-
-- But we want rewards to have the same meaning
-
-We should map the reward to a positive value
-- Ensure the mapping is *monotonic* (always increasing) and 
-
-
-*Question:* What functions map $[-oo, oo]$ to $[0, oo]$
-
-
-
-
-/*
-EMRL maximizes the reward #pause
-
-*Question:* What objective do we want to maximize?
-
-*Answer:* The return!
-*/
-==
-
+$ f(r) = e^r $
 
 ==
+*Definition:* Reward Weighted Regression (RWR) reweights the behavior cloning objective using the exponentiated reward
 
-$ hat(bb(E))[cal(G)(bold(tau)) | s_0; theta_beta] $
+$ theta_pi = argmin_(theta_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot exp(hat(bb(E))[cal(R)(s_1) | s_0; theta_beta]) $ 
 
-*Question:* Will this work? Hint: What if negative return?
+Consider an infinitely large and diverse dataset containing all $s, a$
 
-*Answer:* No! Both $w$ should be positive
+Then, weights are proportional to Boltzmann distribution (softmax)
 
-==
-
-$ argmin_(theta_pi) - #redm[$w_+$] pi (a_+ | s; theta_beta) log pi (a_+ | s; theta_pi) - #redm[$w_-$] pi (a_- | s; theta_beta) log pi (a_- | s; theta_pi) $
-
-$ w = exp(hat(bb(E))[cal(G)(bold(tau)) | s_0; theta_beta]) in [0, oo] $
-
-*Question:* Does this work?
-
-*Answer:* Yes! But we can improve it
-
-*Question:* What if reward is always negative?
-
-*Answer:* Return is very small
-
-*Question:* We normalized rewards before, how did we do it?
-
-*Answer:* The advantage!
+$ sum_(a_0 in A) exp(hat(bb(E))[cal(R)(s_1) | s_0, a_0]) prop sum_(a_i in A) ( exp(hat(bb(E))[cal(R)(s_1) | s_0, a_i]) ) / ( sum_(a_0 in A) exp(hat(bb(E))[cal(R)(s_1) | s_0, a_0]) ) $
 
 ==
-$ argmin_(theta_pi) - #redm[$w_+$] pi (a_+ | s; theta_beta) log pi (a_+ | s; theta_pi) - #redm[$w_-$] pi (a_- | s; theta_beta) log pi (a_- | s; theta_pi) $
+$ theta_pi = argmin_(theta_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot exp(hat(bb(E))[cal(R)(s_1) | s_0; theta_beta]) $ 
+
+RWR maximizes the reward
+
+*Question:* Do we maximize the reward in RL?
+
+*Answer:* No, we maximize the return!
+
+$ theta_pi = argmin_(theta_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot exp(hat(bb(E))[cal(G)(bold(tau)) | s_0; theta_beta]) $ 
+
+==
+$ theta_pi = argmin_(theta_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot exp(hat(bb(E))[cal(R)(s_1) | s_0; theta_beta]) $ 
+
+This works in theory, but does not work well in practice
+
+*Question:* Why won't this work well in practice?
+
+*Answer:*
+- Need infinite rewards to approximate Monte Carlo return
+- Returns can be big or small, causing overflows $exp(cal(G)(bold(tau))) -> 0, oo$
+
+*Question:* Had similar problems with actor critic, what was solution?
+- Introduce value function (remove infinite sum)
+- Introduce advantage (normalize rewards)
+
+==
+$ theta_pi = argmin_(theta_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot exp(A(s, a, theta_beta) ) $ 
 
 $ A(s, a, theta_beta) = Q(s, a, theta_beta) - V(s, theta_beta) $
 
 $ A(s_t, s_(t+1), theta_beta) = - V(s_t, theta_beta) + r_t + gamma V(s_(t+1), theta_beta) $
-
-$ w = exp(A(s_t, s_(t+1))) $
 
 ==
 
@@ -751,9 +740,7 @@ Add improvements to MARWIL to derive other offline RL algorithms
 - Advantage Weighted Actor Critic (AWAC)
 - Critic Regularized Regression (CRR)
 - Implicit Q learning (IQL)
-
-MARWIL was discovered in China in 2018 at Tencent AI
-- First foundational Chinese RL algorithm
+- Maximum a Posteriori Optimization (MPO)
 
 ==
 
