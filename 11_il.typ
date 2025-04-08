@@ -8,6 +8,9 @@
 #import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
+// TODO: Remove hidden reward MDP, make it consistent with offline RL (next lecture)
+    - Hidden Tr and hidden R
+
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
@@ -44,7 +47,7 @@ Homework 2 should be graded by the following Wednesday (April 16) #pause
 
 ==
 
-I am currently grading quiz 2, 50% done, score released soon #pause
+I am currently grading quiz 2, 40% done, score released soon #pause
 - I want scoring to be consistent for all students #pause
     - I grade exams myself (not TA), so grading is slow #pause
 
@@ -56,6 +59,16 @@ Highly multimodal distribution #pause
     - Leonard Hangqin Zhuang
     - Qiao Yulin
     - Fu Zexin
+
+==
+We must have one more quiz #pause
+
+Current options: #pause
+- 17 April
+- 24 April (last lecture) #pause
+
+Leaning towards 17 April so we can spend all of 24 on LLMs
+
 
 = Final Projects
 ==
@@ -213,7 +226,7 @@ $ pi(#pin(1)a_0#pin(2) | s_0, theta_"human"), pi(#pin(3)a_1#pin(4) | s_1, theta_
 
 #v(1.5em)
 
-In *imitation learning* we learn to imitate an expert policy
+In *imitation learning* we learn to imitate an expert policy #pause
 
 I want to introduce a formalism to model the problem
 
