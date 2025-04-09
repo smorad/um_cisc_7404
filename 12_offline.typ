@@ -325,6 +325,22 @@
     outline(title: none, indent: 1em, depth: 1)
 )
 
+= Admin
+
+==
+
+Final quiz on 24 April (2 weeks)
+
+Still deciding format, subject to change
+- 1 question fundamental RL (V/Q/PG)
+- 1 question actor-critic
+- 1 or 2 questions imitation/offline RL/POMDPs
+
+TAs must upload all homework 1 scores by tonight 23:59
+- If they do not, I will be angry at them
+
+Homework 2 grading deadline next Wednesday
+
 = Offline RL
 // Refresher of on-policy and off-policy RL
     // Both require exploration and collecting data from env
@@ -391,85 +407,11 @@ $ bold(X) = mat(bold(E)_[1], bold(E)_[2], dots) = mat(mat(bold(tau)_[0], bold(r)
 ) $
 
 ==
-There are two ways to think about offline RL:
-+ Off-policy RL without exploration
-+ Imitation learning with weighted trajectories
+There are two ways to think about offline RL
+- Improve behavior cloning with rewards
+- Off-policy RL without exploration
 
-Let us begin with the first
-
-
-= The Deadly Triad
-// Difference between off policy and offline RL
-// What off-policy methods could we use for offline RL?
-// In assignment 2, you saw how hard TD learning can be
-    // Introduce deadly triad
-    // Target networks, regularization, etc
-    // Q value overestimation
-    // Talk a bit about how this happens for off-policy methods too
-        // Discuss some fixes
-// What happens when we apply standard Q learning without exploration
-    // Q value overestimation for OOD actions
-    // Works if we try every action in every possible state
-    // In many cases, this is too large
-
-==
-*Goal:* Derive offline RL algorithm from an off-policy algorithm
-
-*Question:* Why off-policy instead of on-policy algorithm?
-
-On-policy requires collecting data with $theta_pi$
-- But we cannot do this! Dataset is collected with $theta_beta$
-- $theta_beta != theta_pi$, cannot use on-policy method
-
-Off-policy can learn from any trajectories
-- Trajectory collected following $theta_beta$
-- Can use this trajectory to update $theta_pi$
-
-==
-Ok, create offline RL algorithm from an off-policy algorithm
-
-*Question:* What off-policy algorithms do we know?
-- Q learning
-- DDPG (continuous Q learning)
-
-*Question:* Temporal Difference or Monte Carlo Q learning?
-- MC is on-policy
-- Only TD Q learning is off-policy
-
-==
-Standard Q learning algorithm
-```python
-while not terminated:
-    transition = env.step(action)
-    buffer.append(transition)
-    train_data = buffer.sample()
-    J = grad(td_loss)(theta_Q, theta_T, Q, train_data)
-    theta_Q = opt.update(theta_Q, J)
-```
-*Question:* What can we do to make this offline?
-
-==
-
-```python
-for x in X:
-    buffer.append(x) # Add dataset to replay buffer
-while not terminated:
-    # Comment out exploration code
-    # transition = env.step(action)
-    # buffer.append(transition)
-    train_data = buffer.sample()
-    J = grad(td_loss)(theta_Q, theta_T, Q, train_data)
-    theta_Q = opt.update(theta_Q, J)
-```
-
-*Question:* Will this work?
-
-*Answer:* Yes! But only for very simple problems
-
-For more interesting problems, loss quickly becomes `NaN`
-
-==
-
+Let us begin with behavior cloning first
 
 
 
@@ -485,7 +427,7 @@ For more interesting problems, loss quickly becomes `NaN`
         // Only want to learn for behavior policy, can use MC because more stable
 
 ==
-Start with behavior cloning
+Recall the behavior cloning objective
 
 Want to minimize difference between learned and expert policy
 
@@ -627,7 +569,9 @@ $ argmin_(theta_pi) - #redm[$r_+$] pi (a_+ | s; theta_beta) log pi (a_+ | s; the
 
 Hint: What if the reward is negative?
 
-Want positive weights, EMRL only works with positive rewards!
+Reweighting only makes sense with positive weights
+ 
+EMRL only works with positive rewards!
 
 ==
 
@@ -742,81 +686,145 @@ Add improvements to MARWIL to derive other offline RL algorithms
 - Implicit Q learning (IQL)
 - Maximum a Posteriori Optimization (MPO)
 
-==
-
-#side-by-side[
-    #bimodal
-][
-    #bimodal_return
-]
-
-We have the empirical Monte Carlo return for each episode
-
-$ hat(bb(E))[cal(G)(bold(E)) | s_0; theta_beta] $
-
-We can use this to reweight distributions
-
-==
-
-#side-by-side[
-    #bimodal_return
-][
-    #bimodal_reweight
-]
-
-We did something similar with actor critic and policy gradient!
-
-*Question:* What was the issue with using the return for actor critic? 
-
-Hint: What if all returns are negative?
+= The Deadly Triad
+// Difference between off policy and offline RL
+// What off-policy methods could we use for offline RL?
+// In assignment 2, you saw how hard TD learning can be
+    // Introduce deadly triad
+    // Target networks, regularization, etc
+    // Q value overestimation
+    // Talk a bit about how this happens for off-policy methods too
+        // Discuss some fixes
+// What happens when we apply standard Q learning without exploration
+    // Q value overestimation for OOD actions
+    // Works if we try every action in every possible state
+    // In many cases, this is too large
 
 ==
-#side-by-side[
-    #pathology_left
-][
-    #pathology_right
-]
+There are two standard approaches to offline RL
 
-#side-by-side[
-    *Question:* What was the solution?
-][
-    *Answer:* Use advantage not return
-]
+1. Reweight the BC loss using rewards/returns
+2. Improve off-policy algorithms to function without exploration
 
+Finished first, now let us visit the second
 
-$ A(s, a, theta_beta) = Q(s, a, theta_beta) - V(s, theta_beta) $
+==
+*Goal:* Derive offline RL algorithm from an off-policy algorithm
 
-$ A(s_t, s_(t+1), theta_beta) = - V(s_t, theta_beta) + r_t + gamma V(s_(t+1), theta_beta) $
+*Question:* Why off-policy instead of on-policy algorithm?
+
+On-policy requires collecting data with $theta_pi$
+- But we cannot do this! Dataset is collected with $theta_beta$
+- $theta_beta != theta_pi$, cannot use on-policy method
+
+Off-policy can learn from any trajectories
+- Trajectory collected following $theta_beta$
+- Can use this trajectory to update $theta_pi$
+
+==
+Ok, create offline RL algorithm from an off-policy algorithm
+
+*Question:* Which off-policy RL algorithms do we know?
+- Q learning
+- DDPG (continuous Q learning)
+
+*Question:* Temporal Difference or Monte Carlo Q learning?
+- MC is on-policy
+- Only TD Q learning is off-policy
+
+==
+Recall the standard Q learning algorithm
+```python
+while not terminated:
+    transition = env.step(action)
+    buffer.append(transition)
+    train_data = buffer.sample()
+    J = grad(td_loss)(theta_Q, theta_T, Q, train_data)
+    theta_Q = opt.update(theta_Q, J)
+```
+*Question:* What can we do to make this offline?
 
 ==
 
-#side-by-side[
-    #bimodal_return_adv
-][
-    #bimodal_reweight_adv
-]
+```python
+for x in X:
+    buffer.append(x) # Add dataset to replay buffer
+while not terminated:
+    # Comment out exploration code
+    # transition = env.step(action)
+    # buffer.append(transition)
+    train_data = buffer.sample()
+    J = grad(td_loss)(theta_Q, theta_T, Q, train_data)
+    theta_Q = opt.update(theta_Q, J)
+```
 
-*Question:* How is this different from A2C (on-policy method)?
+*Question:* Will this work?
 
-*Answer:* Only consider $a$ from the dataset, cannot propose new action
-- Good action must exist in dataset!
-- Can focus on good action not bad action
+*Answer:* Yes! But only for very simple problems
+
+For more interesting problems, loss quickly becomes `NaN`
 
 ==
-Furthermore, in A2C we do gradient ascent
 
-$ A(s_t, s_(t+1), theta_pi) dot nabla_(theta_pi) pi (a_t | s_t; theta_pi) $
+On assignment 2, many of you found issues with deep Q learning
+1. Q value would often become very large
+2. Loss would become very large
+3. Loss/parameters become `NaN`
 
-With behavior cloning, we are *reweighting* actions
+This was not your fault, it is a known problem in RL!
 
-In other words, modifying the objective
+Call it the *deadly triad*, because it is caused by combining three factors:
+1. Nonlinear function approximation (deep neural network)
+2. Recursive bootstrapping (TD, $Q(s, a) = r + gamma max Q(s, a)$)
+3. Off-policy learning/limited exploration
 
-$ pi (a_t, s_t; theta_pi) = exp(A(s_t, s_(t+1), theta_pi)) dot pi (a_t | s_t; theta_beta) $
+Let us further investigate the deadly triad
+
+==
+// Too many states to learn Q
+// Must generalize to unseen states
+// TD + NN can update other states
+// Leads to divergence of the value function
+    // Caused by argmax, tends to explode
+    // If we cannot explore, we cannot "fix" the diverged states
+// Cannot visit unvisited states, what can we do?
+    // Limit Q function extrapolation
+        // Particularly interested in overestimation
 
 
+= Constraining Q
+// How can we constrain Q?
+    // BCQ - restrict actions to those in the dataset
+    // CQL - penalize large out of distribution Q values
 
+==
+*Definition:* Batch Constrained Q Learning (BCQ) estimates the behavior policy, only taking actions that exist in the dataset
 
+*Step 1:* Learn the expert through BC
 
-= Minimalist Offline RL
+$ theta_pi = argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $ 
 
-= Conservative Q Learning
+*Step 2:* Learn the Q function
+
+$ theta_(Q, i + 1) &= argmin_(theta_(Q, i)) (Q(s_0, a_0, theta_pi, theta_(Q, i)) - y)^2 \ 
+y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in overline(A)) Q(s_1, a, theta_pi, theta_(Q, i)) $
+
+==
+
+$ theta_(Q, i + 1) &= argmin_(theta_(Q, i)) (Q(s_0, a_0, theta_pi, theta_(Q, i)) - y)^2 \ 
+y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in overline(A)) Q(s_1, a, theta_pi, theta_(Q, i)) $
+
+The constraint lies in how we select $overline(A)$
+
+$ overline(A) = {a: pi (a | s_1; theta_pi) > rho} $
+
+$rho$ is a hyperparameter that filters out low-probability actions
+
+==
+*Definition:* Conservative Q Learning (CQL) learns a Q function that minimizes $Q$ for out of distribution actions
+
+$ theta_(Q, i + 1) &= argmin_(theta_(Q, i)) (Q(s_0, a_0, theta_beta, theta_(Q, i)) - y)^2 + z^2 \ 
+y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, a_1, theta_beta, theta_(Q, i)) \
+z &= underbrace((log sum_(a in A) exp(Q(s_0, a, theta_beta, theta_(Q, i)))), "Push down Q for all" a) - underbrace(Q(s_0, a_0), "Push up Q for" \ "in-distribution" a) 
+
+$
