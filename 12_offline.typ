@@ -780,7 +780,6 @@ Call it the *deadly triad*, because it is caused by combining three factors:
 
 Let us further investigate the deadly triad
 
-==
 // Too many states to learn Q
 // Must generalize to unseen states
 // TD + NN can update other states
@@ -790,9 +789,147 @@ Let us further investigate the deadly triad
 // Cannot visit unvisited states, what can we do?
     // Limit Q function extrapolation
         // Particularly interested in overestimation
+==
+Imagine a toy MDP
 
+$ S = {s} quad A = {1, 2} quad Q(s, a, theta_Q) = theta_Q dot a quad cal(R)(s) = 0 quad gamma = 1$
+
+We only visit $a=1$ and do not visit $a=2$
+
+$ Q(s, 1, theta_Q) = theta_Q dot a = 1 dot 1 = 1 $
+
+Receive zero reward $cal(R)(s) = 0$, now let us update $theta_Q$
+
+$ theta_Q = theta_Q - underbrace([Q(s, a, theta_Q) - (r + gamma max_(a' in A) Q(s', a', theta_Q))], "Error, can consider" nabla cal(L) )$
+
+==
+//$ theta_Q = Q(s, 1, theta_Q) - (0 + gamma max_(a' in A) {underbrace(1 dot 1, (a=1) \ 1), underbrace(1 dot 2, (a=2) \ 2)}) $
+
+Start with $theta_Q = 1$, update for $a=1$
+
+$ 
+theta_Q &= theta_Q - [ Q(s, a, theta_Q) - (0 + gamma max_(a in {1,2}) Q(s, a, theta_Q)) ] \
+theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (0 + gamma max {Q(s, 1, theta_Q), Q(s, 2, theta_Q)}) ] \
+theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (0 + gamma max {theta_Q dot 1, theta_Q dot 2}) ] \ 
+theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (0 + gamma max {1 dot 1, 1 dot 2}) ] \ 
+theta_Q &= 1 - [1 - 2] \
+theta_Q &= 2 $
+
+==
+
+Repeat with $theta_Q = 2$, update for $a=1, r=0$
+
+$ 
+theta_Q &= theta_Q - [ Q(s, a, theta_Q) - (r + gamma max_(a in {1,2}) Q(s, a, theta_Q)) ] \
+theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (0 + gamma max {Q(s, 1, theta_Q), Q(s, 2, theta_Q)}) ] \
+theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (0 + gamma max {theta_Q dot 1, theta_Q dot 2}) ] \ 
+theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (0 + gamma max {2 dot 1, 2 dot 2}) ] \ 
+theta_Q &= 2 - [2 - 4] \
+theta_Q &= 4 $
+
+==
+
+Repeat with $theta_Q = 4$, update for $a=1, r=0$
+
+$ 
+theta_Q &= theta_Q - [ Q(s, a, theta_Q) - (0 + gamma max_(a in {1,2}) Q(s, a, theta_Q)) ] \
+theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (0 + gamma max {Q(s, 1, theta_Q), Q(s, 2, theta_Q)}) ] \
+theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (0 + gamma max {theta_Q dot 1, theta_Q dot 2}) ] \ 
+theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (0 + gamma max {4 dot 1, 4 dot 2}) ] \ 
+theta_Q &= 2 - [4 - 8] \
+theta_Q &= 6 $
+
+==
+Each time we update with a reward of 0, $theta_Q$ increases
+
+Larger $theta_Q$ increases Q value for $a=1, a=2$
+
+#side-by-side[Eventually $theta_Q -> oo$][$Q(s, a, theta_Q) = oo$]
+
+*Question:* Why does $theta_Q$ keep increasing?
++ (Function approximation) We share parameters for $a=1$ and $a=2$
+    - Updating $theta_Q$ for $a=1$ also updates for $a=2$
++ (Recursive bootstrap) updating $theta_Q$ for $a=1$ uses $max_(a in {1, 2})$ in label
++ (Off-policy) Trains on old data, does not contain $a=2$ 
+    - Eventually, policy should visit $a=2$
+
+Offline RL guarantees case 3, because we will never visit $a=2$
+
+==
++ (Function approximation) We share parameters for $a=1$ and $a=2$
+    - Updating $theta_Q$ for $a=1$ also updates for $a=2$
++ (Recursive bootstrap) updating $theta_Q$ for $a=1$ uses $max_(a in {1, 2})$ in label
++ (Off-policy) Trains on old data, does not contain $a=2$ 
+    - Eventually, policy should visit $a=2$
+
+If we can prevent any of these, we can learn a Q function offline
+#side-by-side[
+    Do not use neural network 
+][
+    Need nn for large state space
+]
+
+#side-by-side[
+    Use MC (non-recursive) instead of TD (recursive)
+][
+    MC is on-policy only, must use TD
+]
+
+#side-by-side[
+Visit all possible states/actions
+][
+Not feasible
+]
 
 = Constraining Q
+==
+So far, offline Q learning seems impossible
+
+Root problem is the out-of-distribution (OOD) TD update
+
+$ max_(a in A) Q(s, a); quad (s, a) in.not bold(X) $
+
+We *overextrapolate* for state-action pairs missing from dataset
+
+*Question:* What can we do about this? 
+
+*Answer 1:* Ignore $Q$ for missing state-action pairs (BCQ)
+
+*Answer 2:* Make $Q$ for missing state-action pairs very small (CQL)
+
+Start with approach 1
+
+==
+We want to ignore $Q(s, a)$ where $s, a in.not bold(X)$
+
+For a finite discrete state space, this is easy!
+
+Only consider actions we have in our dataset $overline(A)(s)$
+
+$ overline(A)(s) = {a | (s, a) in bold(X) } $
+
+$ Q(s_0, a_0, theta_Q) = r + gamma max_(a in overline(A)) Q(s_(1), a, theta_Q) $
+
+We ignore actions missing from the dataset!
+
+*Question:* What if the state space is continuous?
+
+==
+Continuous state space means we cannot check $(s, a) in bold(X)$
+- Every state $s$ in $bold(X)$ will be different 
+    - Each state will only have one action
+    - We will learn the behavior policy, not optimal policy
+
+*Solution:* Continuous relaxation of $(s, a) in bold(X)$
+
+Only consider actions the behavior policy takes
+
+$ overline(A) = {a: pi (a | s; theta_beta) > rho} $
+
+We can approximate $theta_beta$ using behavioral cloning
+
+
+
 // How can we constrain Q?
     // BCQ - restrict actions to those in the dataset
     // CQL - penalize large out of distribution Q values
@@ -800,7 +937,7 @@ Let us further investigate the deadly triad
 ==
 *Definition:* Batch Constrained Q Learning (BCQ) estimates the behavior policy, only taking actions that exist in the dataset
 
-*Step 1:* Learn the expert through BC
+*Step 1:* Learn the behavior policy through BC
 
 $ theta_pi = argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $ 
 
@@ -814,11 +951,27 @@ y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in overline(A)) Q(s_1, a,
 $ theta_(Q, i + 1) &= argmin_(theta_(Q, i)) (Q(s_0, a_0, theta_pi, theta_(Q, i)) - y)^2 \ 
 y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in overline(A)) Q(s_1, a, theta_pi, theta_(Q, i)) $
 
-The constraint lies in how we select $overline(A)$
+Constrain $overline(A)$ to contain actions the behavior policy would take
 
 $ overline(A) = {a: pi (a | s_1; theta_pi) > rho} $
 
-$rho$ is a hyperparameter that filters out low-probability actions
+where hyperparameter $rho$ determines the level of extrapolation
+
+==
+BCQ is a good algorithm, but it requires learning a policy using BC
+
+Can we do offline Q learning without learning the behavior policy?
+
+What if we make Q small for OOD actions?
+
+
+$ min_(a in.not overline(A)) Q(s, a) $
+
+This still requires knowing $overline(A)$ and BC 
+
+*Solution:* Create two objectives:
+- Learn $Q$ as usual
+- Minimize $Q$
 
 ==
 *Definition:* Conservative Q Learning (CQL) learns a Q function that minimizes $Q$ for out of distribution actions
