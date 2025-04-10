@@ -328,19 +328,26 @@
 = Admin
 
 ==
+Two more lectures after today #pause
+- Make sure you start on final projects! #pause
 
-Final quiz on 24 April (2 weeks), format subject to change #pause
-- 1 question fundamental RL (V/Q/PG) #pause
-- 1 question actor-critic #pause
-- 1 or 2 questions on new material (imitation/offline RL/POMDPs/etc) #pause
-
-Homework 1 grading #pause
-- Deadline for TAs was yesterday at 23:59 #pause
-- For some reason, TAs set max score to 50% #pause
-    - Emailed to understand why, waiting on response #pause
-    - Do not worry, scores will be corrected #pause
+Homework 1 grading is done #pause
+- Results on moodle #pause
 
 Homework 2 grading deadline next Wednesday
+
+==
+
+Quiz 1 scores uploaded #pause
+- Mean grade 57/100 #pause
+    - Modes at 25 and 85 #pause
+- Someone forget their name #pause
+    - If you have no score, come see me #pause
+
+Final quiz on 17 April (next week), format subject to change #pause
+- 1 question fundamental RL (V/Q/PG) #pause
+- 1 question actor-critic #pause
+- 1 or 2 questions on new material (imitation/offline RL/POMDPs/etc)
 
 = Review
 
@@ -1095,8 +1102,8 @@ $
 *Definition:* Conservative Q Learning (CQL) learns a Q function that minimizes $Q$ for out of distribution actions
 
 $ theta_(Q, i + 1) &= argmin_(theta_(Q, i))  underbrace((Q(s_0, a_0, theta_pi, theta_(Q, i)) - y)^2, "TD error") + z^2  \ #pause 
-y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, a_1, theta_beta, theta_(Q, i)) \ #pause
-z &= underbrace((log sum_(a in A) exp(Q(s_1, a, theta_pi, theta_(Q, i)))), "Push down Q for all" a) - underbrace(Q(s_1, a_1, theta_pi, theta_Q), "Push up Q for" \ "in-distribution" a) 
+y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi, theta_(Q, i)) \ #pause
+z &= underbrace((log sum_(a in A) exp Q(s_1, a, theta_pi, theta_(Q, i))), "Minimize Q for all" a) - underbrace(Q(s_1, a_1, theta_pi, theta_(Q, i)), "Push up Q for" \ "in-distribution" a_1) 
 $
 
 = Conclusion

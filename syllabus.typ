@@ -42,9 +42,9 @@
     - Week 8 (03.13): Policy Gradient (S&B 13)
     - Week 9 (03.20): Actor Critic I (S&B 13)
     - Week 10 (03.27): Actor Critic II (S&B 13)
-    - Week 11 (04.03): Offline RL
-    - Week 12 (04.10): Memory and POMDPs
-    - Week 13 (04.17): Imitation Learning
+    - Week 11 (04.03): Imitation Learning 
+    - Week 12 (04.10): Offline RL 
+    - Week 13 (04.17): Memory and POMDPs
     - Week 14 (04.24): LLMs
   ],
   [Assignment], [
