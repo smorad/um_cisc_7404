@@ -339,15 +339,18 @@ Homework 2 grading deadline next Wednesday
 ==
 
 Quiz 1 scores uploaded #pause
-- Mean grade 57/100 #pause
-    - Modes at 25 and 85 #pause
+- Mean grade 57/100, modes at 25 and 85 #pause
 - Someone forget their name #pause
     - If you have no score, come see me #pause
+- 2 students with 100% on quiz 1 and quiz 2 can skip final quiz #pause
+
+Mean course grade is 92%
+- Lower mean grade after final quiz (second quiz dropped for most)
 
 Final quiz on 17 April (next week), format subject to change #pause
-- 1 question fundamental RL (V/Q/PG) #pause
-- 1 question actor-critic #pause
-- 1 or 2 questions on new material (imitation/offline RL/POMDPs/etc)
+- Question fundamental RL (V/Q/PG) #pause
+- Question actor-critic #pause
+- Question on new material (imitation/offline RL/etc)
 
 = Review
 
@@ -1065,7 +1068,7 @@ y = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in overline(A)) Q(s_1, a, 
 
 $ argmin_(theta_Q) space underbrace((Q(s_0, a_0, theta_pi, theta_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, theta_pi, theta_Q), "Minimize Q")  \
 
-y = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in overline(A)) Q(s_1, a, theta_pi, theta_(Q, i)) $
+y = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi, theta_(Q, i)) $
 
 However, the scale of TD error and Q values can be different #pause
 
@@ -1076,7 +1079,7 @@ We need to balance the second term a little better
 ==
 $ argmin_(theta_Q) space underbrace((Q(s_0, a_0, theta_pi, theta_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, theta_pi, theta_Q), "Minimize Q")  \
 
-y = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in overline(A)) Q(s_1, a, theta_pi, theta_(Q, i)) $ #pause
+y = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi, theta_(Q, i)) $ #pause
 
 We can subtract $Q$ for the action we take in the dataset! #pause
 
@@ -1113,5 +1116,10 @@ Today, we looked at offline RL
 - Like IL, but learns optimal policy instead of expert policy
 
 Two standard approaches to offline RL #pause
-- BC with weighted objectives #pause
-- Breaking the deadly triad with Q learning
+- Behavioral cloning with weighted objectives #pause
+    - EMRL
+    - RWR 
+    - MARWIL #pause
+- Breaking the deadly triad with Q learning #pause
+    - BCQ
+    - CQL

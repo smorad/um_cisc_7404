@@ -55,6 +55,6 @@
   [Quiz], [
     - Week 4 (02.13): Bandits and MDPs
     - Week 8 (03.13): Classical RL
-    - Week 11 (04.03): Modern RL
+    - Week 13 (04.17): Modern RL
   ]
 )
