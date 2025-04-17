@@ -366,36 +366,48 @@ $ Tr(s_(t+1) | s_(t), a_t, s_(t-1), a_(t-1), dots, s_0, a_0) = Tr(s_(t+1) | s_(t
 
 $ Pr(o_(t+1) | o_(t), a_t, o_(t-1), a_(t-1), dots, o_0, a_0) != Pr(o_(t+1) | o_(t), a_t) $
 ==
-With POMDPs, a $Tr, S$ still governs the system
+With POMDPs, Markov $Tr, S$ still governs the system #pause
 
-However, we do not know $Tr$ or $S$, just $Omega$!
+However, we do not know $Tr$ or $S$, just $frak(O)$! #pause
 
-*Example:* Can model the stock market as a POMDP
-- Complex and unknown $S, Tr$
-    - $S$: Stock holdings of millions of people, banks, global events, etc 
-    - $Tr$: Cause and effect of banking systems, markets, emotions, etc 
+*Example:* Can model the stock market as a POMDP #pause
+- Complex and unknown $S, Tr$ #pause
+    - $S$: Stock holdings of millions of people, banks, global events, etc #pause
+    - $Tr$: Cause and effect of banking systems, markets, emotions, etc #pause
 
-- Stock price is an observable function of a latent state 
-    - $o_t tilde O(dot | s_t)$
+- Stock price is an observable function of latent state $s_t in S$ #pause
+    - $o_t tilde O(dot | s_t)$ #pause
 
 POMDPs can model almost any type of decision making problem
 
 ==
-POMDPs seem very flexible, but how are they useful?
+POMDPs seem very flexible, but how are they useful? #pause
 
-All RL algorithms rely on MDPs, not POMDPs
+All RL/IL algorithms rely on MDPs, not POMDPs #pause
 
-Did you spend 12 weeks learning a pointless skill?
+Did you spend 12 weeks learning a pointless skill? #pause
 
-You are in luck, my research focus is on RL for POMDPs! 
-- _Deep Memory Models and Efficient Reinforcement Learning under Partial Observability_
+You are in luck, my research focus is on RL for POMDPs! #pause
+- _Deep Memory Models and Efficient Reinforcement Learning under Partial Observability_ #pause
 
-So how can we use RL on POMDPs?
+So how can we apply RL/IL to POMDPs?
 
 ==
+The core issue is the Markov property of $Tr$ #pause
+
 $ Tr(s_(t+1) | s_(t), a_t, s_(t-1), a_(t-1), dots, s_0, a_0) = Tr(s_(t+1) | s_(t), a_t) $
 
-What if we treat the trajectory as a Markov state?
+However, in POMDPs, we receive observations $o$ not states $s$ #pause
+
+If prior observations $o_(t-1), o_(t-2), dots$ provide useful info, not Markov #pause
+
+*Question:* How to ensure that we have enough info to make decisions?
+
+*Answer:* Just consider all observations $o_0, o_1, dots o_t$ at time $t$
+
+==
+
+In fact, we can treat all prior observations and actions as a Markov state #pause
 
 $ s_t = mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0) $
 
@@ -403,9 +415,9 @@ $ s_t = mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0) $
 
 #grid(align: horizon, columns: (0.7fr, 0.3fr), $ Tr(s_(t+1) | s_(t), a_t, dots, s_0, a_0) = Tr(s_(t+1) | s_(t), a_t) $,
 $ s_t = mat(o_t, a_t; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0) $ 
-)
+) #pause
 
-Plug into equation
+Plug $s_t$ into $Tr$ #pause
 
 $ Tr(s_(t+1) mid(|) 
     mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0), 
@@ -428,9 +440,9 @@ $ Tr(s_(t+1) mid(|)
 ) \ 
 = Tr(s_(t+1) mid(|) 
     mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0), a_t
-) $
+) $ #pause
 
-*Question:* Does this equality hold?
+*Question:* Does this equality hold? #pause
 
 *Answer:* Yes, because $s_t$ contains all other $s_(t-1), s_(t-2), dots$
 
@@ -451,28 +463,31 @@ However, considering the entire past seems like a bad solution
 We must always reason over prior observations and actions
 */
 ==
-$ s_t = mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0) $
+$ s_t = mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0) $ #pause
 
-Now we have a state, can treat POMDP like an MDP
+With this state, POMDP becomes an MDP #pause
 
-Can use this state in policy gradient, Q learning, etc
+Can solve this MDP using policy gradient, Q learning, etc #pause
 
-Still guaranteed to learn optimal policy $max_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$
-
-*Note:* Optimal policy is defined by sensors
-- Navigation policy for a "blind" robot may not be great
-- But we can learn the best policy possible, given the limitation
+Still guaranteed to learn optimal policy $argmax_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$ 
 
 ==
-$ s_t = mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0) $
+*Note:* Optimal policy is always defined by sensors #pause
+- Navigation policy for a "blind" robot may not be great #pause
+- But we guaranteed to learn best navigation policy for blind robot #pause
 
-*Question:* Any problems with this state?
+Beneficial to select the most informative state/observation space
 
-*Answer:* It can become very large!
+==
+$ s_t = mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0) $ #pause
 
-*Example:* $Omega = [0,255]^(1024 times 768 times 3)$ 
+*Question:* Any problems with this state? #pause
 
-60 images per second over one hour, then state is 500 GB
+*Answer:* It can grow very large! #pause
+
+*Example:* $frak(O) = {0, dots, 255}^(1024 times 768 times 3)$ #pause
+
+60 images per second over one hour, then state is 500 GB #pause
 
 Next hour, state becomes 1 TB -- not scalable!
 
@@ -481,65 +496,119 @@ $ s_t = mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0) $
 
 Must consider all prior observations and actions, but can we do better?
 
-$ s_t = f(mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0)) $
+*Key idea:* Must consider all prior info, but not all prior info is important #pause
+- We can delete useless information #pause
+- We can summarize similar information
+
+==
+$ s_t = mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0) $
 
 Use a function $f$ to extract useful/meaningful information from the past
+
+$ s_t = f(mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0)) $
+
 
 ==
 $ s_t = f(mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0)) $
 
-Use a function $f$ to extract useful/meaningful information from the past
+Use a function $f$ to extract useful/meaningful information from the past #pause
 
-*Question:* Is there a similar mechanism in humans?
+*Question:* Is there a similar mechanism in humans? #pause
 
 *Answer:* Memory! 
 
-In humans, memory is a function of all past sensory information
+==
+#side-by-side[
+$ s_t = f(mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0)) $ #pause
 
-Function $f$ *recalls* necessary information for decision making
+Organisms receive observations over time #pause
+- See, smell, hear, ... #pause
+
+They summarize all sensory information into a compact representation
+][
+    #cimage("fig/13/monkey.jpg") #pause
+
+    "Grab saw", "hold log", "move saw forward/backward on log"
+]
 
 ==
-$ s_t = f(mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0)) $
 
-How can we implement $f$? Functions with a dynamic number of inputs
+$ s_t = f(mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0)) $ #pause
+
+How can we implement $f$? #pause
 - Functions that take a dynamic number of inputs
-
-Recurrent neural network (LSTM): $quad s_t, h_t = "GRU"([o_t, a_(t-1)], h_(t-1), theta_f)$
-    
-Attention (Transformer): $quad s_t = "attn"([o_t, a_(t-1)], [o_(t-1), a_(t-2)], dots, theta_f)$
-
-Bayesian methods (inference): $quad Pr (s_t | o_t, a_(t-1), s_(t-1), dots ; theta_f)$
-
-
-//Your sensors are always collecting data, but identify, store, and recall only a small amount
+- Many possibilities for $f$ 
 
 ==
-We can train memory $theta_f$ and policy $theta_pi$ end to end
+*Approach 1:* Recurrent neural networks #pause
 
-$ s_t = f([o_t, a_(t-1)], [o_(t-1), a_(t-2)], dots, theta_f) \ 
+$ "GRU"([o_t, a_(t-1)], h_(t-1), theta_f) $ #pause
+
+```python
+# Compute markov state s_t
+recurrent_state = zeros()
+a[i] = 0 # Most recent action is null
+for i in range(len(trajectory)):
+    input = concatenate(o[i], a[i])
+    recurrent_state = gru(input, recurrent_state)
+markov_state = recurrent_state
+```
+
+==
+*Approach 2:* Transformers/attention #pause
+
+$ s_t = "attn"([o_t, a_(t-1)], [o_(t-1), a_(t-2)], dots, theta_f) $ #pause
+```python
+# Compute markov state s_t
+a[i] = 0 # Most recent action is null
+input = concatenate(o[i], a[i])
+markov_state = attn(input)
+```
+
+==
+*Approach 3:* Bayesian inference #pause
+
+$ Pr (s_t | o_t, a_(t-1), s_(t-1), dots ; theta_f) $ #pause
+
+```python
+# Compute markov state s_t
+mu, sigma = zeros(), ones() # Initialize parameters
+a[i] = 0 # Most recent action is null
+
+for i in range(len(trajectory)):
+    mu, sigma = update_belief(mu, sigma, o[i], a[i])
+state_dist = (mu, sigma)
+# Either MLE or sample
+markov_state = mu
+markov_state = normal(mu, sigma)
+```
+
+
+==
+We train memory $theta_f$ and policy $theta_pi$ end to end #pause
+
+$ s_t = f([o_t, a_(t-1)], [o_(t-1), a_(t-2)], dots, theta_f) \ #pause
   a_t tilde pi (dot | s_t; theta_pi)
-$
+$ #pause
 
-$ argmax_(theta_f, theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] $
+$ argmax_(theta_f, theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] $ #pause
 
-In this way, we *learn* the Markov state $s_t$ using parameters $theta_f$
+In this way, we *learn* the Markov state $s_t$ using parameters $theta_f$ #pause
 
-*Example:* Stock market POMDP
-- Learn $theta_f$ that represents $Tr, S$ from data
+*Example:* Stock market POMDP #pause
+- Learn $theta_f$ that represents $Tr, S$ from data #pause
 - Learn $theta_pi$ to maximize profits using learned $Tr, S$
 
 ==
-*Definition:* We use a memory function $f$ to apply standard RL algorithms (policy gradient, Q learning, actor critic) to POMDPs
+*Definition:* We use a memory function $f$ to apply standard RL algorithms (policy gradient, Q learning, actor critic) to POMDPs #pause
 
 $ #redm[$s_t$] = f([o_t, a_(t-1)], [o_(t-1), a_(t-2)], dots, theta_f) 
-$
+$ #pause
 $
 argmax_(theta_f, theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = argmax_(theta_f, theta_pi) sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (#redm[$s_(n + 1)$] | s_0; theta_pi)
-$ 
+$ #pause
 
 $ Pr (#redm[$s_(n+1)$] | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(#redm[$s_(t+1)$] | #redm[$s_t$], a_t) dot pi (a_t | #redm[$s_t$] ; theta_pi) ) $ 
-
-//$ argmax_(theta_f, theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_f, theta_pi) sum_(n=0)^oo gamma^n sum_(t=0)^oo Pr(s_(t+1) | s_t, a_t) $
 
 ==
 $ #redm[$s_t$] = f([o_t, a_(t-1)], [o_(t-1), a_(t-2)], dots, theta_f) \
@@ -547,33 +616,34 @@ $ #redm[$s_t$] = f([o_t, a_(t-1)], [o_(t-1), a_(t-2)], dots, theta_f) \
 argmax_(theta_f, theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = argmax_(theta_f, theta_pi) sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (#redm[$s_(n + 1)$] | s_0; theta_pi) \
  
 
-Pr (#redm[$s_(n+1)$] | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(#redm[$s_(t+1)$] | #redm[$s_t$], a_t) dot pi (a_t | #redm[$s_t$] ; theta_pi) ) $ 
+Pr (#redm[$s_(n+1)$] | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(#redm[$s_(t+1)$] | #redm[$s_t$], a_t) dot pi (a_t | #redm[$s_t$] ; theta_pi) ) $ #pause
 
-This is a very difficult optimization problem
-- Difficulty increase combinatorially with trajectory length
-- Deep models are surprisingly capable and generalize well
-    - In practice, do not need combinatorially more samples
+Difficult optimization problem #pause
+- Difficulty increase combinatorially with trajectory length #pause
+- Deep models are surprisingly capable and generalize well #pause
+    - In practice, do not need combinatorially more samples #pause
+    - Still more expensive than RL on MDPs
 
 ==
-POMDPs are the most flexible decision making process I know
+POMDPs are the most flexible decision making process I know #pause
 
-I have not yet encountered a problem that POMDPs cannot represent
+I have yet to see a problem that POMDPs cannot represent #pause
 
-We can solve POMDPs by combinining memory and standard RL
+We can solve POMDPs by combinining memory and standard RL #pause
 
-Today, there is enough compute to solve simpler tasks
-- Visual navigation
-- Board games
-- Memory tasks given to humans
+Today, we have enough compute to solve simpler tasks #pause
+- Visual navigation #pause
+- Board games #pause
+- IQ memory exams #pause
 
-As GPUs become faster, we will see very interesting results
-- Your generation will see RL applied to useful tasks
-- You can be the ones to do apply it!
+As GPUs become faster, we will see very interesting results #pause
+- Your generation will see RL applied to useful tasks #pause
+- You can be the ones to apply it!
 
 = Coding
 ==
 ```python
-f = Transformer()
+f = Transformer() # or RNN
 pi = nn.Sequential(..)
 episode = []
 while not terminated:
@@ -612,17 +682,51 @@ def recurrent_loss(models, episode, loss_fn=pg_loss):
 
 = Multiagent RL
 ==
-We model multiagent RL as a POMDP with additional structure
+We model multiagent RL as a POMDP with additional structure #pause
 
-In a Decentralized MDP (DecMDP), the state is distributed across agents
+In a Decentralized MDP (DecMDP), the state is distributed across agents #pause
 
-Consider observations over agents instead of time
+Consider observations over agents instead of time #pause
 
 #side-by-side[
     Temporal POMDP
 
-    $ s_t = mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0) $
+    $ s_t = mat(o_t, emptyset; o_(t-1), a_(t-1); dots.v, dots.v; o_0, a_0) $ #pause
 ][
     DecMDP
-    $ s_t = mat(o_(i, t); o_(i - 1, t); dots.v; o_(0, t)) $
+    $ s_t = mat(o_(n, t); o_(n - 1, t); dots.v; o_(0, t)) $ 
 ]
+
+==
+What methods can we use for multiagent $f$?
+- Attention/transformers
+- Graph neural networks
+- RNNs not a good idea, not permutation invariant
+    - Time has ordering, agents do not
+
+==
+*Centralized Training Decentralized Execution* (CTDE) is a popular approach for multiagent RL #pause
+- Multiagent DDPG (MADDPG) #pause
+- Multiagent SAC (MASAC) #pause
+
+*Key idea:* Non-symmetric $Q$ and $pi$ #pause
+- Learn $Q$ function over joint action space 
+    - $Q: frak(O)_0 times frak(O)_1 times dots times frak(O)_n |-> A_0 times A_1 times dots times A_n$ #pause
+    - Expensive to compute, only necessary during training #pause
+- Learn independent policies 
+   $pi: frak(O)_0 times frak(O)_1 times dots times frak(O)_n |-> A_i $ #pause
+    - Cheap to compute, used during deployment
+
+Large action space makes multiagent policies expensive to train
+
+= Summary
+==
+- Explained why RL research focuses on video games #pause
+    - MDPs are not a good representation of real tasks #pause
+- Introduced POMDPs that can model almost anything #pause
+    - Difference between observation and state #pause
+    - Concatenation of all observations and actions is a Markov state #pause
+        - Can be inefficient #pause
+        - Use RNN or attention to produce latent Markov state #pause
+- Multiagent RL also uses POMDPs!
+    - Use graph neural network or attention
