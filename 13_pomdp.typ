@@ -20,7 +20,7 @@
     institution: [University of Macau],
     logo: image("fig/common/bolt-logo.png", width: 4cm)
   ),
-  //config-common(handout: true),
+  config-common(handout: true),
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
 )
@@ -36,7 +36,7 @@
 = Quiz
 
 ==
-I caught and reported some cheaters to the department for quiz 2 #pause
+I reported some cheaters to the department for quiz 2 #pause
 - Cheating will result in 0 for *entire course* #pause
 
 It is not worth risking a 0 in the course for a quiz #pause
@@ -80,11 +80,14 @@ I cannot catch all cheaters, but is it worth the gamble?
 
 = Admin
 ==
+#cimage("fig/13/burger.jpg")
+==
 Still one quiz 2 without name #pause
 
 If you took quiz 2 and have 0 score, it may be your quiz #pause
 
-Come see me after class
+Visit my office hours next week to claim it
+
 ==
 Homework 2 grades released #pause
 - Average score 80/100 #pause

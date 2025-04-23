@@ -11,6 +11,8 @@
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
+// TODO: Cover inverse RL better as we use it in LLM lecture
+
 #show: university-theme.with(
   aspect-ratio: "16-9",
   config-info(
