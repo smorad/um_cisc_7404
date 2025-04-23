@@ -784,11 +784,14 @@ $ A(s_0, theta_pi_-, theta_pi_+) = sigma( bb(E)[cal(G)(bold(tau)) | s_0, theta_p
 
 $ rho(bold(tau)_-, bold(tau_+)) = sigma (cal(G)(bold(tau)_+) - cal(G)(bold(tau)_-)) $
 
-In terms of a dataset,
+We treat this as the probability of a human preferring $bold(tau)_+$ over $bold(tau)_-$
 
-$ rho(bold(tau)_-, bold(tau_+)) approx 1$: Human prefers $bold(tau_+)$
+$ rho(bold(tau)_-, bold(tau_+)) = Pr("Human prefers" bold(tau)_+) / ( Pr("Human prefers" bold(tau)_+) + Pr("Human prefers" bold(tau)_-)) $
 
-$ rho(bold(tau)_-, bold(tau_+)) approx 0$: Human prefers $bold(tau_-)$
+
+$ rho(bold(tau)_-, bold(tau_+)) approx 1: "Human prefers" bold(tau_+) \
+
+rho(bold(tau)_-, bold(tau_+)) approx 0: "Human prefers" bold(tau_-) $
 
 ==
 
@@ -828,20 +831,6 @@ With the Bradley-Terry advantage, collect human preference dataset
 RLHF $=$ Offline RL with preferences (human-selected returns)
 
 ==
-*Question:* What are the offline RL methods?
-+ Weighted behavioral cloning with rewards/returns
-    - RWR, MARWIL, etc
-+ Q learning with constraints
-    - BCQ, CQL, etc
-    - Constraints prevent overextrapolation
-+ Inverse RL
-    - Learn reward function from dataset, then use online RL
-
-Most people use approaches 1 and 3
-
-*Question:* Why not approach 2? *Answer:* I don't know, try it out!
-
-==
 Generative pretraining/imitation learning is 99% of training
 - $pi$ learns smart responses, but mixed with many idiot responses
 - Focus is general knowledge and language understanding
@@ -856,19 +845,203 @@ Remember, offline RL can learn a *better* policy $theta_pi$ than the expert $the
     - Very important! Not possible with imitation learning/pretraining
 
 ==
-Terminology is confusing, people always making new words
+*Question:* What offline RL algorithms do we know?
++ Weighted behavioral cloning with rewards/returns
+    - RWR, MARWIL, etc
++ Q learning with constraints
+    - BCQ, CQL, etc
+    - Constraints prevent overextrapolation
++ Inverse RL
+    - Learn reward function from dataset, then use online RL
 
-Deep learning and decision making use different names
+Most people use approaches 1 and 3
 
-Weighted behavioral cloning $=>$ Preference optimization
+*Question:* Why not approach 2? *Answer:* I don't know, try it out!
+
+
+==
+
+Weighted behavioral cloning 
 - Direct Preference Optimization (DPO)
 - Kahneman Tversky Optimization (KTO)
 
-Inverse RL $=>$ Reinforcement Learning from Human Feedback (RLHF)
+Inverse RL 
 - REINFORCE/Policy Gradient
 - Proximal Policy Optimization (PPO)
 - Group Relative Policy Optimization (GRPO)
 
+= Inverse RL
+==
+In inverse RL, we learn the parameters for the reward function $theta_cal(R)$
+
+$ cal(R)(s, theta_cal(R)) $
+
+For a POMDP, it is simpler to learn the return instead (do not know $s$)
+
+$ cal(G)(bold(tau), theta_cal(G)) $
+
+Recall our dataset
+
+#side-by-side[
+    $ 
+    bold(x) = vec(bold(tau)_-, bold(tau)_+, rho(bold(tau)_-, bold(tau)_+))
+    $
+][
+    $ bold(X) = mat(
+        bold(x)_1,
+        bold(x)_2,
+        dots
+    ) $
+]
+
+==
+#side-by-side[
+    $ 
+    bold(x) = vec(bold(tau)_-, bold(tau)_+, rho(bold(tau)_-, bold(tau)_+))
+    $
+][
+    $ bold(X) = mat(
+        bold(x)_1,
+        bold(x)_2,
+        dots
+    ) $
+]
+
+$ rho(bold(tau)_-, bold(tau_+), theta_cal(G)) = sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))) = Pr("Human prefers" bold(tau)_+ ) $
+
+
+We want to find $theta_cal(G)$ that predicts the human preferences in our dataset
+
+Since $rho$ is a probability, we maximize the log likelihood 
+
+
+$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), Pr("Human prefers" bold(tau)_+ )) 
+$
+
+==
+
+$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), Pr("Human prefers" bold(tau)_+ )) 
+$
+
+We often model $cal(G)(bold(tau), theta_cal(G))$ using another LLM
+
+$ cal(G)(bold(tau), bold(theta)_cal(G)) = bold(theta)_cal(G)^top underbrace(f(bold(tau), theta_f), s) $
+
+We only learn a linear layer $bold(theta)_cal(G)$, not the LLM parameters $theta_f$!
+
+Now, we can compute the return for any trajectory
+
+We use any online RL algorithm!
+
+==
+
+Let us start with REINFORCE (Monte Carlo policy gradient)
+
+$
+theta_(pi, i+1) &= theta_(pi, i) + alpha dot nabla_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] \ 
+
+nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] &= bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] dot nabla_theta_(pi, i) log pi (a_0 | s_0; theta_(pi, i))
+$
+
+Plug in our learned return function $cal(G)(bold(tau), theta_cal(G))$
+
+$
+theta_(pi, i+1) &= theta_(pi, i) + alpha dot nabla_(theta_(pi, i)) bb(E)[cal(G)(bold(tau), theta_cal(G)) | s_0; theta_(pi, i)] \
+
+nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] &= bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] dot nabla_theta_(pi, i) log pi (a_0 | s_0; theta_(pi, i))
+$
+
+That is it, easy!
+
+==
+
+Standard training process:
+1. Give the LLM a user query
+2. LLM generates a response
+3. Update LLM parameters $theta_pi, theta_f$ using return
+    - $theta_f$ not shown, but used to compute $s$
+
+
+==
+*Definition:* Inverse REINFORCE learns a return function using the Bradley-Terry advantage, then learns a policy (LLM) using REINFORCE
+
+*Step 1:* Learn the return
+
+$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), Pr("Human prefers" bold(tau)_+ )) 
+$
+
+*Step 2:* Learn the policy using Monte Carlo policy gradient 
+
+$
+theta_(pi, i+1) = theta_(pi, i) + alpha dot nabla_(theta_pi) bb(E)[cal(G)(bold(tau), theta_cal(G)) | s_0; theta_pi]
+$
+
+==
+*Definition:* Constrained inverse REINFORCE adds a constraint to ensure the policy does not change too much
+
+*Step 1:* Learn the return
+
+$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), Pr("Human prefers" bold(tau)_+ )) 
+$
+
+*Step 2:* Learn the policy *with a KL constraint*
+
+$
+theta_(pi, i+1) = theta_(pi, i) + alpha dot nabla_(theta_pi)  
+    bb(E)[cal(G)(bold(tau), theta_cal(G)) | s_0; theta_(pi, i)] \ - 
+    underbrace(nabla_(theta_(pi, i + 1)) KL[pi (a | s; theta_(beta)), pi (a | s; theta_(pi, i + 1))], "Stay close to" theta_beta)
+$
+
+==
+Finally, I want to discuss GRPO
+
+However, GRPO is based on PPO
+- PPO is complicated and has too many terms
+- I think this will confuse everyone
+- The important part of GRPO is group normalization, not PPO
+
+I will present Steven's GRPO: REINFORCE with group normalization 
+- Much simpler version
+- Help you understand the key idea behind GRPO
+
+==
+*Definition:* Steven's Group Relative Policy Optimization (S-GRPO) normalizes the return using completions of the same user query $s_q$
+
+$ bold(tau)_i tilde Pr (bold(tau) | s_q; theta_pi) $
+
+$ theta_(pi, i+1) &= theta_(pi, i) + alpha dot nabla_(theta_(pi, i)) bb(E)[cal(G)(bold(tau), theta_cal(G)) | s_q; theta_(pi, i)] $
+
+$
+nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau)) | s_q; theta_(pi, i)] &= underbrace( (1 / n sum_(i=1)^n cal(G)(bold(tau)_i, theta_cal(G))), "Empirical return" ) dot nabla_theta_(pi, i) log pi (a | s; theta_(pi, i))
+$
+
+
+==
+Updates compare answers to the same question, reducing variance
+
+$ s_q = f("Where is Macau?", theta_f) $
+
+$ bold(tau)_1 &= "Macau is a Special Administrative Region (SAR) in " dots \
+bold(tau)_2 &= "Macau is a city in Asia near the equator" dots \
+dots.v & 
+$
+
+//$ hat(G) = 1 / n sum_(i=1)^n cal(G)(bold(tau)_i, theta_cal(G)) $
+$
+nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau)) | s_q; theta_(pi, i)] &= underbrace( (1 / n sum_(i=1)^n cal(G)(bold(tau)_i, theta_cal(G))), "Empirical return" ) dot nabla_theta_(pi, i) log pi (a | s; theta_(pi, i))
+$
+
+Very similar to the Bradley-Terry model: learns $theta_cal(G)$ using $bold(tau)_-, bold(tau)_+$
+
+==
+Real GRPO combines group normalization with the PPO objective
+- Use the MC return like S-GRPO, deleting $V$ from PPO 
+    - However, they still use the advantage
+- PPO-clip to prevent large policy changes
+- KL constraint to keep the learned policy near the pretrained policy 
+
+
+/*
 = Preference Optimization
 ==
 // Replace advantage with preference
@@ -899,146 +1072,24 @@ $ Pr(s_0, a_+, a_-, theta_pi) &= softmax(
 ) $
 
 Represents the probability of the user preferring $a_+$ over $a_-$
+*/
 
-= Reinforcement Learning from Human Feedback
-// RLHF is a really bad name
-    // For example, GRPO in R1 paper did not use human feedback
-        // Or did they? Double check
-// Policy gradient
-// PPO
-// GRPO
-==
-*Note:* RLHF is not a good name, I prefer inverse RL
-
-Humans are often part of reward modeling, but not always!
-- GRPO in the DeepSeek Math paper does not use human feedback!
-- But we still call it RLHF
-
-I will call it RLHF from now on for clarity
-
-==
-
-In RLHF, we aim to learn parameters $theta_cal(R)$ of a reward function
-
-$ cal(R)(s_(t+1), theta_cal(R)) $
-
-Once we know $theta_cal(R)$, we train our policy $theta_pi$ using on-policy algorithms
-
-+ Feed LLM a prompt $s_0$
-+ LLM outputs text $bold(tau) = s_0, a_0, s_1, a_1, dots$
-+ Compute return $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1), theta_cal(R)) | s_0; theta_pi]$
-+ Update memory and policy 
-$ theta_(pi, i+1), theta_(f, i+1) = max_(theta_(pi, i) \ theta_(f, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] $ 
-
-==
-*Step 1:* Learn the reward function parameters $theta_cal(R)$
-
-In practice, it is easiest to assign reward to only the last token
-
-$ cal(R)(s_(t+1)) = cases(
-    0 & "if" s_(t+1) != #text[`<EOF>`],
-    log sigma ( cal(R)(s_+) - cal(R)(s_-) ) & "if" s_(t+1) = #text[`<EOF>`],
-) $
-
-Using RL, the policy will learn credit assignment
-- Which actions lead to better terminal states?
-
-==
-
-*Example:* I want you to tell me the reward for two responses:
-
-#text(font: "Chalkduster", size: 22pt)[
-    User: Where is Macau?
-
-    #side-by-side[
-        Agent: Macau is a Special Administrative Region (SAR) in the south of China
-    ][
-        Agent: Macau is a city in Asia near the equator 
-    ]
-]
-
-*Question:* What should the reward be for each response?
-
-Humans suck at assigning absolute rewards!
-
-It is much easier for humans to determine *preferences* 
-
-==
-
-#text(font: "Chalkduster", size: 22pt)[
-    User: Where is Macau?
-
-    #side-by-side[
-        Agent: Macau is a Special Administrative Region (SAR) in the south of China
-    ][
-        Agent: Macau is a city in Asia near the equator 
-    ]
-
-]
-#side-by-side[Better][Worse]
-
-#side-by-side[$cal(R)(s_(+), theta_cal(R)) = 1$][$cal(R)(s_(-), theta_cal(R)) = -1$]
-
-We can use this to learn a reward function through regression!
-
-==
-
-
-
-
-==
-$ cal(R)(s_(t+1)) = cases(
-    0 & "if" s_(t+1) != #text[`<EOF>`],
-    log sigma ( cal(R)(s_+) - cal(R)(s_-) ) & "if" s_(t+1) = #text[`<EOF>`],
-) $
-
-$ bb(E)[cal(G)(bold(tau)) | #pin(1)s_0#pin(2) ; theta_pi] = sum_(t=0)^(n) gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $
-
-#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 1.5em)[User input summary] 
-#v(1em)
-
-
-For simplicity, many people (including ByteDance) use $gamma=1$
-
-$ bb(E)[cal(G)(bold(tau)) | #pin(1)s_0#pin(2) ; theta_pi] = sum_(t=0)^(n) bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $
-
-
-==
-
-$ bb(E)[cal(G)(bold(tau)) | #pin(1)s_0#pin(2) ; theta_pi] = sum_(t=0)^(n) bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $
-
-*Question:* Any issues with $gamma=1$?
-
-*Answer:* Model has no incentive to complete task quickly
-
-Notice how LLMs talk too much? $gamma < 1$ makes them talk less
-
-
-= Preference Optimization
-// Similar to weighted behavior cloning
-// Hard to learn reward function so use humans
-    // How would you score these completions?
-        // Ask students, large variance
-        // Humans are stupid, easier to express preference than give a scalar reward
-        // Prefs allow us to reduce the problem further
-// DPO
 
 = Alignment
 ==
-You may hear about *alignment* when reading about LLMs
+You may hear about LLM *alignment* 
 
-Alignment is a very simple concept:
-
-Does our reward function/language model align with human values?
+*Alignment:* Does the language model respect human values?
 - Polite or rude?
 - Biased or racist?
 - Good or evil?
 
-Human values differ between people and cultures
+With RLHF, learn return function from human preferences
+- Humans can prefer biased/racist/evil answers
+- No ground truth, biased/racist/evil depends on culture
+- LLM optimizes return function
+    - LLM can learn to be biased/racist/evil
 
-This means alignment is an ill-posed problem
-
-Introducing biased datasets or RLHF can introduce alignment issues
 
 = Final Remarks
 ==
