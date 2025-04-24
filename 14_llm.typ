@@ -9,6 +9,9 @@
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
+// TODO: Learn theta_f (memory) through IL
+// Assume frozen and RL only learns theta_pi (linear)
+
 #let base_poem = {
     quote(block: true)[
         #text(font: "Chalkduster", size: 22pt)[
@@ -193,32 +196,27 @@ Quiz 3 graded #pause
 - Grades uploaded on moodle #pause
 - Mean score 70/100, ignoring missing exams #pause
 
-Mean over all quiz (quiz 1, quiz 2, quiz 3, drop lowest) = 77/100 #pause
-
 Some students have 0/100 for quiz 3 #pause
-- Some students did not turn in exam #pause
-    - Some already had 100/100 on quiz 1 and 2 #pause
-    - If you have 0/100 but turned in assignment, come see me #pause
-- 7 students *must see me in office hours* #pause
-    - Read quiz 3 feedback
+- Some already had 100/100 on quiz 1 and 2 #pause
+- Some students had 0/100 until 14:30 today, issue fixed #pause
+    - Double check your score now #pause
 
+Mean over all quiz (quiz 1, quiz 2, quiz 3, drop lowest) = 77/100 
 
 ==
-Quiz 3 lowest scoring question: *Q1* #pause
+Quiz 3 lowest scoring question: #pause *Q1* #pause
 - Makes me sad, I thought this was easy question #pause
 - Many students do not know what actor-critic is #pause
-    - Q learning/TD learning is *not* actor critic! #pause
+    - Q learning/TD learning is *not* actor-critic! #pause
     - Actor critic combines Q/V learning with policy gradient #pause
     - *Question:* Can someone explain why Q1 was difficult?
 ==
 Different opinions from *Q1* part 2: #pause
-- Weak math background, math too hard, like coding better
-- I like math explanations, but coding is very hard #pause
-- I do not like coding or math (ML is coding + math!) #pause
-- Never heard of JAX, it is very fast, I like learning it
-- Do not know JAX, do not like using it #pause
-- Don't like quizzes #pause
-- You give too much time for quizzes, should only give 60 mins
+- Math too hard, like coding better (60% respondents)
+- Like math, coding too hard (30% respondents) #pause
+- Do not like coding or math (change your degree!) (10% respondents) #pause
+- Never knew JAX, it is very fast, like learning it (80% respondents)
+- Never knew JAX, do not like it (20% respondents)
 
 ==
 Shared opinions #pause
@@ -235,10 +233,11 @@ Shared opinions #pause
 Opinion: Do not like participation, some students are shy #pause
     - You must be brave #pause
     - I also do not like talking, I worry about making mistakes #pause
-    - Researcher/engineer/professor *must* be good at participation #pause
-    - Good at programming/research *is not enough*
+    - Researcher/engineer/professor *must* be good at presentations #pause
+    - Good at programming/math *is not enough* #pause
     - Many smarter scientists than Yann LeCun or Geoffrey Hinton #pause
-        - LeCun/Hinton famous due to presentation skills #pause
+        - Backpropagation published twice before Hinton #pause
+            - Other 2 researchers have worse social/presentation skills #pause
     - It is not fair, but a reality of the world #pause
         - If you want to succeed, you must overcome shyness
 /*
@@ -298,14 +297,14 @@ We want to reply with different text #pause
 
 *Question:* What is the action space $A$ for this task? #pause
 
-*Answer 1:* All possible text $A = {"A", "Aardvark", dots, "Zebra"}^n $ #pause
+*Answer 1:* All possible text $A = {"Aardvark", "Apple",dots, "Zebra"}^n $ #pause
 
-*Answer 2:* All possible words $A = {"A", "Aardvark", dots, "Zebra", #text[`<EOS>`]} $ 
+*Answer 2:* All possible words $A = {"Aardvark", "Apple",dots, "Zebra", #text[`<EOS>`]} $ 
 
 ==
-$ A = {"A", "Aardvark", dots, "Zebra"}^n $ 
+$ A = {"Aardvark", "Apple",dots, "Zebra"}^n $ 
 
-$ A = {"A", "Aardvark", dots, "Zebra", #text[`<EOS>`]} $ #pause
+$ A = {"Aardvark", "Apple",dots, "Zebra", #text[`<EOS>`]} $ #pause
 
 First approach, produce the entire response at once #pause
 
@@ -318,12 +317,12 @@ Second approach, produce response one word at a time #pause
 #pinit-highlight-equation-from((3,4), (3,4), fill: red, pos: bottom, height: 1.5em)[User input] 
 #pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: top, height: 1.5em)[Policy output] #pause
 
-$ A = {"A", "Aardvark", dots, "Zebra"}^n $ #pause
+$ A = {"Aardvark", "Apple",dots, "Zebra"}^n $ #pause
 
 *Question:* Any issues with this action space?
 
 ==
-$ A = {"A", "Aardvark", dots, "Zebra"}^n $ 
+$ A = {"Aardvark", "Apple",dots, "Zebra"}^n $ 
 
 *Answer:* $n in [0, oo]$ so action space is infinite #pause
 
@@ -335,81 +334,82 @@ BenBen joint angles are continuous and ordered #pause
 
 Action $a=1.8 pi "rad"$ similar to $a=1.9 pi "rad"$, policy can generalize #pause
 
-For LLM action space, meaning of A $!=$ meaning of Aardvark #pause
+For LLM action space, meaning of Apple $!=$ meaning of Aardvark #pause
 
-Policy cannot generalize over unordered discrete actions!
+Policy cannot generalize over infinite discrete actions!
 
 
 // Stopped here
 ==
-#side-by-side[$ A = {"A", "Aardvark", dots, "Zebra"}^n $ ][Very difficult to model] #pause
+#side-by-side[$ A = {"Aardvark", "Apple",dots, "Zebra"}^n $ ][Very difficult to model] #pause
 
 Instead, factorize action space into single word or *token* #pause 
 
-$ A = {"A", "Aardvark", dots, "Zebra", #text[`<EOS>`]} $ #pause
+$ A = {"Aardvark", "Apple",dots, "Zebra", #text[`<EOS>`]} $ #pause
 
 We implement the action space as a dictionary or integer$->$token map #pause
 
-$ {0: "A", space 1:"Aardvark", space dots, space 250,000: "Zebra"} $
+$ {0: "Aardvark", space 1:"Apple", space dots, space 128,000: "Zebra"} $ #pause
 
-Action 1 corresponds to the word "Aardvark"
+Action 1 corresponds to the word "Apple" #pause
 
-This is still a very large action space!
+This is still a very large action space! #pause
+- DeepSeek R1 $|A| = 128,000$
 
 ==
-$ A = {"A", "Aardvark", dots, "Zebra", #text[`<EOS>`]} $ 
+$ A = {"Aardvark", "Apple",dots, "Zebra", #text[`<EOS>`]} $ #pause
 
-#poem_action
+#poem_action #pause
 
-#pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: top, height: 1.5em)[$a_t in A$] 
-#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 1.5em)[$a_(t-1) in A$] 
-#pinit-highlight-equation-from((5,6), (5,6), fill: orange, pos: bottom, height: 1.5em)[$a_(t+1) in A$] 
+#pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: top, height: 1.5em)[$a_t in A$] #pause
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 1.5em)[$a_(t-1) in A$] #pause
+#pinit-highlight-equation-from((5,6), (5,6), fill: orange, pos: bottom, height: 1.5em)[$a_(t+1) in A$] #pause
 
-At each timestep, we take an action 
+Each token/word in the response is an action #pause
 
 But decision processes require a state for every action
 
 $ a_t tilde pi (dot | s_t; theta_pi) $
 
 ==
-$ A = {"A", "Aardvark", dots, "Zebra"} $ 
+$ A = {"Aardvark", "Apple",dots, "Zebra"} $ #pause
 
-#poem_state
+#poem_state #pause
 
-#pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: top, height: 1.5em)[$a_t in A$] 
+#pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: top, height: 1.5em)[$a_t in A$] #pause
 
-*Question:* What is the state at time $t$?
+*Question:* What is $s_t$? ($a_t tilde pi (dot | s_t; theta_pi)$) #pause
 
-*Answer:* Everything we have #text(fill: orange)[seen], and everything we have #text(fill: purple)[done]
+*Answer:* Everything we have #text(fill: orange)[seen], and everything we have #text(fill: purple)[done] #pause
 
-*Question:* Is this a POMDP or MDP? *Answer:* POMDP!
+*Question:* Is this a POMDP or MDP? #pause *Answer:* POMDP!
 
 ==
 
-#poem_state
+#poem_state #pause
 
-*Question:* What is our observation space $frak(O)$?
+*Question:* What is our observation space $frak(O)$? #pause
 
 #side-by-side[
     All possible words
 ][
-$ frak(O) = {"A", "Aardvark", dots, "Zebra", "<EOS>"} $ 
-]
+$ frak(O) = {"Aardvark", "Apple", dots, "Zebra", "<EOS>"} $ 
+] #pause
 
 #side-by-side[
     Same as the action space!
 ][
-$ A = {"A", "Aardvark", dots, "Zebra", "<EOS>"} $ 
-]
+$ A = {"Aardvark", "Apple",dots, "Zebra", "<EOS>"} $ 
+] #pause
 This simplifies our POMDP state
 
 ==
-#poem_state
+#poem_state #pause
 
-#pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: top, height: 1.5em)[$a_t in A$] 
+#pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: top, height: 1.5em)[$a_t in A$] #pause
 
 #side-by-side(align: horizon)[
-    $ s_t = #state_vec_partial $
+    $ s_t = #state_vec_partial $ #pause
 ][
     *Question:* Can we make the state more compact/efficient?
 ]
@@ -432,41 +432,41 @@ This simplifies our POMDP state
     $ s_t = #state_vec_partial $
 ][
     $ s_t = f(#state_vec_partial, theta_f) = f(bold(tau)_t, theta_f) $
-]
+] #pause
 
-*Question:* What models can we use for $f$?
-
-Transformer (GPT-4, Qwen, DeepSeek R1, LLaMA)
-
-Recurrent neural network (Mamba)
-
-Transformer + RNN (Griffin, Google Gemma)
+*Question:* What models can we use for $f$? #pause
+- Transformer (GPT-4, Qwen, DeepSeek R1, LLaMA) #pause
+- Recurrent neural network (Mamba) #pause
+- Transformer + RNN (Griffin, Google Gemma, Tencent Hunyuan)
 ==
 #side-by-side(align: horizon)[
-    $ s_t = f(#state_vec_partial, theta_f) = f(bold(tau)_t, theta_f) $
+    $ s_t = f(#state_vec_partial, theta_f) = f(bold(tau)_t, theta_f) $ #pause
 ][
-    $ pi (a_t | s_t; theta_pi) $
+    $ pi (a | s_t; theta_pi) $ #pause
 ]
 
-Usually, $f$ is a transformer or transformer + RNN
+$f$ is a very large memory model (99% of parameters) #pause
 
-The policy is often a simple linear classifier
+The policy is the final layer of the LLM (simple linear classifier) #pause
 
 #side-by-side[
-    $ pi (a_t | s_t; bold(theta)_pi) = "Softmax"(bold(theta)_pi^top s_t) $
+    $ pi (a | bold(s)_t; bold(theta)_pi) = softmax(bold(theta)_pi^top bold(s)_t) $
 ][
     $ bold(theta)_pi in bb(R)^(|A| times |S|) $
 ]
 
 ==
-#text(fill: red)[$f$ input]
-#text(fill: blue)[Model output]
+One more example to make the decision process clear #pause
+
+$s_t = f(#redm[$bold(tau)_t$], theta_f)$ #pause
+
+$#bluem[$a_t$] tilde pi (a | s_t; theta_pi)$ #pause
 
 #quote(block: true)[
     #text(font: "Chalkduster", size: 22pt)[
-        User: #text(fill: red)[Hello, please write me a poem.]
+        User: #text(fill: red)[Hello, please write me a poem.] #pause
 
-        Agent:   #text(fill: blue)[Sure] #text(fill: luma(80%))[thing! Here is a poem:
+        Agent:  #text(fill: blue)[Sure] #text(fill: luma(80%))[thing! Here is a poem:
 
             Roses are red,
             violets are blue,
@@ -477,8 +477,9 @@ The policy is often a simple linear classifier
 
 ==
 
-#text(fill: red)[$f$ input]
-#text(fill: blue)[Model output]
+$s_t = f(#redm[$bold(tau)_t$], theta_f)$ 
+
+$#bluem[$a_t$] tilde pi (a | s_t; theta_pi)$ 
 
 #quote(block: true)[
     #text(font: "Chalkduster", size: 22pt)[
@@ -495,164 +496,165 @@ The policy is often a simple linear classifier
 
 ==
 
-#text(fill: red)[$f$ input]
-#text(fill: blue)[Model output]
+$s_t = f(#redm[$bold(tau)_t$], theta_f)$ 
+
+$#bluem[$a_t$] tilde pi (a | s_t; theta_pi)$ 
 
 #quote(block: true)[
     #text(font: "Chalkduster", size: 22pt)[
         User: #text(fill: red)[Hello, please write me a poem.]
 
-        Agent: #text(fill: red)[Sure thing] #text(fill: blue)[!] #text(fill: luma(80%))[Here is a poem:
+        Agent: #text(fill: red)[Sure thing]#text(fill: blue)[!] #text(fill: luma(80%))[Here is a poem:
 
             Roses are red,
             violets are blue,
             you are beautiful,
             and I love you]
     ]
-]
+] #pause
 
-==
-#text(fill: red)[$f$ input]
-#text(fill: blue)[Model output]
+We understand the policy $theta_pi$ and memory $theta_f$ #pause
 
-#quote(block: true)[
-    #text(font: "Chalkduster", size: 22pt)[
-        User: #text(fill: red)[#highlight(fill: red.transparentize(70%))[Hello, please write me a poem.]]
-
-        Agent: #text(fill: red)[#highlight(fill: red.transparentize(70%))[Sure thing! Here is a poem:
-
-            #pin(3)Roses are red,
-            violets are blue,
-            you are#pin(4)]]#pin(6) #text(fill: luma(80%))[
-            #pin(1)#text(fill: blue)[beautiful]#pin(2),
-            and I love you]
-    ]
-]
-#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 1.5em)[$a_(t) tilde pi (dot | s_t; theta_pi)$] 
-#pinit-highlight-equation-from((3,4), (3,4), fill: red, pos: bottom, height: 1.5em)[$s_t = f(bold(tau)_t, theta_f)$] 
-
-
-
-
+Now how do we learn $theta_pi$ and $theta_f$?
 
 = Pretraining
 ==
-Now, we understand the decision making process
-- Observation space $frak(O)$
-- Action space $A$
-- Policy model $pi (a | s; theta_pi)$
-- Memory model $f(bold(tau)_t, theta_f)$
+Now, we understand the decision making process #pause
+- Observation space $frak(O)$ #pause
+- Action space $A$ #pause
+- Policy $pi (a | s; theta_pi)$ #pause
+- Memory $f(bold(tau)_t, theta_f)$ #pause
 
-*Question:* Do we know $Tr$? 
+*Question:* Do we understand $S$? #pause *Answer:* No, using POMDP #pause
+- $S$ is the latent space learned by $theta_f$ #pause
+    - It has some meaning, but humans cannot understand it! #pause
 
-*Answer:* No, but model-free algorithms do not assume we know $Tr$
-
-*Question:* Do we know $S$?
-
-*Answer:* No, but using POMDP formulation this is ok. $S$ is the latent space, we cannot understand it
+*Question:* Do we understand $Tr$? #pause *Answer:* No!
+- We do not know the meaning of $S$, so we cannot know $Tr$
 
 ==
-We have
+We covered:
 - Observation space $frak(O)$
 - Action space $A$
-- Policy model $pi (a | s; theta_pi)$
-- Memory model $f(bold(tau)_t, theta_f)$
-Do not need
+- Policy $pi (a | s; theta_pi)$
+- Memory $f(bold(tau)_t, theta_f)$
 - State space $S$
-- Transition function $Tr$
+- Transition function $Tr$ #pause
 
-*Question:* What are we missing?
+*Question:* What are we missing? #pause
 
 *Answer:* Reward function $cal(R)$
 
 ==
 
-#poem_action
+#poem_action #pause
 
-*Question:* What should our reward function $cal(R)$ be?
+*Question:* What should our reward function $cal(R)$ for this be? #pause
 
-*Answer:* RLHF?
+*Answer:* RLHF? #pause
 
-RLHF will not work yet, GPT-3 requires 45TB of data
+RLHF will not work yet, GPT-3 requires 45TB of data #pause
 
-Average English word is 40 bytes 
+RLHF requires humans to annotate 40,000,000,000,000 pages of text #pause
 
-RLHF requires humans to annotate 40,000,000,000,000 pages of text
+Cannot use RLHF now, maybe later
 
 ==
 
 #poem_action
 
-What can we do for reward function?
+Hard to write reward function for text #pause
 
-RLHF will not scale
-
-Hard to write reward function for text
-
-*Question:* What do we do when we reward function is too hard?
+*Question:* What do we do when we cannot find a reward function? #pause
 
 *Answer:* Imitation learning!
 
 ==
-Using behavior cloning, policy can learn to speak like humans
+Using behavior cloning, policy can learn to speak like humans #pause
 
-$ underbrace(pi (a | s; theta_pi), "Learned policy") = underbrace(pi (a | s; theta_beta), "Human speech") $
+$ underbrace(pi (a | s; theta_pi), "Learned policy") = underbrace(pi (a | s; theta_beta), "Human speech") $ #pause
 
-$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - underbrace(pi (a | s; theta_beta), "Human speech") log underbrace(pi (a | s; theta_pi), "Learned policy") $ 
+$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - underbrace(pi (a | s; theta_beta), "Human speech") log underbrace(pi (a | s; theta_pi), "Learned policy") $ #pause
 
-In my deep learning course, I call this *Generative PreTraining* (GPT)
+*Question:* Am I missing anything? #pause Hint: Where does $s$ come from? #pause
 
-In this course, I prefer to call it imitation learning!
-
-Policy learns to imitate (speak like) humans
+*Answer:* Must learn $theta_f$ to find $s = f(bold(tau), theta_f)$
 
 ==
-$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - underbrace(pi (a | s; theta_beta), "Human speech") log underbrace(pi (a | s; theta_pi), "Learned policy") $ 
+$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - underbrace(pi (a | s; theta_beta), "Human speech") log underbrace(pi (a | s; theta_pi), "Learned policy") $ #pause
 
-In BC, we learn from an offline dataset $bold(X)$ collected following $theta_beta$
+$ s_t = f(#pin(1)bold(tau)_t#pin(2), theta_f) $ #pause
 
-How do we choose $bold(X)$ for our LLM?
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 1.5em)[$o_0, a_0, dots, o_t$] #pause
 
-I don't know, this is a tech company secret!
+Plug in for $s$ and find both $theta_pi, theta_f$ #pause
+
+#v(1.5em)
+
+$ underbrace( argmin_(theta_pi, theta_f) sum_(bold(tau) in bold(X)) sum_(t=0)^n sum_(a in A) - pi (a | #pin(3)f(bold(tau)_t, theta_f )#pin(4) ; theta_beta) log #pin(5)pi (a | f(bold(tau)_t, theta_f ); theta_pi), #text(fill: orange)[Speak like human]) $ #pause
+
+#pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: top, height: 1.5em)[Human thought] #pause
+
+Model learns to #text(fill: blue)[think like human ($theta_f$)] and #text(fill: orange)[talk like human ($theta_pi$)]
+
+==
+$ argmin_(theta_pi, theta_f) sum_(bold(tau) in bold(X)) sum_(t=0)^n sum_(a in A) - pi (a | f(bold(tau)_t, theta_f ) ; theta_beta) log pi (a | f(bold(tau)_t, theta_f ); theta_pi) $ #pause
+
+In my deep learning course, I call this *Generative PreTraining* (GPT) #pause
+
+In this course, I prefer to call it imitation learning! #pause
+
+*Key idea:* GPT is imitation learning #pause
+
+Objective is to speak like a human (imitate speech) #pause
+
+To speak like a human, model learn to think like a human (imitate thought)
+
+
+==
+$ argmin_(theta_pi, theta_f) sum_(bold(tau) in bold(X)) sum_(t=0)^n sum_(a in A) - pi (a | f(bold(tau)_t, theta_f ) ; theta_beta) log pi (a | f(bold(tau)_t, theta_f ); theta_pi) $ #pause
+
+In BC, we learn from an offline dataset $bold(X)$ collected following $theta_beta$ #pause
+
+How do we get $bold(X)$ for our LLM? #pause
+
+I don't know, this is a tech company secret! #pause
 - Crawl websites
 - Instagram/Little Red Book comments
-- Download books
+- Download books #pause
 
 I know the datasets today are very huge (petabytes!)
 
 ==
-$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - underbrace(pi (a | s; theta_beta), "Human speech") log underbrace(pi (a | s; theta_pi), "Learned policy") $ 
+$ argmin_(theta_pi, theta_f) sum_(bold(tau) in bold(X)) sum_(t=0)^n sum_(a in A) - pi (a | f(bold(tau)_t, theta_f ) ; theta_beta) log pi (a | f(bold(tau)_t, theta_f ); theta_pi) $ #pause
 
-+ Convince investors to give you 100B MOP
-+ Buy 10,000 GPUs
-+ Collect 1 PB dataset
-+ Implement deep transformer $f$ and linear $pi$
-+ Optimize BC objective for 3 months
+*Example:* You want to create an LLM startup #pause
++ Convince investors to give you 100B MOP #pause
++ Buy 10,000 GPUs #pause
++ Collect 1 PB dataset #pause
++ Implement deep transformer $f$ and policy $pi$ #pause
++ Train BC objective for 3 months #pause
 
-Now you have a very human model
-
-After training on so much data, the policy learns to think like a human
-
-You trained an LLM!
+Now you have a very human LLM #pause
+- After so much training, the policy knows to think/speak like a human 
 
 ==
-Time to show your powerful LLM to your investors
+Time to show your powerful LLM to your investors #pause
 
 #quote(block: true)[
     #text(font: "Chalkduster", size: 22pt)[
-        User: Hello, please write me a poem.
+        User: Hello, please write me a poem. #pause
 
-        Agent: No, poems are stupid.             
+        Agent: No, poems are stupid. #pause
     ]
 ]
 
-Now your investors are punching you, saying you wasted their money
+Now your investors are screaming, saying you wasted their money #pause
 
-*Question:* What happened?
+*Question:* What happened? #pause
 
-*Answer:* Our human expert $theta_beta$ is actually many "experts"
-
-Many of these "experts" are idiots or lazy
+*Answer:* Our human expert $theta_beta$ is a combination many "experts" #pause
+- Many of these "experts" are idiots or lazy #pause
 - Video comments, internet forums, etc
     
 ==
@@ -662,9 +664,9 @@ Many of these "experts" are idiots or lazy
 ][
     $ pi (a_- | s_0; theta_beta) = 0.5 $
     #cimage("fig/11/texting.jpg", height: 60%)
-] 
+] #pause
 
-We responded like a Instagram/LittleRedBook comment instead of poet
+We acted like an internet comment instead of poet #pause
 
 Both poems and comments in our dataset, our model will imitate both
 ==
@@ -672,213 +674,243 @@ Both poems and comments in our dataset, our model will imitate both
     #cimage("fig/12/good-driver.png", height: 60%)
 ][
     #cimage("fig/11/texting.jpg", height: 60%)
-] 
+] #pause
 
-*Question:* What can we do?
+*Question:* Idiots in the dataset. What can we do? #pause
 
-*Answer 1:* Remove idiots from dataset 
+*Answer 1:* Delete idiots from dataset (supervised fine tuning) #pause
 
-*Answer 2:* Offline RL/weighted behavior cloning 
+*Answer 2:* Offline RL
 
 = Supervised Fine Tuning
 ==
-Removing idiots from the dataset is *Supervised Fine Tuning* (SFT)
+Deleting idiots from the dataset is *Supervised Fine Tuning* (SFT) #pause
++ Train BC on the large dataset like before #pause
++ Continue training with a *small* and *accurate* dataset #pause
 
-First, train on the large dataset to learn as much as possible
+*Variant 1:* Change how the model thinks and talks #pause
 
-Then, continue training with a *small* and *specific* dataset
+$ argmin_(theta_pi, theta_f) sum_(bold(tau) in bold(X)_"SFT") sum_(t=0)^n sum_(a in A) - pi (a | f(bold(tau)_t, theta_f ) ; theta_beta) log pi (a | f(bold(tau)_t, theta_f ); theta_pi) $ #pause
 
-$ argmin_(theta_pi) sum_(s in bold(X)_"SFT") sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $ 
+*Variant 2:* Change how the model talks ($theta_f$ already known) #pause
 
-This is a "lazy" form of weighted behavioral cloning
+$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $ 
 
 ==
 #side-by-side[
     Initially, we model all "experts" from a large dataset. Some experts are bad.
     #bimodal_pi
 ][
-    SFT on smaller dataset, we "forget" other experts and focus on "better" experts in small dataset
+    Keep training on small dataset, forget old experts and focus on better experts in small dataset.
     #bimodal_reweight
 ]
 
 
 ==
 
-SFT works best for *small* and *specific* datasets
-- Impersonating anime characters
-- Expertise on 18th century painters
-- Improve LLM arithmetic
+SFT works best for *small* and *specific* datasets #pause
+- Impersonating anime characters #pause
+- Expertise on 18th century painters #pause
+- Improve LLM arithmetic #pause
 
-Humans can manually verify the correctness of small datasets
+Humans can manually verify the correctness of small datasets #pause
 
-Useful for specific tasks, but does not scale to general intelligence!
-
-We must do better for general LLM training
-
-For this, we must use RL
+Useful for specific tasks, but does not scale to general intelligence! #pause
+- Imitation learning can only imitate humans #pause
+- RL can learn optimal policy, better than any human #pause
+    - To achieve superhuman intelligence, we must use RL!
 
 = Preferences 
 // Need rewards for RL
 // Rewards are hard to create
 ==
-To use RL, we must have rewards 
+To use RL, we must have rewards #pause
+- Use rewards to compute the return (and we maximzie the return)
 
-*Example:* I want you to tell me the reward for two responses:
+We already said it is very hard to create reward functions #pause
+- With a fixed dataset humans can specify returns/rewards for each datapoint #pause
+
+With rewards, humans must label each subsequence $bold(tau)_t$ #pause
+
+$ cal(R)(f("I", theta_f)), cal(R)(f("I love", theta_f)), cal(R)(f("I love you", theta_f)) $ #pause
+
+It is easier for humans to label the return of a trajectory instead #pause
+
+$ cal(G)(bold(tau)) = cal(G)("I love you") = 12 $
+==
+
+*Example:* I want you to label returns for two trajectories #pause
 
 #text(font: "Chalkduster", size: 22pt)[
-    User: What is Macau?
+    User: What is Macau? #pause
 
     #side-by-side[
-        Agent: Macau is a Special Administrative Region (SAR) in the south of China
+        Agent: Macau is a Special Administrative Region (SAR) in the south of China #pause
     ][
-        Agent: Macau is a city in Asia near the equator 
+        Agent: Macau is a city in Asia near the equator #pause
     ]
 ]
 
-*Question:* What should the reward be for each response?
+*Question:* What should the return be for each response? #pause
 
-Humans are not good at choosing rewards
+Humans cannot agree on returns #pause
 
-It is much easier for humans to determine *preferences* 
-- Left response is better than right response
+It is easier for humans to determine *preferences* #pause
+
+*Question:* Who prefers left response? #pause Right response? #pause
+- Many humans will agree with preferences!
 
 ==
-*Problem:* Humans provide preferences, but we need a reward
+*Problem:* Humans provide preferences, but we need return #pause
 
-Can we convert preferences into a reward?
+Can we convert preferences into a return? #pause
 
-Consider two trajectories : $bold(tau)_+, bold(tau)_-$
+Consider two trajectories : $bold(tau)_+, bold(tau)_-$ #pause
 
 #text(font: "Chalkduster", size: 22pt)[
 
     #side-by-side[
-        $ bold(tau)_+ = o_0, a_0, o_1, a_1, dots $
-        User: What is Macau?
-        Agent: Macau is a Special Administrative Region (SAR) in the south of China
+        $ bold(tau)_+ = o_0, a_0, o_1, a_1, dots $ #pause
+        $bold(tau)_+ = $ User: What is Macau?
+        Agent: Macau is a Special Administrative Region (SAR) in the south of China #pause
     ][
-        $ bold(tau)_- = o_0, a_0, o_1, a_1, dots $
-        User: What is Macau?
-        Agent: Macau is a city in Asia near the equator 
+        $ bold(tau)_- = o_0, a_0, o_1, a_1, dots $ #pause
+        $bold(tau)_- = $ User: What is Macau?
+        Agent: Macau is a city in Asia near the equator #pause
     ]
 ]
 
-To represent preference as return, ensure that $cal(G)(bold(tau)_+) > cal(G)(bold(tau)_-)$
+*Question:* How can we design $cal(G)$ that reflects our preference for $bold(tau)_+$? #pause
+
+*Answer:* Make $cal(G)(bold(tau)_+) > cal(G)(bold(tau)_-)$ 
 ==
 
-Measure preference in terms of an unknown reward function
+Measure preference in terms of an unknown return function #pause
 
-$ rho(bold(tau)_-, bold(tau_+)) = underbrace(cal(G)(bold(tau)_+) - cal(G)(bold(tau)_-), "Human preference") $
+$ rho(bold(tau)_-, bold(tau_+)) = underbrace(cal(G)(bold(tau)_+) - cal(G)(bold(tau)_-), "Human preference") $ #pause
 
-Humans bad at choosing scale, rescale to $[0, 1]$ using sigmoid 
+Humans bad at choosing scale, rescale to $[0, 1]$ using sigmoid #pause
 
-$ rho(bold(tau)_-, bold(tau_+)) = sigma (cal(G)(bold(tau)_+) - cal(G)(bold(tau)_-)) $
+$ rho(bold(tau)_-, bold(tau_+)) = sigma (cal(G)(bold(tau)_+) - cal(G)(bold(tau)_-)) $ #pause
 
-Do not know $cal(G)$, but can think of $rho$ as a normalized advantage
+$ cases( 
+    rho > 0.5 "then" cal(G)(bold(tau)_+) > cal(G)(bold(tau)_-),
+    rho < 0.5 "then" cal(G)(bold(tau)_+) < cal(G)(bold(tau)_-) 
+) $
 
-$ A(s_0, theta_pi_-, theta_pi_+) = sigma( bb(E)[cal(G)(bold(tau)) | s_0, theta_pi_+] - bb(E)[cal(G)(bold(tau)) | s_0 ; theta_pi_-] ) $ 
+//Do not know $cal(G)$, but can think of $rho$ as a normalized advantage
+
+//$ A(s_0, theta_pi_-, theta_pi_+) = sigma( bb(E)[cal(G)(bold(tau)) | s_0, theta_pi_+] - bb(E)[cal(G)(bold(tau)) | s_0 ; theta_pi_-] ) $ 
 
 //$ rho(bold(tau)_-, bold(tau_+)) = underbrace(sigma (cal(R)(s_+) - cal(R)(s_-)), "Probability human prefers" s_+) $
 
 ==
-*Definition:* The Bradley-Terry advantage relates human preferences of a given pair to the return, without explicitly computing the return
+*Definition:* The Bradley-Terry advantage relates pairwise preferences to the return, without explicitly computing the return #pause
 
-$ rho(bold(tau)_-, bold(tau_+)) = sigma (cal(G)(bold(tau)_+) - cal(G)(bold(tau)_-)) $
+$ rho(bold(tau)_-, bold(tau_+)) = sigma (cal(G)(bold(tau)_+) - cal(G)(bold(tau)_-)) $ #pause
 
-We treat this as the probability of a human preferring $bold(tau)_+$ over $bold(tau)_-$
+We can treat $rho$ as the *probability* of a human preferring $bold(tau)_+$ over $bold(tau)_-$ #pause
 
-$ rho(bold(tau)_-, bold(tau_+)) = Pr("Human prefers" bold(tau)_+) / ( Pr("Human prefers" bold(tau)_+) + Pr("Human prefers" bold(tau)_-)) $
+$ rho(bold(tau)_-, bold(tau_+)) = Pr("Human prefers" bold(tau)_+) / ( Pr("Human prefers" bold(tau)_+) + Pr("Human prefers" bold(tau)_-)) $ #pause
 
 
-$ rho(bold(tau)_-, bold(tau_+)) approx 1: "Human prefers" bold(tau_+) \
+$ rho(bold(tau)_-, bold(tau_+)) = 1: "All humans prefer" bold(tau_+) \
 
-rho(bold(tau)_-, bold(tau_+)) approx 0: "Human prefers" bold(tau_-) $
+rho(bold(tau)_-, bold(tau_+)) = 0: "All humans prefer" bold(tau_-) \
+
+rho(bold(tau)_-, bold(tau_+)) = 0.8: "Most humans prefer" bold(tau_+) $ \
 
 ==
 
 $ rho(bold(tau)_-, bold(tau_+)) &= sigma (cal(G)(bold(tau)_+) - cal(G)(bold(tau)_-)) \
 
-rho(bold(tau)_-, bold(tau_+)) &approx 1: "Human prefers" bold(tau)_+ \
+rho(bold(tau)_-, bold(tau_+)) & = 1: "All humans prefer" bold(tau)_+ \
 
-rho(bold(tau)_-, bold(tau_+)) &approx 0: "Human prefers" bold(tau)_- $
+rho(bold(tau)_-, bold(tau_+)) & = 0: "All humans prefer" bold(tau)_- $ #pause
 
-Can maximize Bradley-Terry advantage to maximize return
+Can maximize Bradley-Terry advantage to maximize return #pause
 
-$ argmax_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = underbrace(argmax_(theta_pi) sum_(bold(tau)_-, bold(tau)_+) rho(bold(tau)_-, bold(tau)_+), "Choose" a in bold(tau)_+ "not" a in bold(tau)_-) $
+$ argmax_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = underbrace(argmax_(theta_pi) sum_(bold(tau)_-, bold(tau)_+) rho(bold(tau)_-, bold(tau)_+), "Choose" a in bold(tau)_+ "not" a in bold(tau)_-) $ #pause
 
-Now, we can use RL!
+Now, we have an objective that we can solve with RL!
 
 = RLHF
 
 ==
-With the Bradley-Terry advantage, collect human preference dataset 
+With the Bradley-Terry advantage, collect human preference dataset #pause
 
-#side-by-side[
+#side-by-side(align: horizon)[
     $ 
     bold(x) = vec(bold(tau)_-, bold(tau)_+, rho(bold(tau)_-, bold(tau)_+))
-    $
+    $ #pause
 ][
     $ bold(X) = mat(
         bold(x)_1,
         bold(x)_2,
         dots
-    ) $
+    ) $ #pause
 ]
 
-*Question:* How do we use RL on a fixed dataset?
+*Question:* How do we use RL on a fixed dataset? #pause
 
-*Answer:* Offline RL!
+*Answer:* Offline RL! #pause
 
 RLHF $=$ Offline RL with preferences (human-selected returns)
 
 ==
-Generative pretraining/imitation learning is 99% of training
-- $pi$ learns smart responses, but mixed with many idiot responses
-- Focus is general knowledge and language understanding
+Generative pretraining/imitation learning is 99% of training #pause
+- Learn from smart responses mixed with many idiot responses #pause
+- Learns general knowledge, human thought and speech #pause
 
-Offline RL/RLHF is 1% of training
-- Small but very very important!
-- "Unlocks" intelligence by focusing on good responses
+Offline RL/RLHF is 1% of training #pause
+- Small but very very important! #pause
+- "Unlocks" intelligence by focusing on good thoughts and responses #pause
 
-Remember, offline RL can learn a *better* policy $theta_pi$ than the expert $theta_beta$!
-- Trajectory stitching
-- LLM can become *smarter* than any expert in the dataset
-    - Very important! Not possible with imitation learning/pretraining
+Offline RL learns to think ($theta_f$) and speak $theta_pi$ *better* than the expert $theta_beta$! #pause
+- LLM can become *smarter* than any expert in the dataset #pause
+    - Very important! Not possible with imitation learning/GPT
 
 ==
-*Question:* What offline RL algorithms do we know?
-+ Weighted behavioral cloning with rewards/returns
-    - RWR, MARWIL, etc
+*Question:* What offline RL algorithms do we know? #pause
++ Weighted behavioral cloning with rewards/returns 
+    - RWR, MARWIL, etc #pause
 + Q learning with constraints
     - BCQ, CQL, etc
-    - Constraints prevent overextrapolation
+    - Constraints prevent overextrapolation #pause
 + Inverse RL
-    - Learn reward function from dataset, then use online RL
+    - Learn reward/return function from dataset, then use online RL #pause
 
-Most people use approaches 1 and 3
+Most people use approaches 1 and 3 #pause
 
-*Question:* Why not approach 2? *Answer:* I don't know, try it out!
+*Question:* Why not approach 2? #pause *Answer:* I don't know, try it out!
 
 
 ==
+
+We name offline RL algorithms differently for RLHF #pause
+- Why? So you can "create" a new algorithm and become famous #pause
 
 Weighted behavioral cloning 
 - Direct Preference Optimization (DPO)
 - Kahneman Tversky Optimization (KTO)
 
 Inverse RL 
-- REINFORCE/Policy Gradient
-- Proximal Policy Optimization (PPO)
-- Group Relative Policy Optimization (GRPO)
+- Constrained REINFORCE/Policy Gradient
+- Proximal Policy Optimization (PPO-RLHF)
+- Group Relative Policy Optimization (GRPO) #pause
+
+DPO and KTO are very interesting methods, but I have limited time #pause
+- Focus on inverse RL
 
 = Inverse RL
 ==
 In inverse RL, we learn the parameters for the reward function $theta_cal(R)$
 
-$ cal(R)(s, theta_cal(R)) $
+$ cal(R)(s, theta_cal(R)) $ #pause
 
-For a POMDP, it is simpler to learn the return instead (do not know $s$)
+In RLHF, it is easier to learn the parameters for return $theta_cal(G)$
 
-$ cal(G)(bold(tau), theta_cal(G)) $
+$ cal(G)(bold(tau), theta_cal(G)) $ #pause
 
 Recall our dataset
 
@@ -892,7 +924,7 @@ Recall our dataset
         bold(x)_2,
         dots
     ) $
-]
+] 
 
 ==
 #side-by-side[
@@ -905,70 +937,79 @@ Recall our dataset
         bold(x)_2,
         dots
     ) $
-]
+] #pause
 
-$ rho(bold(tau)_-, bold(tau_+), theta_cal(G)) = sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))) = Pr("Human prefers" bold(tau)_+ ) $
+$ rho(bold(tau)_-, bold(tau_+), theta_cal(G)) = sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))) = Pr("Human prefers" bold(tau)_+ ) $ #pause
 
+We want to find $theta_cal(G)$ that predicts the human preferences in our dataset #pause
 
-We want to find $theta_cal(G)$ that predicts the human preferences in our dataset
+Use cross entropy loss, similar to classification task #pause
 
-Since $rho$ is a probability, we maximize the log likelihood 
+/*
+Since $rho$ is a probability, we maximize the log likelihood #pause
+- Learn $theta_cal(G)$ that make $cal(G)(bold(tau)_+, theta_cal(G))$ big and make $cal(G)(bold(tau)_-, theta_cal(G))$ small #pause
+*/
 
-
-$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), Pr("Human prefers" bold(tau)_+ )) 
+$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) underbrace(rho(bold(tau)_-, bold(tau_+)), "Label from" bold(X))  log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), "Learn" theta_cal(G) "to match label") 
 $
 
 ==
 
-$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), Pr("Human prefers" bold(tau)_+ )) 
-$
+$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) underbrace(rho(bold(tau)_-, bold(tau_+)), "Label from" bold(X))  log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), "Learn" theta_cal(G) "to match label") 
+$ #pause
 
-We often model $cal(G)(bold(tau), theta_cal(G))$ using another LLM
+We often model $cal(G)(bold(tau), theta_cal(G))$ using another LLM #pause
 
-$ cal(G)(bold(tau), bold(theta)_cal(G)) = bold(theta)_cal(G)^top underbrace(f(bold(tau), theta_f), s) $
+$ cal(G)(bold(tau), bold(theta)_cal(G)) = softmax(bold(theta)_cal(G)^top #pin(1)f(bold(tau), theta_f)#pin(2)) $ #pause
 
-We only learn a linear layer $bold(theta)_cal(G)$, not the LLM parameters $theta_f$!
+#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: top, height: 1.5em)[$s$] #pause
 
-Now, we can compute the return for any trajectory
+We only learn a linear layer $bold(theta)_cal(G)$, not the LLM parameters $theta_f$! #pause
 
-We use any online RL algorithm!
+With $cal(G), theta_cal(G)$, we can compute the return for any trajectory #pause
+
+We use any online RL algorithm to learn $theta_pi$!
 
 ==
 
-Let us start with REINFORCE (Monte Carlo policy gradient)
+Let us start with REINFORCE (Monte Carlo policy gradient) #pause
 
 $
-theta_(pi, i+1) &= theta_(pi, i) + alpha dot nabla_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] \ 
+theta_(pi, i+1) &= theta_(pi, i) + alpha dot nabla_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] \  #pause
 
 nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] &= bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] dot nabla_theta_(pi, i) log pi (a_0 | s_0; theta_(pi, i))
-$
+$ #pause
 
-Plug in our learned return function $cal(G)(bold(tau), theta_cal(G))$
+Plug in our learned return function $cal(G)(bold(tau), theta_cal(G))$ #pause
 
 $
-theta_(pi, i+1) &= theta_(pi, i) + alpha dot nabla_(theta_(pi, i)) bb(E)[cal(G)(bold(tau), theta_cal(G)) | s_0; theta_(pi, i)] \
+theta_(pi, i+1) &= theta_(pi, i) + alpha dot nabla_(theta_(pi, i)) bb(E)[cal(G)(bold(tau), #redm[$theta_cal(G)$]) | s_0; theta_(pi, i)] \
 
-nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] &= bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] dot nabla_theta_(pi, i) log pi (a_0 | s_0; theta_(pi, i))
-$
+nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau), #redm[$theta_cal(G)$]) | s_0; theta_(pi, i)] &= bb(E)[cal(G)(bold(tau), #redm[$theta_cal(G)$]) | s_0; theta_(pi, i)] dot nabla_theta_(pi, i) log pi (a_0 | s_0; theta_(pi, i))
+$ #pause
 
 That is it, easy!
 
 ==
 
-Standard training process:
-1. Give the LLM a user query
-2. LLM generates a response
-3. Update LLM parameters $theta_pi, theta_f$ using return
-    - $theta_f$ not shown, but used to compute $s$
+After learning $theta_cal(G)$, we can use normal RL #pause
+
+Standard RL training process: #pause
+1. Give the LLM a user query (beginning of $bold(tau)$) #pause
+2. LLM generates a response (complete $bold(tau)$) #pause
+3. Compute the return $cal(G)(bold(tau), theta_cal(G))$ #pause
+4. Update LLM parameters $theta_pi, theta_f$ using $cal(G)(bold(tau), theta_cal(G))$ #pause
+    - To simplify equations, I will only learn $theta_pi$ #pause
+    - But you can also learn $theta_f, theta_pi$ together
 
 
 ==
-*Definition:* Inverse REINFORCE learns a return function using the Bradley-Terry advantage, then learns a policy (LLM) using REINFORCE
+*Definition:* Inverse REINFORCE learns a return function using the Bradley-Terry advantage, then learns a policy using REINFORCE #pause
 
 *Step 1:* Learn the return
 
-$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), Pr("Human prefers" bold(tau)_+ )) 
-$
+$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) underbrace(rho(bold(tau)_-, bold(tau_+)), "Label from" bold(X))  log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), "Learn" theta_cal(G) "to match label") 
+$ #pause
 
 *Step 2:* Learn the policy using Monte Carlo policy gradient 
 
@@ -977,31 +1018,34 @@ theta_(pi, i+1) = theta_(pi, i) + alpha dot nabla_(theta_pi) bb(E)[cal(G)(bold(t
 $
 
 ==
-*Definition:* Constrained inverse REINFORCE adds a constraint to ensure the policy does not change too much
+*Definition:* Constrained inverse REINFORCE adds a constraint to ensure the policy does not change too much #pause
 
 *Step 1:* Learn the return
 
-$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), Pr("Human prefers" bold(tau)_+ )) 
-$
+$ theta_cal(G) = argmax_(theta_cal(G)) sum_(bold(tau)_+, bold(tau)_- in bold(X)) underbrace(rho(bold(tau)_-, bold(tau_+)), "Label from" bold(X))  log underbrace(sigma (cal(G)(bold(tau)_+, theta_cal(G)) - cal(G)(bold(tau)_-, theta_cal(G))), "Learn" theta_cal(G) "to match label") 
+$ #pause
 
-*Step 2:* Learn the policy *with a KL constraint*
+*Step 2:* Learn the policy with a KL constraint
 
 $
-theta_(pi, i+1) = theta_(pi, i) + alpha dot nabla_(theta_pi)  
-    bb(E)[cal(G)(bold(tau), theta_cal(G)) | s_0; theta_(pi, i)] \ - 
-    underbrace(nabla_(theta_(pi, i + 1)) KL[pi (a | s; theta_(beta)), pi (a | s; theta_(pi, i + 1))], "Stay close to" theta_beta)
-$
+theta_(pi, i+1) = #pin(1)theta_(pi, i) + alpha dot nabla_(theta_pi)  
+    bb(E)[cal(G)(bold(tau), theta_cal(G)) |#pin(2) s_0; theta_(pi, i)]#pin(3) \ - 
+    #pin(4)nabla_(theta_(pi, i + 1)) KL[pi (a | s; theta_(beta)), pi (a | s; theta_(pi, i + 1))]#pin(5)
+$ #pause
+
+#pinit-highlight-equation-from((1,3), (2,3), fill: red, pos: top, height: 1.5em)[Policy gradient] #pause
+#pinit-highlight-equation-from((4,5), (4,5), fill: blue, pos: bottom, height: 1.5em)[KL constraint, stay close to dataset] 
 
 ==
-Finally, I want to discuss GRPO
+Finally, I want to discuss GRPO #pause
 
-However, GRPO is based on PPO
-- PPO is complicated and has too many terms
-- I think this will confuse everyone
-- The important part of GRPO is group normalization, not PPO
+GRPO is based on PPO #pause
+- PPO is complicated and has too many terms #pause
+- I think this will confuse everyone #pause
+- The important part of GRPO is group normalization, not PPO #pause
 
-I will present Steven's GRPO: REINFORCE with group normalization 
-- Much simpler version
+I will present Steven's GRPO: REINFORCE with group normalization #pause
+- Much simpler version of GRPO #pause
 - Help you understand the key idea behind GRPO
 
 ==
@@ -1012,32 +1056,32 @@ $ bold(tau)_i tilde Pr (bold(tau) | s_q; theta_pi) $
 $ theta_(pi, i+1) &= theta_(pi, i) + alpha dot nabla_(theta_(pi, i)) bb(E)[cal(G)(bold(tau), theta_cal(G)) | s_q; theta_(pi, i)] $
 
 $
-nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau)) | s_q; theta_(pi, i)] &= underbrace( (1 / n sum_(i=1)^n cal(G)(bold(tau)_i, theta_cal(G))), "Empirical return" ) dot nabla_theta_(pi, i) log pi (a | s; theta_(pi, i))
+nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau)) | s_q; theta_(pi, i)] &= underbrace( (cal(G)(bold(tau), theta_cal(G)) - 1 / n sum_(i=1)^n cal(G)(bold(tau)_i, theta_cal(G))), "Advantage over other competions" ) nabla_theta_(pi, i) log pi (a | s; theta_(pi, i))
 $
 
 
 ==
-Updates compare answers to the same question, reducing variance
+S-GRPO compare answers to the same query, reducing variance #pause
 
-$ s_q = f("Where is Macau?", theta_f) $
+$ s_q = f("Where is Macau?", theta_f) $ #pause
 
 $ bold(tau)_1 &= "Macau is a Special Administrative Region (SAR) in " dots \
 bold(tau)_2 &= "Macau is a city in Asia near the equator" dots \
 dots.v & 
-$
+$ #pause
 
-//$ hat(G) = 1 / n sum_(i=1)^n cal(G)(bold(tau)_i, theta_cal(G)) $
 $
-nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau)) | s_q; theta_(pi, i)] &= underbrace( (1 / n sum_(i=1)^n cal(G)(bold(tau)_i, theta_cal(G))), "Empirical return" ) dot nabla_theta_(pi, i) log pi (a | s; theta_(pi, i))
-$
+nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau)) | s_q; theta_(pi, i)] &= underbrace( (cal(G)(bold(tau), theta_cal(G)) - 1 / n sum_(i=1)^n cal(G)(bold(tau)_i, theta_cal(G))), "Advantage over other competions" ) nabla_theta_(pi, i) log pi (a | s; theta_(pi, i))
+$ #pause
 
-Very similar to the Bradley-Terry model: learns $theta_cal(G)$ using $bold(tau)_-, bold(tau)_+$
+Similar to Bradley-Terry: Ranking/normalizing trajectories $bold(tau)_-, bold(tau)_+$
 
 ==
-Real GRPO combines group normalization with the PPO objective
-- Use the MC return like S-GRPO, deleting $V$ from PPO 
-    - However, they still use the advantage
-- PPO-clip to prevent large policy changes
+Real GRPO combines group normalization with the PPO objective #pause
+- Use the MC return like S-GRPO, deleting $V$ from PPO #pause
+    - However, they still use the PPO advantage #pause
+- PPO-clip to prevent large policy changes #pause
+- Off-policy correction and minibatching #pause
 - KL constraint to keep the learned policy near the pretrained policy 
 
 
@@ -1077,37 +1121,45 @@ Represents the probability of the user preferring $a_+$ over $a_-$
 
 = Alignment
 ==
-You may hear about LLM *alignment* 
+You may hear about LLM *alignment* #pause
 
-*Alignment:* Does the language model respect human values?
-- Polite or rude?
-- Biased or racist?
-- Good or evil?
+*Alignment:* Does the language model respect human values? #pause
+- Polite or rude? #pause
+- Unbiased or biased? #pause
+- Good or evil? #pause
 
-With RLHF, learn return function from human preferences
-- Humans can prefer biased/racist/evil answers
-- No ground truth, biased/racist/evil depends on culture
-- LLM optimizes return function
-    - LLM can learn to be biased/racist/evil
+With RLHF, learn return function from human preferences #pause
+- Humans can prefer rude/biased/racist/evil answers #pause
+- No ground truth, rude/biased/racist/evil depends on culture #pause
+- LLM maximizes the return #pause
+    - LLM learns to be biased/racist/evil #pause
+    - RL finds superhuman policy, superhuman levels of bias/racism/evil
 
+==
+
+https://www.youtube.com/shorts/RSdIBZX6Adw
+
+https://www.youtube.com/watch?v=eJXDFOwJZMk #pause
+
+*Question:* What do humans do with less intelligent beings? #pause
+
+*Answer:* Eat them 
 
 = Final Remarks
 ==
-Throughout the course, I focused on teaching the basics and theory
-- I know this is not a popular decision, but understand my reasoning
-- Today, we defined LLMs entirely with known concepts  
-    - MDP and POMDP
+Throughout the course, I focused on teaching fundamentals and theory #pause
+- I know this can be painful #pause
+- Some prefer one lecture on PPO, one on SAC, etc instead of basics #pause
+- Today, we defined LLMs using fundamentals #pause
+    - POMDP 
     - Behavioral cloning
     - Offline RL
-        - Weighted BC
-        - Inverse RL
     - Actor critic
         - Policy gradient
-        - V/Q functions
+        - V/Q functions #pause
 
-Every complex algorithm is just a combination of basic concepts
+Every complex algorithm is some combination of what you learned
 
-==
 // Focused on teaching you the basics
 // As we saw today, once we know the basics, everything becomes more clear!
     // We already covered everything you needed for LLMs, just with different names
@@ -1124,13 +1176,13 @@ Every complex algorithm is just a combination of basic concepts
     // Industrial research (theory-adjacent/empirical, GRPO)
     // Industrial application (apply RL library but with known hyperparameters)
 
-I am very proud of you all for making it so far!
+I am very proud of you all for making it so far! #pause
+- From your participation, many of you are already experts! #pause
+- It is not expected that you understand everything! #pause
+- If you understand MDPs and V/Q functions, that is enough #pause
 
-From your participation, many of you are already RL/IL experts!
-
-I know many of you live in Zhuhai, and crossing the border takes time
-
-I hope these lectures have been worth your time
+I know many of you live in Zhuhai, and crossing the border takes time #pause
+- I hope these lectures have been useful #pause
 
 And I hope you enjoyed the course!
 
@@ -1141,27 +1193,30 @@ And I hope you enjoyed the course!
 // All evil requires to triumph is for good men to do nothing
 // Creating evil is as simple as negating the reward function
 
-The world is a very fragile place
-- Recent news reminds us how fragile the world is
-- Do not take stable work/study, food, healthcare, housing for granted!
+The world is a fragile place #pause
+- Recent news reminds us how fragile the world is #pause
+- We take the ability to study and learn for granted #pause
 
-All of us are born with shortcomings in our reward function
-- Greed, bias, fear, indifference, 
+All of us are born with shortcomings in our reward function #pause
+- Greed, bias, fear, indifference #pause
+- Consider your own alignment #pause
+    - Try and consider the impact of your decisions on others #pause
 
-Being evil is very easy
-$ cal(R)(s) = "Prevent Suffering" \ 
-- cal(R)(s)
-$
+From assignment 2, you can all create superhuman policies #pause
+- You have a powerful tool, you must use it for good #pause
+    - Humans are already good at hurting others #pause
+    - Do not train superhuman policies to hurt others
 
 ==
-#quote(block: true)[Frodo: I wish the ring had never come to me. I wish none of this had happened.]
-#quote(block: true)[Gandalf: So do all who live to see such times, but that is not for them to decide. All we have to decide is what to do with the time that is given us.]
+#quote(block: true)[Frodo: I wish the ring had never come to me. I wish none of this had happened.] #pause
 
-We are constantly subjected to circumstances beyond our control
+#quote(block: true)[Gandalf: So do all who live to see such times, but that is not for them to decide. All we have to decide is what to do with the time that is given us.] #pause
 
-The one thing we can control is our actions
+- We cannot choose our situation $s_0$
+- We cannot control circumstances beyond our control $Tr$
+- The one think we can control, are our actions $a$
 
-Make sure you choose good actions!
+Make sure you choose good actions with the life you are given!
 
 = Course Feedback
 ==
