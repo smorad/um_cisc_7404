@@ -9,7 +9,7 @@
 #import "@preview/pinit:0.2.2": *
 
 // TODO: Remove hidden reward MDP, make it consistent with offline RL (next lecture)
-    - Hidden Tr and hidden R
+// - Hidden Tr and hidden R
 
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
@@ -23,7 +23,7 @@
     institution: [University of Macau],
     logo: image("fig/common/bolt-logo.png", width: 4cm)
   ),
-  //config-common(handout: true),
+  config-common(handout: true),
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
 )

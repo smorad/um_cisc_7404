@@ -49,8 +49,7 @@
 - Deep learning #pause
 - Statistics and probability 
 
-==
-*Python numerical programming:* #pause
+= Prerequisites - Numerical Programming <touying:hidden>
 
 You should know: #pause
 - Python loops, lists, dicts, etc #pause
@@ -59,11 +58,14 @@ You should know: #pause
   - Batch matrix multiply, elementwise product, sum, max, etc #pause
   - Multidimensonal tensors (i.e., shape) #pause
 
-Assignments in `jax/equinox`, similar to `torch` - final project in `torch` #pause
+Assignments in `jax/equinox`, similar to `torch` #pause
 
 If you do not know numerical programming, *you must learn immediately*: https://numpy.org/doc/stable/user/quickstart.html
-==
-*Deep learning:* #pause
+
+	
+E6-1102C
+
+= Prerequisites - Deep Learning <touying:hidden>
 
 You should know: #pause
 - How to construct a neural network in `torch` #pause
@@ -72,19 +74,16 @@ You should know: #pause
 - How to train a neural network #pause
 - Multilayer perceptrons #pause
 - Convolutional networks #pause
-- Recurrent networks #pause
 
 If you do not, review the deep learning slides: https://github.com/smorad/um_cisc_7026
 
-==
-
-*Statistics and probability:* #pause
+= Prerequisites - Statistics <touying:hidden>
 
 You should know: #pause
-- Random variables ($X$) #pause
+- Random variables #pause
 - Probability density and mass functions (PDF, PMF) #pause
 - Conditional and unconditional probabilities #pause
-- The entropy of a distribution #pause
+- Expectations/expected values #pause
 
 *Question:* What does $P(X=x)$ mean? #pause
 
@@ -94,37 +93,37 @@ If you did not know this, you should review!
 
 = Grading
 
+==
+All of the following information exists on Moodle #pause
+- Syllabus #pause
+- Final project guidelines
+
 == // 14:00
 
-- Quizzes 30% #pause
+- Exams 30% #pause
 - Assignments 30% #pause
 - Final Project 30% #pause
 - Participation 10% 
 
+= Grading - Exams <touying:hidden>
+- I will tell you at least 1 week before exam #pause
+- Expect 3 exams #pause
+- I will drop your lowest exam score #pause
+
+*Example 1:* Exam 1: 70%, Exam 2: 80%, Exam 3: 60% #pause
+
+Final exam score: (70 + 80) / 2 = 75% #pause
+
+*Example 2:* Exam 1: 90%, Exam 2: (sick) 0%, Exam 3: 70% #pause
+
+Final exam score: (90 + 70) / 2 = 80% #pause
+
+*Question:* What if you are sick for two examzes? #pause Only one exam dropped, other exam is zero
 
 
-
-==
-*Quizzes:* #pause
-- I will tell you week before exam #pause
-- Expect 3 quizzes #pause
-- I will drop your lowest quiz score #pause
-
-*Example 1:* Quiz 1: 70%, Quiz 2: 80%, Quiz 3: 60% #pause
-
-Final quiz score: (70 + 80) / 2 = 75% #pause
-
-*Example 2:* Quiz 1: 90%, Quiz 2: (sick) 0%, Quiz 3: 70% #pause
-
-Final quiz score: (90 + 70) / 2 = 80% #pause
-
-*Question:* What if you are sick for two quizzes? #pause Only one quiz dropped, other quiz is zero
-
-
-==
-*Assignments:* #pause
+= Grading - Assignments <touying:hidden>
 - Programming #pause
-- Expect 2-3 assignments #pause
+- Expect 3 assignments #pause
 - We will use Google Colab: https://colab.research.google.com
 
 
@@ -136,22 +135,29 @@ Final quiz score: (90 + 70) / 2 = 80% #pause
 
 // 23:00
 
-==
-*Final Project:* #pause
+= Grading - Final Project <touying:hidden>
+- Form groups of 3-5 #pause
+- Can do any project related to decision making #pause
 
-#side-by-side[
-Honor of Kings 
-#cimage("fig/01/hok.jpg") #pause
+#side-by-side(align: center + horizon)[
+  Starcraft 
+  #cimage("fig/01/smac.jpg") #pause
 ][
-- Research project based on Tencent platform #pause
-- Train agents to play each other #pause
-- Implement RL algorithm, improve it, write up analysis #pause
-- More information later
-
+  Pokemon
+  #cimage("fig/01/pokemon.jpg", width: 90%) #pause
+][
+  Robot Control
+  #cimage("fig/01/cartpole.jpg")
 ]
 
 ==
-*Participation:* #pause
+See Moodle for final project specification #pause
+- 30% implementation #pause
+- 30% writeup and video #pause
+- 30% difficulty modifier #pause
+  - Trivial projects will get 0 difficult points!
+
+= Grading - Participation <touying:hidden>
 
 #cimage("fig/01/active-learning.png", height: 85%)
 
@@ -161,21 +167,26 @@ I want this class to be interactive #pause
 
 Participation is *asking* or *answering* questions during lecture #pause
 
-To encourage you, your grade depends on interacting #pause
+To encourage you, your particiipation grade depends on interacting #pause
 
-- Class participation #pause
-- Individual participation 
+- Class participation (50%) #pause
+- Individual participation (50%) #pause
+
+*You MUST ask or answer questions during lecture* #pause
+- If not, you will receive *0 for individual participation*
+
 
 // 30:00
 
 = Resources
 ==
-*Office Hours:* Thursday 10:00 AM - 12:00 PM #pause
+*Office Hours:* Moday 14:00 AM - 16:00 PM #pause
 
 *Textbook:* http://incompleteideas.net/book/the-book-2nd.html #pause
 - Syllabus lists textbook chapter for each lecture #pause
 
-*Github:* https://github.com/smorad/um_cisc_7404 
+Last year lectures #pause
+- https://github.com/smorad/um_cisc_7404 
 
 // 35:00
 
@@ -186,26 +197,23 @@ To encourage you, your grade depends on interacting #pause
 
 *Answer:*  #pause
   - Copying assignment or exam from another student #pause
-  - Having notes, laptop, or phone during quiz/exam #pause
-  - Submitting LLM output for assignments
+  - Having notes, laptop, or phone during exam/exam #pause
+  - Turning in LLM-output
 
 ==
-I don't like cheating #pause
+I am serious about cheating #pause
+- Ask students who were in my Introduction to Deep Learning course #pause
+- Caught multiple students last term #pause
+  - One student lost job offer #pause
 
-All assignments and final project will use `turnitin.com` #pause
-
-Turnitin detects copying between students and LLM use #pause
-
-I gave many zeros in last term's deep learning course #pause
-
-This term, I will report any cheating to the head of department #pause
-
-I will also give you an F grade in the course #pause
+Any student caught cheating: #pause
+- Receives 0 (fail) in course #pause
+- Reported to head of department #pause
 
 It is not worth cheating, do your best and you will get partial credit
 
 ==
-*Secret:* After you graduate nobody will care about your grade/degree! #pause
+*Secret:* After you graduate nobody will care about your grade #pause
 
 For AI jobs, you will do 5 hours of in-person interviews #pause
 
@@ -226,7 +234,7 @@ I want you to *learn the material* so you succeed in life
 #cimage("fig/01/interview2.png")
 
 // 45:00
-==
+= Cheating - LLMs <touying:hidden>
 *Question:* Can you use LLMs in class? #pause
 
 You can ask LLMs for help, but *do not turn in LLM output* #pause
@@ -243,6 +251,12 @@ You can ask LLMs for help, but *do not turn in LLM output* #pause
 
 *Cheating:* LLM, implement the policy gradient algorithm in pytorch
 
+==
+It is hard to prove LLM usage in assignments #pause
+- Detectors have some false positives #pause
+- Unlikely strong enough evidence to fail course #pause
+- If I think code is LLM generated, I will give zero for assignment
+
 
 
 = Lecture Topics
@@ -251,46 +265,36 @@ You can ask LLMs for help, but *do not turn in LLM output* #pause
 - Modern Methods #pause
 - Active Research
 
-==
-*Basics:* #pause
+= Lecture Topics - Basics <touying:hidden>
 - Bandits #pause
 - Decision Processes #pause
+- Trajectory Optimization #pause
 - Value Iteration #pause
 - Policy Gradient #pause
-- Actor Critic
-==
-*Modern Methods:* #pause
+
+= Lecture Topics - Modern Methods <touying:hidden>
+We will study modern methods (mostly actor-critic) #pause
+- Deep Q Learning #pause
 - Advantage Actor Critic #pause
 - Trust Region Policy Optimization #pause
 - Proximal Policy Optimization #pause
-- Deep Q Learning #pause
 - Deep Deterministic Policy Gradient #pause
-- Soft Actor Critic #pause
-- Imitation learning
-==
-*Active Research:* #pause
-- Memory #pause
-- Offline RL #pause
-- RL and Search #pause
-- World Models #pause
-- RL from Human Feedback
+- Soft Actor Critic 
+
+= Lecture Topics - Active Research <touying:hidden>
+We will study offline methods #pause
+- Behavioral Cloning #pause
+- Monotonic Advantage Re-Weighted Imitation Learning #pause
+- Batch Constrained Q Learning
+- Conservative Q Learning #pause
+We will also study some LLM topics
+- Learning from Preferences #pause
+- Reinforcement Learning from Human Feedback #pause
+- Group-Relative Policy Optimization
 
 // 50:00
 
 = What is Decision Making?
-
-/*
-==
-What is decision making? (and problem solving)
-
-History of decision making
-
-Applications of decision making
-
-Difficult problems do not admit human designed algorithms
-
-Difference to neural networks
-*/
 
 ==
 In this course, we will focus primarily on reinforcement learning #pause
@@ -324,7 +328,7 @@ Everything in life is a decision #pause
 - Do I eat dumplings or noodles? #pause
 - What time should I leave for class? #pause
 - Should I go to school or find a job? #pause
-- Should I date this person? #pause
+- Should I dump my boyfriend? #pause
 - Where should I live? #pause
 - What should we use taxes for? 
 
@@ -345,9 +349,9 @@ If we learn to make better decisions, we can lead better lives
 
 In this course, we focus on *optimal* decision making #pause
 
-Make the best possible decision, given the information we have #pause
+Make the best possible decision with the information we have #pause
 
-We will find methods that *guarantee* optimal decision making #pause
+We will find methods that *guarantee* optimal decisions #pause
 
 With these methods, we can create optimal decision making machines #pause
 
@@ -356,7 +360,7 @@ With an optimal decision making machine, you can create: #pause
 - Best possible lawyer (what to argue?) #pause
 - Best possible scientist (what to research?) #pause
 
-If the machine understands *why* it makes decisions, it is conscious
+If the machine understands *why* it makes decisions, is it conscious?
 
 /*
 If you 
@@ -392,7 +396,7 @@ Decision making is necessary for life
 
   Sequence of decisions to make fire #pause
 
-  Sequence of decisions to plant crops
+  Hunt animals or plant crops?
 
   //Should we apply mud to our wounds? #pause
 
@@ -407,10 +411,9 @@ Decision making is necessary for life
 
   *500 BCE:* Humans begin to study decision making #pause
 
-    Sun Tzu studies and writes about various forms of decision making #pause
+    Sun Tzu studies and writes about zero-sum decision making #pause
 
-    E.g., zero sum games: "Attack where he is unprepared; appear where you are not expected."
-
+    E.g., "Attack where he is unprepared; appear where you are not expected."
   ]
 
 
@@ -444,7 +447,9 @@ Syllogistic logic and deductive reasoning from axioms #pause
   [], [Believe], [Do not believe],
   [God exists], [Good], [Bad],
   [God does not exist], [Neutral], [Neutral]
-)
+) #pause
+
+*Note:* I am not religious
 
 ]
 
@@ -477,7 +482,7 @@ Gives us the *Bellman equation*, the basis for optimal decision making
 
 Combines reinforcement learning and neural networks #pause
 
-He is still alive and might answer your emails #pause
+He is still alive and will answer your emails #pause
 
 
 We use his textbook: _An Introduction to Reinforcement Learning_
@@ -520,11 +525,12 @@ https://www.youtube.com/watch?v=eHipy_j29Xw
 #side-by-side[
   #cimage("fig/01/openai.svg", width: 100%) 
 ][
-*2020-2024:* GPT-3, GPT-4 trained using reinforcement learning
+*2020-2025:* All frontier LLMs trained using reinforcement learning #pause
+
+OpenAI, Baidu, Anthropic, DeepSeek, Google, Alibaba, ...
 ]
 
-==
-2025?
+#focus-slide[What will happen in 2026?]
 
 = Decision Making and Deep Learning
 
