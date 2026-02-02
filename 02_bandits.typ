@@ -1,15 +1,20 @@
 #import "@preview/algorithmic:0.1.0"
 #import algorithmic: algorithm
-#import "@preview/touying:0.5.4": *
+#import "@preview/touying:0.6.1": *
 #import themes.university: *
 #import "common.typ": *
-#import "@preview/cetz:0.3.1"
+#import "@preview/cetz:0.4.2"
+#import "@preview/cetz-plot:0.1.3": plot, chart
 #import "@preview/pinit:0.2.2": *
+#import "@preview/mannot:0.3.1": *
 
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
+#let handout = true
+
 #show: university-theme.with(
+  config-common(handout: handout),
   aspect-ratio: "16-9",
   config-info(
     title: [Bandits],
@@ -42,6 +47,10 @@ In this course, we will focus primarily on reinforcement learning #pause
 But reinforcement learning is a method, not a problem #pause
 
 The problem is *decision making*
+
+==
+#cimage("fig/01/chess.png", height: 85%) 
+
 ==
 We will focus on *optimal* decision making #pause
 
@@ -170,7 +179,7 @@ We will use various set operations #pause
 #side-by-side[$ a in A $][$a$ is an element of $A$] #pause
 #side-by-side[$ b in.not A $][$b$ is not an element of $A$] #pause
 #side-by-side[$ A union B $][The union of sets $A$ and $B$] #pause
-#side-by-side[$ A sect B $][The intersection of sets $A$ and $B$] 
+#side-by-side[$ A inter B $][The intersection of sets $A$ and $B$] 
 
 ==
 We will often use *set builder* notation #pause
@@ -288,7 +297,7 @@ We want to make optimal decisions, so we will often take the minimum or maximum 
 $ f(x) = -(x + 1)^2 $ #pause
 ][
     #align(center)[
-        #canvas(length: 1cm, {
+        #cetz.canvas(length: 1cm, {
         plot.plot(size: (8, 6),
             x-tick-step: 1,
             y-tick-step: 1,
@@ -334,15 +343,13 @@ $ {x^(1/2) | x in bb(R)_+} $ #pause
 = Bandits
 
 ==
-The Sutton and Barto textbook reviews bandits before introducing reinforcement learning #pause
-
-Bandits are a simplified version of reinforcement learning #pause
-
-It provides a "taste" of reinforcement learning in a single lecture #pause
-
-Today's lecture will be difficult #pause
-
-If you can understand it, then reinforcement learning will be easy 
+The textbook reviews bandits before introducing reinforcement learning #pause
+- Bandits are a simplified version of reinforcement learning #pause
+- Provides a "taste" of reinforcement learning in a single lecture #pause
+  - It will give you an idea if you will like the course #pause
+- Today's lecture may be difficult #pause
+  - Do not worry, we have the entire course to learn RL #pause
+  - If you understand it, learning RL will be very easy for you
 
 ==
 
@@ -380,17 +387,22 @@ Let us see if we can make money playing this game
 ]
 
 ==
-We will use *probability* to understand how much money we will make #pause
+#side-by-side[
+  We will use *probability* to understand how much money we will make #pause
+  - First, we should briefly review probability theory #pause
+  - Our world is based on random *outcomes* #pause
+][
+  #cimage("fig/02/electron.jpg")
+]
 
-First, we should briefly review probability theory #pause
 
-The world is based on random *outcomes* #pause
+==
 
 For our bandit, we have two possible outcomes 
 
 $ Omega = {"win", "lose"} $ #pause
 
-An *event* is a set of outcomes
+An *event* is a subset of the outcomes
 
 $ E subset.eq Omega $ #pause
 
@@ -400,18 +412,18 @@ $ E_"win" = {"win"}; quad E_"lose" = {"lose"}; quad E_"any" = {"win", "lose"} $
 
 We define the probabilites over the outcome and event spaces #pause
 
-$ Pr("win") = 1/200, quad Pr("lose") = 199/200 $ #pause
+$ underbrace(Pr("win") = 1/200\, quad Pr("lose") = 199/200, #redm[Outcome $Omega$]), quad underbrace(Pr(E_"any") = 200/200, #bluem[Event]) $ #pause
 
-Outcome probabilities *must be positive* and *must sum to one* #pause
+#text(fill: red)[Outcome] probabilities *must be positive* and *must sum to one* #pause
 
-$ sum_(omega in Omega) Pr(omega) = 1 $ #pause
+$ sum_(omega in #redm[$Omega$]) Pr(omega) = 1 $ #pause
 
-Event probabilities do not always sum to one #pause
+*Question:* Do #bluem[event] probabilities always sum to one? #pause
 
 #side-by-side[
-  $ E_"win" = { "win" } $
+  $ #bluem[$E_"win"$] = { "win" } $
 ][
-$ sum_(epsilon in E) Pr(epsilon) <= 1 $ 
+$ sum_(epsilon in #bluem[$E_"win"$]) Pr(epsilon) = 0.005 $ 
 ]
 
 
@@ -423,38 +435,44 @@ $ cal(X): Omega |-> bb(R) $ #pause
 
 Our bandit has two outcomes, lose (-10) or win (1000) #pause
 
+Since we are gambling, we can call this the *reward* $cal(R)$ #pause
+
+$ cal(R): Omega |-> bb(R) $ #pause
+
 *Question:* What is the random variable for the bandit? #pause
 
-#side-by-side[$ cal(X): {"lose", "win"} |-> {-10, 1000} $ #pause][$ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $]
+#side-by-side[$ cal(R): {"lose", "win"} |-> {-10, 1000} $ #pause][$ cal(R)("lose") = -10; quad cal(R)("win") = 1000 $]
 
 ==
 We can also compute the probability over random variables #pause
 
 
-$ Pr(cal(X) = x) = Pr({#pin(1)cal(X)(omega)#pin(2) = #pin(3)x#pin(4) mid(|) #pin(5)omega#pin(6) in #pin(7)Omega#pin(8)}) $ #pause
+#v(1em)
+$ Pr(cal(R) = r) = Pr({
+    markhl(cal(R)(omega), tag: #<1>, color: #red) = markhl(r, tag: #<2>, color: #blue)
+    mid(|) 
+    markhl(omega, tag: #<3>, color: #green) in
+    markhl(Omega, tag: #<4>, color: #orange)}) $ #pause
 
-#pinit-highlight(1, 2)
-#pinit-point-from((1), pin-dx: 0pt, offset-dx: -120pt, body-dx: -20pt)[Outcome to real] #pause
+#annot((<1>), pos: bottom, dy: 1em, annot-text-props: (size: 1em))[Random Variable] #pause
 
-#pinit-highlight(3, 4, fill: blue.transparentize(80%))
-#pinit-point-from((3,4), offset-dx: -40pt, body-dx: -10pt)[Real] #pause
+#annot((<2>), pos: top, dy: -1em, annot-text-props: (size: 1em))[Real] #pause
 
-#pinit-highlight(5, 6, fill: green.transparentize(80%))
-#pinit-point-from((5,6), offset-dx: -20pt, body-dx: -10pt)[Outcome] #pause
+#annot((<3>), pos: bottom, dy: 1em, annot-text-props: (size: 1em))[Outcome] #pause
 
-#pinit-highlight(7, 8, fill: orange.transparentize(80%))
-#pinit-point-from((7,8), offset-dx: 40pt, body-dx: -10pt)[Outcomes] #pause
+#annot((<4>), pos: right, dx: 2em, annot-text-props: (size: 1em))[Outcome Space] #pause
 
-#v(2em)
+#v(-4.75em)
 
+#side-by-side[$ cal(R): {"lose", "win"} |-> {-10, 1000} $ #pause][$ cal(R)("lose") = -10; quad cal(R)("win") = 1000 $] #pause
 
-#side-by-side[$ cal(X): {"lose", "win"} |-> {-10, 1000} $ #pause][$ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $]
+$ Pr(cal(R)) = vec(Pr(cal(R) = -10), Pr(cal(R) = 1000)) = vec(199 / 200, 1 / 200) = vec(0.995, 0.005) $
 
-//#side-by-side[$ Pr(cal(X) = x) $][Probability of outcome $x$ occuring] #pause
+==
 
-$ Pr(cal(X)) = vec(Pr(cal(X) = -10), Pr(cal(X) = 1000)) = vec(199 / 200, 1 / 200) = vec(0.995, 0.005) $ #pause
+$ Pr(cal(R)) &= vec(Pr(cal(R) = -10), Pr(cal(R) = 1000)) = vec(199 / 200, 1 / 200) = vec(0.995, 0.005) \ #pause
 
-$ Pr(cal(X) #pin(9)= 1000#pin(10)) = vec(Pr(cal(X) = -10), #pin(11)Pr(cal(X) = 1000)#pin(12)) = vec(199 / 200, #pin(13)1 / 200#pin(14)) = vec(0.995, #pin(15)0.005#pin(16)) $ 
+Pr(cal(R) #pin(9)= 1000#pin(10)) &= vec(Pr(cal(R) = -10), #pin(11)Pr(cal(R) = 1000)#pin(12)) = vec(199 / 200, #pin(13)1 / 200#pin(14)) = vec(0.995, #pin(15)0.005#pin(16)) $ 
 
 #pinit-highlight(9, 10, fill: orange.transparentize(80%))
 #pinit-highlight(11, 12, fill: orange.transparentize(80%))
@@ -466,9 +484,9 @@ $ Pr(cal(X) #pin(9)= 1000#pin(10)) = vec(Pr(cal(X) = -10), #pin(11)Pr(cal(X) = 1
 // Shouldn't it be Pr(w) = 1?
 Like before, the probability over the random variable *must sum to one* #pause
 
-$ sum_(omega in Omega) Pr(X(omega)) = 1 $ #pause
+$ sum_(omega in Omega) Pr(cal(R)(omega)) = 1 $ #pause
 
-$ Pr(cal(X)("lose") = -10) + Pr(cal(X)("win") = 1000) = 1 $ #pause
+$ Pr(cal(R)("lose") = -10) + Pr(cal(R)("win") = 1000) = 1 $ #pause
 
 $ 199 / 200 + 1 / 200  = 1 $
 
@@ -481,26 +499,12 @@ $ Pr("lose") = 199 / 200; quad Pr("win") = 1 / 200 $ #pause
 
 And the random variable
 
-$ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $ #pause
+$ cal(R)("lose") = -10; quad cal(R)("win") = 1000 $ #pause
 
 But we still do not know how much money we will make! #pause
 
 We can combine probabilities and random variables to find out
 
-/*
-==
-We defined the bandit random variable
-
-$ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $ #pause
-
-And we defined the bandit probabilities
-
-$ P(cal(X) = -10) = 199 / 200; quad P(cal(X) = 1000) = 1 / 200 $ #pause
-
-But we still do not know how much money we will make! #pause
-
-But we can combine them to find out
-*/
 ==
 The *expectation* or *expected value* $bb(E)$ is the mean of the random variable #pause
 
@@ -508,26 +512,25 @@ The expectation tells us how much money we make on average #pause
 
 $ bb(E): underbrace((Omega |-> bb(R)), "random variable") |-> bb(R) $ #pause
 
-$ bb(E)[cal(X)] = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $ #pause
+$ bb(E)[cal(R)] = sum_(omega in Omega) cal(R)(omega) dot Pr(omega) $ #pause
 
 ==
 $ Pr("lose") = 199 / 200; quad Pr("win") = 1 / 200 $ #pause
-$ cal(X)("lose") = -10; quad cal(X)("win") = 1000 $ #pause 
-$ bb(E)[cal(X)] = sum_(omega in Omega) Pr(omega) dot cal(X)(omega) $ #pause
+$ cal(R)("lose") = -10; quad cal(R)("win") = 1000 $ #pause 
+$ bb(E)[cal(R)] = sum_(omega in Omega) Pr(omega) dot cal(R)(omega) $ #pause
 
 *Question:* What is the expected value of the bandit? #pause
 
-$ Pr("lose") dot cal(X)("lose") + Pr("win") dot cal(X)("win") $ #pause
+$ Pr("lose") dot cal(R)("lose") + Pr("win") dot cal(R)("win") $ #pause
 
 $ 199 / 200 dot -10 + 1 / 200 dot 1000 = -4.95 $
 
 ==
-*Question:* What does $bb(E)[cal(X)] = -4.95$ mean? #pause
+*Question:* What does $bb(E)[cal(R)] = -4.95$ mean? #pause
 
 Expect to lose 4.95 MOP on average each time you spin the bandit #pause
 
-
-We call the value after each spin the *reward* #pause
+We can refer to individual samples as rewards $r_i$ #pause
 
 $ 
   r_1 = -10 \
@@ -549,11 +552,11 @@ $ #pause
 
 If play the game more, the mean reward converges to the expectation
 
-$ lim_(n -> oo) sum_(t=1)^n r_t = n dot bb(E)[cal(X)] = -4.95 n $
+$ lim_(n -> oo) sum_(t=1)^n r_t = n dot bb(E)[cal(R)] = -4.95 n $
 
 
 ==
-$ lim_(n -> oo) sum_(t=1)^n r_t = -4.95 n = n bb(E)[cal(X)] $ #pause
+$ lim_(n -> oo) sum_(t=1)^n r_t = -4.95 n = n bb(E)[cal(R)] $ #pause
 
 
 If you play 1,000 times ($n = 1000$), expect to lose -4950 MOP #pause
@@ -562,47 +565,70 @@ If you play 1,000 times ($n = 1000$), expect to lose -4950 MOP #pause
 
 *Answer:* Do not play! If you must, play as little as possible #pause
 
-The more you play, the closer you get to $n dot bb(E)[cal(X)]$
+The more you play, the closer you get to $n dot bb(E)[cal(R)]$
 
 ==
 
-If you know $bb(E)[cal(X)]$, you know the result of gambling #pause
+If you know $bb(E)[cal(R)]$, you know the result of gambling #pause
 
-*Question:* Do gamblers know $bb(E)[cal(X)]$? #pause
+*Question:* Do gamblers know $bb(E)[cal(R)]$? #pause
 
 *Answer:* No! This is a secret of the casino #pause
 
-*Question:* Could a gambler find out $bb(E)[cal(X)]$?
+*Question:* Could a gambler find out $bb(E)[cal(R)]$?
 
 ==
 Gambler only has access to the rewards
 
 $ r_1, r_2, dots, r_n = -10, -10, dots, 1000 $ #pause
 
-*Question:* How could a gambler find out $bb(E)[cal(X)]$? #pause
+*Question:* How could a gambler find out $bb(E)[cal(R)]$? #pause
 
-// $ lim_(n -> oo) sum_(t=1)^n r_t = -4.95 n = n bb(E)[cal(X)] $ #pause
+// $ lim_(n -> oo) sum_(t=1)^n r_t = -4.95 n = n bb(E)[cal(R)] $ #pause
 
 #side-by-side(align: horizon)[
   We can sum the rewards
   ][
-    $ sum_(t=1)^n r_t approx n dot bb(E)[cal(X)] $
+    $ sum_(t=1)^n r_t approx n dot bb(E)[cal(R)] $
   ] #pause
 
 #side-by-side(align: horizon)[Divide by number of plays][
-  $ 1 / n sum_(t=1)^n r_t approx bb(E)[cal(X)] $
+  $ 1 / n sum_(t=1)^n r_t approx bb(E)[cal(R)] $
 ] #pause
 
 After playing enough, the gambler can approximate the expectation!
 
 ==
 
-*Exercise*: You start a new casino in Macau. #pause Create a bandit with the following outcomes $Omega in {"Win Lemon", "Win Cherry", "Win 7", "Lose"}$ #pause
+#side-by-side(align: horizon)[
+  We can sum the rewards
+  ][
+    $ sum_(t=1)^n r_t approx n dot bb(E)[cal(R)] $
+  ] 
+
+#side-by-side(align: horizon)[Divide by number of plays][
+  $ 1 / n sum_(t=1)^n r_t approx bb(E)[cal(R)] $
+] #pause
+
+We call this a *Monte Carlo* method #pause
+- Monte Carlo methods approximate a function using random samples #pause
+- Monte Carlo is the European version of Macau (casino city) #pause
+  - Monte Carlo means you are a gambler with missing information
+
+==
+
+*Exercise*: You start a new casino in Macau. #pause Create a bandit with the following outcomes $Omega in {#emoji.lemon, #emoji.cherries, #emoji.bell, #emoji.crossmark}$ #pause
+
+#cimage("fig/02/one-slot.png", height: 60%)
+
+==
+
+*Exercise*: You start a new casino in Macau. Create a bandit with the following outcomes $Omega in {#emoji.lemon, #emoji.cherries, #emoji.bell, #emoji.crossmark}$ #pause
 
 Write down: #pause
 - Probability for each outcome ${Pr(omega) | omega in Omega}$ #pause
-- The random variable $cal(X)$ for each outcome ${cal(X)(omega)  | omega in Omega}$ #pause
-- The expected value of the random variable $bb(E)[cal(X)]$ #pause
+- The random variable $cal(R)$ for each outcome ${cal(R)(omega)  | omega in Omega}$ #pause
+- The expected value of the random variable $bb(E)[cal(R)]$ #pause
 - How much money we expect to make if the gambler plays 1000 times #pause
 
 Make sure the expected value is *negative but near zero*: #pause
@@ -624,14 +650,11 @@ The bandit problem is useful for casino owners and gamblers #pause
 
 But it is a trivial decision making problem #pause
 
-If $bb(E)[cal(X)] > 0$ you should gamble #pause
+If $bb(E)[cal(R)] > 0$ you should gamble #pause
 
-If $bb(E)[cal(X)] < 0$ you should not gamble #pause
+If $bb(E)[cal(R)] < 0$ you should not gamble #pause
 
 We will make the problem more interesting 
-
-
-
 
 ==
 You arrive at the Londoner with 1000 MOP and want to win money #pause
@@ -690,15 +713,15 @@ TikTok select videos to maximize your $bb(E)[#emoji.heart]$
 ==
 *Problem:* We have $k$ bandits, and each bandit is a random variable
 
-$ cal(X)_1, cal(X)_2, dots, cal(X)_k $ #pause
+$ cal(R)_1, cal(R)_2, dots, cal(R)_k $ #pause
 
-We do not know $bb(E)[cal(X)_1], bb(E)[cal(X)_2], dots, bb(E)[cal(X)_k]$ #pause
+We do not know $bb(E)[cal(R)_1], bb(E)[cal(R)_2], dots, bb(E)[cal(R)_k]$ #pause
 
-You can take an *action* by pulling the arm of a bandit
+You can take an *action* to play one bandit #pause 
 
 $ a in {1, 2, dots, k} $ #pause
 
-Which actions should you take to make the most money? 
+Which actions make the most money in the least time? 
 
 //*Question:* How should we approach this problem?
 
@@ -706,29 +729,29 @@ Which actions should you take to make the most money?
 
 This is a hard problem! #pause
 
-We need to estimate $bb(E)[cal(X)_1], bb(E)[cal(X)_2], dots, bb(E)[cal(X)_k]$ to find the best $cal(X)$ #pause
+We need to estimate $bb(E)[cal(R)_1], bb(E)[cal(R)_2], dots, bb(E)[cal(R)_k]$ to find the best $cal(R)$ #pause
 
-#side-by-side(align: horizon)[But it takes #math.oo money to find $bb(E)[cal(X)]$!][
-$ bb(E)[cal(X)] = lim_(n -> oo) 1 / n sum_(t=1)^n r_t $ #pause
+#side-by-side(align: horizon)[But it takes #math.oo money to find $bb(E)[cal(R)]$!][
+$ bb(E)[cal(R)] = lim_(n -> oo) 1 / n sum_(t=1)^n r_t $ #pause
 ]
 
 Which action $a in {1 dots k}$ do we choose? Which bandit do we play? #pause
 
 We want to: #pause
-- #side-by-side[Pick $a$ to estimate bandits][$ bb(E)[cal(X)_a | a in 1 dots k] $] #pause
-- #side-by-side[Pick $a$ to make the most money][$ argmax_(a in {1 dots k}) bb(E)[cal(X)_a] $] 
+- #side-by-side[Pick $a$ to estimate bandits][$ bb(E)[cal(R)_a | a in 1 dots k] $] #pause
+- #side-by-side[Pick $a$ to make the most money][$ argmax_(a in {1 dots k}) bb(E)[cal(R)_a] $] 
 
 ==
 We have names for each goal #pause
 
 #side-by-side(align: center)[
     *Exploration:* 
-    $ bb(E)[cal(X)_a | a in {1 dots k}] $ #pause
+    $ bb(E)[cal(R)_a | a in {1 dots k}] $ #pause
 
     Explore our options to improve our estimate of each random variable #pause
 ][
     *Exploitation:*
-    $ argmax_(a in {1 dots k}) bb(E)[cal(X)_a] $ #pause
+    $ argmax_(a in {1 dots k}) bb(E)[cal(R)_a] $ #pause
 
     Use our estimates to select the best bandit and make the most money #pause
 
@@ -736,18 +759,17 @@ We have names for each goal #pause
 
 It is important to understand the difference between exploration and exploitation! Any questions? 
 
-
 ==
 *Question:* How can we choose $a$ to achieve each goal? #pause
 
 #side-by-side(align: center)[
     *Exploration:* 
-    $ bb(E)[cal(X)_a | a in {1 dots k}] $ 
+    $ bb(E)[cal(R)_a | a in {1 dots k}] $ 
 
     Explore our options to improve our estimate of each expectation 
 ][
     *Exploitation:*
-    $ argmax_(a in {1 dots k}) bb(E)[cal(X)_a] $ 
+    $ argmax_(a in {1 dots k}) bb(E)[cal(R)_a] $ 
 
     Use our estimates to make money
 
@@ -757,7 +779,7 @@ It is important to understand the difference between exploration and exploitatio
 #side-by-side[
     $ a tilde "uniform"({1 dots k}) $ #pause
 ][
-    $ a = argmax_(a in {1 dots k})(bb(E)[cal(X)_a]) $ #pause
+    $ a = argmax_(a in {1 dots k})(bb(E)[cal(R)_a]) $ #pause
 ] 
 
 *Question:* How can we achieve both goals at once? #pause
@@ -768,7 +790,7 @@ It is important to understand the difference between exploration and exploitatio
 $ 
     u tilde "uniform"([0, 1]) \
     "if" u < 0.5 "then" a tilde "uniform"({1 dots k}) \
-    "if" u >= 0.5 "then" a = argmax(bb(E)[cal(X)_a])
+    "if" u >= 0.5 "then" a = argmax(bb(E)[cal(R)_a])
 $ #pause
 
 Half the time we explore, half the time we exploit #pause
@@ -778,7 +800,7 @@ We can change the explore/exploit ratio using a parameter $epsilon$ #pause
 $ 
     u tilde "uniform"([0, 1]) \
     "if" u < epsilon "then" a tilde "uniform"({1 dots k}) \
-    "if" u >= epsilon "then" a = argmax(bb(E)[cal(X)_a])
+    "if" u >= epsilon "then" a = argmax(bb(E)[cal(R)_a])
 $
 
 ==
@@ -787,7 +809,7 @@ $
     epsilon in [0, 1] \
     u tilde "uniform"([0, 1]) \
     "if" u < epsilon "then" a tilde "uniform"({1 dots k}) \
-    "if" u >= epsilon "then" a = argmax(bb(E)[cal(X)_a])
+    "if" u >= epsilon "then" a = argmax(bb(E)[cal(R)_a])
 $ #pause
 
 We call this *epsilon greedy* #pause
@@ -797,8 +819,8 @@ We take the greedy action (make money) with probability $1 - epsilon$ #pause
 
 *Question:* When should $epsilon approx 1$? When should $epsilon approx 0$? #pause
 
-#side-by-side[$epsilon approx 0$ when we trust our estimates of $bb(E)[cal(X)]$ ][
-$epsilon approx 1$ when we do not trust our estimates of $bb(E)[cal(X)]$
+#side-by-side[$epsilon approx 0$ when we trust our estimates of $bb(E)[cal(R)]$ ][
+$epsilon approx 1$ when we do not trust our estimates of $bb(E)[cal(R)]$
 ]
 
 ==

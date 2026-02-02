@@ -1,24 +1,27 @@
 #import "@preview/algorithmic:0.1.0"
 #import algorithmic: algorithm
-#import "@preview/touying:0.5.4": *
+#import "@preview/touying:0.6.1": *
 #import themes.university: *
 #import "common.typ": *
-#import "@preview/cetz:0.3.1"
+#import "@preview/cetz:0.4.2"
 
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
+#let handout = true
+
 #show: university-theme.with(
+  config-common(handout: handout),
   aspect-ratio: "16-9",
   config-info(
     title: [Introduction],
     subtitle: [CISC 7404 - Decision Making],
     author: [Steven Morad],
     institution: [University of Macau],
-    logo: image("fig/common/bolt-logo.png", width: 4cm)
+    logo: image("fig/common/bolt-logo.png", width: 4cm),
   ),
   header-right: none,
-  header: self => utils.display-current-heading(level: 1)
+  header: self => utils.display-current-heading(level: 1),
 )
 
 // TOOD: Replace bandits with overview of RL vs ML vs IL etc
@@ -83,7 +86,7 @@ You should know: #pause
 - Random variables #pause
 - Probability density and mass functions (PDF, PMF) #pause
 - Conditional and unconditional probabilities #pause
-- Expectations/expected values #pause
+- *Expectations/expected values* #pause
 
 *Question:* What does $P(X=x)$ mean? #pause
 
@@ -136,18 +139,19 @@ Final exam score: (90 + 70) / 2 = 80% #pause
 // 23:00
 
 = Grading - Final Project <touying:hidden>
-- Form groups of 3-5 #pause
+
+Form groups of 3-5 #pause
 - Can do any project related to decision making #pause
 
 #side-by-side(align: center + horizon)[
   Starcraft 
-  #cimage("fig/01/smac.jpg") #pause
+  #cimage("fig/01/smac.jpg", width: 95%) #pause
 ][
   Pokemon
   #cimage("fig/01/pokemon.jpg", width: 90%) #pause
 ][
   Robot Control
-  #cimage("fig/01/cartpole.jpg")
+  #cimage("fig/01/cartpole.jpg", width: 95%)
 ]
 
 ==
@@ -159,7 +163,6 @@ See Moodle for final project specification #pause
 
 = Grading - Participation <touying:hidden>
 
-#cimage("fig/01/active-learning.png", height: 85%)
 
 ==
 *Participation:*
@@ -167,7 +170,7 @@ I want this class to be interactive #pause
 
 Participation is *asking* or *answering* questions during lecture #pause
 
-To encourage you, your particiipation grade depends on interacting #pause
+To encourage you, your participation grade depends on interacting #pause
 
 - Class participation (50%) #pause
 - Individual participation (50%) #pause
@@ -175,18 +178,33 @@ To encourage you, your particiipation grade depends on interacting #pause
 *You MUST ask or answer questions during lecture* #pause
 - If not, you will receive *0 for individual participation*
 
+==
+Some of you are shy or have poor English skills #pause
+  - To succeed in DL/RL, you need *confidence* and *English skills* #pause
+    - Most important RL papers are written in English today #pause
+    - Andrew Ng, Yann LeCun, and Yoshua Bengio #pause
+      - Learned English as a second language and speak confidently #pause
+
+
+Making mistakes is the best way to learn #pause
+- Be confident!
+==
+#cimage("fig/01/active-learning.png", height: 85%)
 
 // 30:00
 
 = Resources
 ==
-*Office Hours:* Moday 14:00 AM - 16:00 PM #pause
+*Office Hours:* Moday 14:00 - 16:00 #pause
 
 *Textbook:* http://incompleteideas.net/book/the-book-2nd.html #pause
 - Syllabus lists textbook chapter for each lecture #pause
 
 Last year lectures #pause
-- https://github.com/smorad/um_cisc_7404 
+- https://github.com/smorad/um_cisc_7404 #pause
+
+I will post all lectures and coding on Moodle #pause
+- Please no photographs (especially of me)
 
 // 35:00
 
@@ -203,7 +221,7 @@ Last year lectures #pause
 ==
 I am serious about cheating #pause
 - Ask students who were in my Introduction to Deep Learning course #pause
-- Caught multiple students last term #pause
+- Caught and failed multiple students last term #pause
   - One student lost job offer #pause
 
 Any student caught cheating: #pause
@@ -238,39 +256,29 @@ I want you to *learn the material* so you succeed in life
 *Question:* Can you use LLMs in class? #pause
 
 You can ask LLMs for help, but *do not turn in LLM output* #pause
+- *Ok:* LLM, is $underline(quad quad)$ a correct translation of $underline(quad quad)$ #pause
+- *Ok:* LLM, is $underline(quad quad)$ correct grammar? #pause
+- *Cheating:* LLM, answer the following homework question $underline(quad quad)$ #pause
 
-*Ok:* LLM, is $underline(quad quad)$ a correct translation of $underline(quad quad)$ #pause
-
-*Ok:* LLM, is $underline(quad quad)$ correct grammar? #pause
-
-*Cheating:* LLM, answer the following homework question $underline(quad quad)$ #pause
-
-*Ok:* LLM, why does my code raise `AttributeError`? #pause
-
-*Ok:* LLM, why does my Q function return large values? #pause
-
-*Cheating:* LLM, implement the policy gradient algorithm in pytorch
-
-==
-It is hard to prove LLM usage in assignments #pause
-- Detectors have some false positives #pause
-- Unlikely strong enough evidence to fail course #pause
-- If I think code is LLM generated, I will give zero for assignment
-
-
+You can use LLMs to help understand errors #pause
+- *Ok:* LLM, tell me why my code raises `AttributeError` #pause
+- *Ok:* LLM, tell me why my Q function returns large values #pause
+- *Cheating:* LLM, implement the policy gradient algorithm in pytorch
 
 = Lecture Topics
 == 
-- Basics #pause
+- Basics and Theory #pause
 - Modern Methods #pause
 - Active Research
 
-= Lecture Topics - Basics <touying:hidden>
+= Lecture Topics - Basics and Theory <touying:hidden>
 - Bandits #pause
 - Decision Processes #pause
 - Trajectory Optimization #pause
 - Value Iteration #pause
 - Policy Gradient #pause
+
+With this, you can understand 90% of deep RL papers
 
 = Lecture Topics - Modern Methods <touying:hidden>
 We will study modern methods (mostly actor-critic) #pause
@@ -279,7 +287,9 @@ We will study modern methods (mostly actor-critic) #pause
 - Trust Region Policy Optimization #pause
 - Proximal Policy Optimization #pause
 - Deep Deterministic Policy Gradient #pause
-- Soft Actor Critic 
+- Soft Actor Critic #pause
+
+With this, you can implement superhuman agents
 
 = Lecture Topics - Active Research <touying:hidden>
 We will study offline methods #pause
@@ -291,6 +301,8 @@ We will also study some LLM topics
 - Learning from Preferences #pause
 - Reinforcement Learning from Human Feedback #pause
 - Group-Relative Policy Optimization
+
+With this, you can start new research projects
 
 // 50:00
 

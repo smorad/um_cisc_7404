@@ -35,8 +35,8 @@
     - Week 1 (01.12): Introduction 
     - Week 2 (01.19): Bandits (S&B 2)
     - Week 3 (01.26): Decision Processes (S&B 3) 
-    - Week 4 (02.02): Exam 1 
-    - Week 5 (02.09): Trajectory Optimization (S&B 5) 
+    - Week 4 (02.02): Trajectory Optimization (S&B 5) 
+    - Week 5 (02.09): Exam 1 
     - Week 6 (03.02): Q Learning (S&B 6)
     - Week 7 (03.09): Deep Q Learning (S&B 6)
     - Week 8 (03.16): Policy Gradient (S&B 13)

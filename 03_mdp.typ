@@ -3,8 +3,8 @@
 #import "@preview/touying:0.5.4": *
 #import themes.university: *
 #import "common.typ": *
-#import "@preview/cetz:0.3.1"
-#import "@preview/fletcher:0.5.4" as fletcher: diagram, node, edge
+#import "@preview/cetz:0.4.2"
+#import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
 // TODO: Students very slow, moving quickly and only finished first exercise after 1.5h
@@ -25,6 +25,7 @@ Following Brunskill's
 */ 
 
 #show: university-theme.with(
+  config-common(handout: true),
   aspect-ratio: "16-9",
   config-info(
     title: [Decision Processes],
@@ -81,29 +82,42 @@ Following Brunskill's
 
 = Review
 
+= Admin
+==
+We will have the first exam in two weeks (9 Feb/二月九号) #pause
+- Likely 4 questions #pause
+
+Topics: #pause
+- Probabilistic concepts (outcomes, events, expectations) #pause
+- Bandits #pause
+- Markov Decision Processes (today) #pause
+- Trajectory optimization (next week) #pause
+
+Early exam to ensure you understand these concepts before moving on! #pause
+- Necessary to understand the rest of the course 
+
 = Markov Processes
 
 ==
 Decisions must make some change in the world #pause
 
-If they make no change, they do not matter, and are not decisions! #pause
+If they make no change, decision making is trivial #pause
+- Pick any choice, outcome does not matter #pause
 
-Before we look at decision making, let us think about how we model change in the world #pause
-
-*Markov processes* are a popular way to model the world #pause
+*Markov processes* are the standard way to model the world #pause
 
 Some things we can model using Markov processes: #pause
 - Music #pause
 - DNA sequences #pause
 - Cryptography #pause
-- History
+- History #pause
+- Ecology
 
 ==
 We can model almost anything as a Markov process #pause
 
 So what is a Markov process? #pause
-
-It is a probabilistic model of dynamical systems that allows us to predict the future #pause
+- Probabilistic model of dynamical systems that predicts the future #pause
 
 A Markov process consists of two parts #pause
 
@@ -191,8 +205,7 @@ To compute the next node, we only look at the current node #pause
 
 ==
 We can predict the future using Markov processes #pause
-
-Chain transition probabilities together to estimate $s_t$ #pause
+- Chain transition probabilities together to estimate $s_t$ #pause
 
 $ Pr(s_1 | s_0 = s) $ #pause
 
@@ -203,7 +216,7 @@ $ Pr(s_2 | s_0 = s) = sum_(#pin(1)s_1 in S#pin(2)) Pr(s_2 | s_1)  Pr(s_1 | s_0 =
 
 $ Pr(s_3 | s_0 = s) = sum_(s_2 in S) Pr(s_3 | s_2) sum_(s_1 in S) Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $ #pause
 
-Can we derive a general form for $P(s_n | s_0)$? 
+Can we derive a general form for $Pr(s_n | s_0)$? 
 
 ==
 $ Pr(s_3 | s_0 = s) = sum_(s_2 in S) Pr(s_3 | s_2) sum_(s_1 in S) Pr(s_2 | s_1)  Pr(s_1 | s_0 = s) $ #pause
@@ -230,22 +243,22 @@ $ Pr(s_n | s_0) = sum_(s_1, s_2, dots s_(n-1) in S) product_(t=0)^(n-1)  Pr(s_(t
 ==
 $ Pr(s_n | s_0) = sum_(s_1, s_2, dots s_(n-1) in S) product_(t=0)^(n-1)  Pr(s_(t+1) | s_t) $ #pause
 
+If you do not like this sum notation, you can also write
+
+$ Pr(s_n | s_0) = sum_(s_1 in S) sum_(s_2 in S) dots sum_(s_(n-1) in S) product_(t=0)^(n-1)  Pr(s_(t+1) | s_t) $ #pause
+
 This expression tells us how the Markov process evolves over time #pause
-
-We can predict the future, $n$ timesteps from now #pause
-
-If $s$ is the state of the world, you can predict the future of the world #pause
-
-If $s$ represents someone's mind, you can predict their future thoughts 
+- We can predict the future, $n$ timesteps from now #pause
+- If $s$ is the state of the world, you can predict the future of the world #pause
+- If $s$ represents someone's mind, you can predict their future thoughts 
 
 
 ==
 
 We can predict a state $s_n$, but a Markov process never ends #pause
+- The future infinite, there is always a next state #pause
 
-The future infinite, there is always a next state #pause
-
-However, many processes we like to model eventually end #pause
+However, many processes we like to model do end #pause
 - Dying in a video game #pause
 - Completing a task #pause
 - Running out of money #pause
@@ -272,10 +285,12 @@ Pr(s_(t+1) = "not term" &| s_t = "term") &&= 0 $
 = Exercise
 ==
 Design an Markov process about a problem you care about #pause
-- 4 states #pause
+- 3 states #pause
 - State transition function $Tr = Pr(s_(t+1) | s_t)$ for all $s_t, s_(t+1) in S$ #pause
 - Create a terminal state #pause
-- Given a starting state $s_0$, what will your state distribution be for $s_2$? #pause
+- Pick a non-terminal starting state $s_0=...$ #pause
+- Given starting state $s_0=...$, find the state distribution for $s_2$? #pause
+  - $Pr(s_2=... | s_0=...)$ #pause
 
 $ Pr(s_n | s_0) = sum_(s_1, s_2, dots s_(n-1) in S) product_(t=0)^(n-1)  Pr(s_(t+1) | s_t) $ 
 
@@ -284,43 +299,34 @@ $ Pr(s_n | s_0) = sum_(s_1, s_2, dots s_(n-1) in S) product_(t=0)^(n-1)  Pr(s_(t
 
 Markov processes model complex evolving processes #pause
 
-But this course is on decision making, how can we model decision making in a Markov process?
+*Question:* This course is decision making, how can we model decision making in a Markov process? #pause
 
-We can't #pause
+*Answer:* We can't #pause
 
 Markov processes follow the state transition function $Tr$ #pause
-
-The future of the system is already determined #pause
-
-There is no room for decisions to change the fate of the system #pause
+- The future state distribution of the system is already determined #pause
+- There is no room for decisions to change the fate of the system #pause
 
 We will modify the Markov process for decision making #pause
 
-The point of decision making is to choose our fate 
+The point of decision making is to choose our fate #pause
+- Control how the system evolves
 
 // env agent first?
 
 ==
 A Markov process models the predetermined evolution of some system #pause
-
-We call this system the *environment*, because we cannot control it #pause
+- We call this system the *environment*, because we cannot control it #pause
 
 The *agent* lives in the environment #pause
-
-The agent makes decisions #pause
-
-The agent changes the environment with its decisions 
-
-//For decisions to matter, they must change the environment #pause
-
-//We introduce the *agent* to make decisions that change the environment
+- The agent makes decisions #pause
+- The agent changes the environment with its decisions 
 
 ==
 
 The agent takes *actions* $a in A$ that change the environment #pause
+- The action space $A$ defines what our agent can do #pause
 
-The action space $A$ defines what our agent can do #pause
-rrr
 #side-by-side(align: center)[
   Markov process
   $ (S, Tr) \
@@ -351,11 +357,11 @@ Let us see an example
   node((75mm, -20mm), "Dead", stroke: 0.1em, shape: "circle", width: 3.5em, name: "crash")
 
   edge(label("drive"), label("drive"), "->", label: 0.9, bend: -130deg, loop-angle: -90deg)
-  edge(label("park"), label("park"), "->", label: text(fill:orange)[$N =0.91, M = 0.18$], bend: -130deg, loop-angle: -90deg)
+  edge(label("park"), label("park"), "->", label: text(fill:blue)[$N =0.91, M = 0.18$], bend: -130deg, loop-angle: -90deg, stroke: blue)
   edge(label("crash"), label("crash"), "->", label: 1.0, bend: -130deg, loop-angle: 90deg)
 
   edge(label("drive"), label("park"), "->", label: 0.09, bend: 40deg)
-  edge(label("park"), label("drive"), "->", label: text(fill:orange)[$N = 0.09, M =0.82$], bend: 0deg)
+  edge(label("park"), label("drive"), "->", label: text(fill:green)[$N = 0.09, M =0.82$], bend: 0deg, stroke: green)
   edge(label("park"), label("crash"), "->", label: 0.01, bend: 15deg)
 }))
 /*
@@ -392,7 +398,7 @@ Let us see an example
 }) #pause
 
 ][
-  The *trajectory* contains the states and actions until a terminal state #pause
+  The *trajectory* records the states and actions until a terminal state #pause
 
   $ bold(tau) = mat(
     s_0, a_0; 
@@ -435,19 +441,17 @@ $ Pr(bold(tau) | s_0, a_0, a_1, dots, a_n) = product_(t=0)^n Pr(s_(t+1) | s_t, a
 
 ==
 Markov control processes let us control which states we visit #pause
+- They do not tell us which states are good to visit, or provide a goal #pause
 
-They do not tell us which states are good to visit, or provide a goal #pause
-
-How can we make optimal decisions if we do not have a goal or objective? #pause
-
-We need a way to determine "good" and "bad" decisions
+How can we make optimal decisions without a goal or objective? #pause
+- We need a way to determine "good" and "bad" decisions
 
 = Markov Decision Processes
 
 ==
 Markov decision processes (MDPs) add a measure of "goodness" to Markov control processes #pause
 
-We use a *reward function* $R$ to measure the goodness of a specific state #pause
+We use a *reward function* $R$ to measure the how good a state is #pause
 
 #side-by-side(align: center)[
   Sutton and Barto:
@@ -460,9 +464,9 @@ We use a *reward function* $R$ to measure the goodness of a specific state #paus
   $ R: S |-> bb(R) $ #pause
 ]
 
-For now, I will use the simplest one #pause
-
-You can always make these equivalent by modifying the MDP
+You can always make these equivalent by modifying the MDP: #pause
+$ S <- S times A = (s_t, a_(t-1)) $ #pause
+$ S <- S times A times S = (s_t, a_(t-1), s_(t-1)) $ 
 
 
 ==
@@ -500,8 +504,6 @@ The reward function determines the agent behavior #pause
 #side-by-side[$ R(s_d) = 10 $][$ R(s_n) = 15 $ #pause][*Result:* Eat noodle] #pause
 
 #side-by-side[$ R(s_d) = 5 $][$ R(s_n) = -3 $ #pause][*Result:* Eat dumpling] #pause
-
-//We can pick the action that maximizes the reward function #pause
 
 We can write this mathematically as
 
@@ -544,10 +546,8 @@ $ argmax_(a in A) R(s) = "take the food" $ #pause
 Maximizing the immediate reward can result in bad agents #pause
 
 Instead, we maximize the *cumulative sum* of rewards #pause
-
-We think about how our actions now will impact reward the future #pause
-
-We call the cumulative sum of rewards, the *return* #pause
+- We think about how our actions now will impact reward the future #pause
+- We call the cumulative sum of rewards, the *return* #pause
 
 #side-by-side[
   $ G: bb(R)^n |-> bb(R) $ #pause
@@ -638,7 +638,7 @@ We can eat food now, or in 1000 years, the return is the same #pause
 #side-by-side[
   *Question:* What happens? #pause
 ][
-*Answer:* Child eats the cookie immediately #pause
+*Answer:* Child eats the cookie 
 ]
 
 ==
@@ -707,10 +707,9 @@ Let us review #pause
 Reinforcement learning is designed to solve MDPs #pause
 
 In reinforcement learning, we have a single goal #pause
+- Visit states that maximize the discounted return of the MDP #pause
 
-Maximize the discounted return of the MDP #pause
-
-$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $
+$ argmax_(bold(tau)) G(bold(tau)) = argmax_(s in S) sum_(t=0)^oo gamma^t R(s_(t+1)) $ #pause
 
 You must understand the discounted return!
 
@@ -739,11 +738,10 @@ Make sure you understand MDPs!
   Your states are: eat mushroom, collect coins, die, game over #pause
 
   Compute discounted return for:  #pause
-    - Eat mushroom at $t = 10$ #pause
-    - Collect coins at $t = 11, 12$ #pause
-    - Die to bowser at $t = 20$
-    - Game over screen at $t=21...oo$
-    - $r = 0$ for other timesteps
+    - Eat mushroom at $t = 0$ #pause
+    - Collect coin at $t = 1, 2$ #pause
+    - Die to bowser at $t = 3$ #pause
+    - Game over screen at $t=4...oo$
 
 ]
 
@@ -787,7 +785,7 @@ Gymnasium uses observations, but for MDPs we treat them as states
 
 import gymnasium as gym
 
-MyMDP(gym.Env):
+class MyMDP(gym.Env):
   def __init__(self):
     self.action_space = gym.spaces.Discrete(3) # A
     self.observation_space = gym.spaces.Discrete(5) # S
@@ -802,256 +800,3 @@ MyMDP(gym.Env):
 
 ==
 https://colab.research.google.com/drive/1rDNik5oRl27si8wdtMLE7Y41U5J2bx-I#scrollTo=9pOLI5OgKvoE
-
-= Exam Next Class
-
-==
-We will have an exam next week #pause
-
-1 hour 15 minutes, no coding, only math #pause
-
-No book, no notes, no calculator -- only pencil and pen #pause
-
-Study notation, probability, bandits, and Markov processes #pause
-
-Practice expectations, bandit problems, state transitions, and returns #pause
-
-You must have intuition, not memorize #pause
-
-Too many A's last term, exam will be *difficult*
-
-
-
-
-/*
-==
-A Markov process consists of $(S, T)$ #pause
-
-A Markov control process also considers an *action* $a in A$
-
-$ (S, T, A) $ #pause
-
-We call $A$ the *action space* #pause
-
-The action space defines the options/decisions we can make
-
-==
-Add action term
-
-
-= Markov Decision Processes
-
-
-= Agents and Environments
-// Environment is the Markov process
-// Agent moves us in the Markov process
-
-==
-
-Multiarmed bandits is one type of decision making problem #pause
-
-But it is a very specific type of problem #pause
-
-In some ways, it is too simple to represent more interesting tasks #pause
-
-Today, we will create a much more general framework for decision making problems #pause
-
-This framework is used in imitation learning, reinforcement learning, model predictive control, and almost all modern decision making methods #pause
-
-==
-First, we should define some terms #pause
-
-We will start with the *agent* and the *environment* #pause
-
-Let us look at an example of reinforcement learning #pause
-
-https://www.youtube.com/watch?v=kVmp0uGtShk #pause
-
-https://www.youtube.com/watch?v=QyJGXc9WeNo
-
-==
-In this task, we want to solve a Rubik's cube #pause
-
-We need to define what we can control, and we what cannot control #pause
-
-We can control the *agent* #pause
-
-We cannot directly control the *environment*
-
-==
-#side-by-side[
-  #cimage("fig/03/cube.jpg", height: 70%)
-][
-  *Question:* What is the agent? #pause
-
-  *Answer:* The robot hand 
-]
-
-==
-#side-by-side[
-  #cimage("fig/03/cube.jpg", height: 70%)
-][
-  *Question:* What is the environment? #pause
-
-  *Answer:* #pause
-  - Rubik's cube #pause
-  - Giraffe #pause
-  - Gravity #pause
-  - Friction #pause
-  - And much more...
-]
-
-==
-The agent lives within the environment #pause
-
-The agent decisions affect and change the environment #pause
-
-To solve a decision making problem, we must define the agent and environment #pause
-
-*Question:* Other examples of problem, agent, and environment? #pause
-- Drive to store; car; streets, pedestrians, etc #pause
-- Play ping pong; human; racket, table, ball, etc #pause
-- Play video games; main character; NPCs, enemies, etc
-
-==
-Markov Chains
-
-
-==
-Let us look at another problem #pause
-
-#side-by-side[
-  #cimage("fig/03/pacman.jpg", height: 85%) #pause
-][
-  We move PacMan to eat the dots and avoid the ghosts #pause
-
-  *Question:* What is the agent? #pause 
-
-  *Answer:* PacMan #pause
-
-  *Question:* What is the environment? #pause
-
-  *Answer:* Ghosts, dots, walls, fruits, ... 
-]
-==
-
-#side-by-side[
-  #cimage("fig/03/pacman.jpg", height: 85%) #pause
-][
-  Let us define a *decision process* for PacMan #pause
-
-  *Definition:* A decision process is a tuple
-
-  $ {S, O, A, R, T, gamma} $ #pause
-
-  We will define each of these terms
-]
-
-
-
-
-
-
-==
-In decision making, the agent selects one of many options #pause
-
-*Question:* What can our agent do? What options does it have? #pause
-
-*Answer:* ${arrow.t, arrow.b, arrow.l, arrow.r}$ #pause
-
-We call this the *action space* $A$ #pause
-
-$ A = {arrow.t, arrow.b, arrow.l, arrow.r} $ #pause
-
-The agent can take one action $a$ at a time
-
-$ a in A $
-
-==
-
-
-==
-In almost all modern decision making processes, we have an *agent* and *environment* #pause
-
-The agent operates within the environment #pause
-
-Any questions so far? #pause
-
-==
-Let us go deeper #pause
-
-The agent operates in the environment #pause
-
-Let us define what the agent can *see* and *do*
-
-The agent can *observe* the environment #pause
-
-The agent can *act* to change the environment
-
-==
-
-#side-by-side[
-  #cimage("fig/03/cube.jpg", height: 70%)
-][
-  *Question:* What could we observe? #pause
-
-  *Answer:* #pause
-  - The color of each tile on the Rubik's cube #pause
-  - The position of our fingers #pause
-  - Position of the giraffe #pause
-]
-
-==
-
-#side-by-side[
-  #cimage("fig/03/cube.jpg", height: 70%)
-][
-  *Question:* How could we act? #pause
-
-  *Answer:* #pause
-  - The color of each tile on the Rubik's cube #pause
-  - The position of our fingers #pause
-  - Position of the giraffe #pause
-]
-
-
-==
-// Agents and environment
-First, what does it mean to make a decision? #pause
-
-We need a name for the thing that makes decisions #pause
-
-We call this the *agent* #pause
-
-==
-
-Decisions only matter if they create change #pause
-
-We need a way to represent the world and change in the world #pause
-
-We call this the environment
-
-
-==
-First, let us formalize the multi-armed bandit problem #pause
-
-*Question:* Any ideas on how we can do this? #pause
-
-Let us start with some quantities we use in bandits #pause
-
-$ r, a $
-
-
-
-
-= Gymnasium
-
-==
-There are two interfaces we use to implement decision processes: #pause
-- Gymnasium (OpenAI) #pause
-- DMEnv (DeepMind) #pause
-
-Gymnasium is more popular so we will focus on it
-
-==
-*/
