@@ -7,6 +7,9 @@
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
+
+// TODO 2026 this is too long, maybe do one lecture just MC and another TD
+
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
@@ -129,8 +132,6 @@
   header: self => utils.display-current-heading(level: 1)
 )
 
-// TODO: Optimal policy derivation from Q doesn't make sense
-// TODO: Derivation of max Q as value function doesn't make sense
 // TODO: Maybe move done flag stuff to deep value
 
 // TODO: Should change from s_0 to s_i here as its required for homework
@@ -615,7 +616,7 @@ To summarize, the value function is the policy-conditioned return #pause
 
 $ V(s_0, pi) = bb(E)[cal(G)(bold(tau)) | s_0; pi] $ #pause
 
-We can write it in Monte Carlo form or Temporal Difference form #pause
+We can write it in Monte Carlo (MC) or Temporal Difference (TD) form #pause
 
 #side-by-side(align: horizon)[Monte Carlo][
 $
@@ -739,7 +740,7 @@ They are almost the same #pause
 - The only difference is $Q$ relies on an initial action $a_0$ #pause
     - This changes the expectation of the reward (very important)
 
-= Q Learning
+= Greedy Q
 ==
 $ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, pi) | s_0, a_0; pi] $ #pause
 // New stuff
@@ -775,11 +776,9 @@ If you know your $Q$ function, you can always take the best action #pause
 - Maximum happiness throughout your life
 
 ==
-$ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, pi) | s_0, pi] $ #pause
+$ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, pi) | s_0, a_0; pi] $ 
 
-The Q function tells us the *value of an action* #pause
-- In state $s_0$ #pause
-- If we follow $pi ( a | s)$ afterwards #pause
+The Q function tells us the *value of an action $a_0$* in state $s_0$ #pause
 
 // TODO HIGHLIGHT
 
@@ -795,8 +794,23 @@ $ pi(a | s) = cases(
 This is an optimal greedy policy
 
 ==
+$ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, pi) | s_0, a_0; pi] $ #pause
 
-$ argmax_(a_0 in A) Q(s_0, a_0, pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, pi) ) $ #pause
+$ pi(a | s) = cases(
+    1 "if" a = argmax_(a_0 in A) Q(s, a_0, pi),
+    0 "otherwise"
+) $ #pause
+
+$Q$ relies on $pi$, and $pi$ relies on $Q$ #pause
+- Now that we know $pi$, we can simplify/rewrite $Q$ #pause
+
+*Question:* How? #pause // TODO Highlight argmax above for hint
+
+$ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0] $ #pause
+
+==
+
+$ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0] $ #pause
 
 This is a very powerful equation #pause
 - Compute $Q(s_0, a_0)$ for all $a_0$ #pause
@@ -805,51 +819,20 @@ This is a very powerful equation #pause
 
 This considers the effect of $a_0$ on the *infinite* future #pause
 
-We collapsed the infinite decision tree into a single level
-
-==
-
-#text(size: 22pt)[#traj_opt_tree]
-
-==
-
-#text(size: 22pt)[#q_opt_tree]
-
-/*
-==
-
-//$ V(s_0, pi) = sum_(t=0)^oo gamma^t sum_(s_(t + 1) in S) cal(R)(s_(t+1)) dot Pr (s_(t + 1) | s_0; pi) $
-$ V(s_0, pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $
-
-==
-$ V(s_0, pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $
-
-Pull first term out of sum 
-
-$ V(s_0, pi) = gamma^0 bb(E)[R(s_1) | s_0; pi] + sum_(t=1)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $
-
-Provide $a_0$ and condition on it
-
-$ V(s_0, pi, a_0) = gamma^0 bb(E)[R(s_1) | s_0, a_0] + sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $
-
-$ Q(s_0, pi, a_0) = gamma^0 bb(E)[R(s_1) | s_0, a_0] + sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $
-
-
-$ Q(s_0, a_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Tr (s_( 1) | s_0, a_0) \ + sum_(s_1) Pr (s_(1) | s_0; pi) gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(t+1); pi) $
-*/
-
-//= SARSA
-
 = Q Learning
 
 ==
-// Intro of Q learning (model-free, etc)
-// Found q equation, but not clear how to train it
-// Furthermore, relies on value function which we don't know
-// Bellman equation
-// off-policy depends on which value function
+With greedy $Q$, we can introduce the $Q$ learning algorithm #pause
+```python
+Q = initialize()
+for epoch in epochs:
+    # Collect dataset from traversing MDP
+    E = collect_episode(Q)
+    # Update Q function to improve accuracy
+    Q = update(E, Q)
+```
 
-Q learning is a *model-free* algorithm first discovered in the 1980s #pause
+Q learning is an iterative *model-free* algorithm #pause
 
 #side-by-side[
   *Model-based* #pause
@@ -857,229 +840,114 @@ Q learning is a *model-free* algorithm first discovered in the 1980s #pause
   We know $Tr(s_(t+1) | s_t, a_t)$ #pause
 
   Cheap to train, expensive to use #pause
-
-  Closer to traditional control theory #pause
 ][
   *Model-free* #pause
   
   We do not know $Tr(s_(t+1) | s_t, a_t)$  #pause
 
-  Expensive to train, cheap to use #pause
-
-  Closer to deep learning #pause
+  Expensive to train, cheap to use 
 ]
-==
-
-Q learning is still popular today #pause
-
-Works well with deep neural networks #pause
-
-Researchers are still improving it#footnote[_Simplifying Deep Temporal Difference Learning._ ICLR. 2024.] #footnote[_Exclusively Penalized Q-Learning for Offline Reinforcement Learning._ NeurIPS. 2025.] #pause
-
-In fact, our lab is using it in our research right now #pause
-
-We now have all the information we need to implement Q learning
 
 ==
 
-Our Q function relies on the value function for some $pi$ #pause
-
-Right now, it is not clear what the policy is #pause
-
-So how can we use the Q function without knowing the policy? #pause
-
-Let us find out
-
-==
-Start with the Q function #pause
-
-$ Q(s_0, a_0, pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, pi) $ #pause
-
-We want to take the action that maximizes Q #pause
-
-$ argmax_(a_0 in A) Q(s_0, a_0, pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, pi) ) $ #pause
-
-Recall Monte Carlo value function #pause
-
-$ V(s_0, pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $
-
-==
-// TODO: Rewrite below using MC return
-// See that all previous actions are the same for E[r_1], E[r_2], ...
-
-$ argmax_(a_0 in A) Q(s_0, a_0, pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, pi) ) $
-
-$ V(s_0, pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $ #pause
-
-Take optimal action $a_0$, now must find optimal $a_1$ #pause
-
-$ argmax_(a_1 in A) Q(s_1, a_1, pi) = argmax_(a_1 in A) ( bb(E)[cal(R)(s_2) | s_1, a_1] + gamma V(s_2, pi) ) $ #pause
-
-Take optimal action $a_1$, now must find optimal $a_2$ #pause
-
-$ argmax_(a_2 in A) Q(s_2, a_2, pi) = argmax_(a_2 in A) ( bb(E)[cal(R)(s_3) | s_2, a_2] + gamma V(s_3, pi) ) $
-
-==
-
-$ argmax_(a_0 in A) Q(s_0, a_0, pi) = argmax_(a_0 in A) ( bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, pi) ) $
-
-$ argmax_(a_1 in A) Q(s_1, a_1, pi) = argmax_(a_1 in A) ( bb(E)[cal(R)(s_2) | s_1, a_1] + gamma V(s_2, pi) ) $
-
-$ argmax_(a_2 in A) Q(s_2, a_2, pi) = argmax_(a_2 in A) ( bb(E)[cal(R)(s_3) | s_2, a_2] + gamma V(s_3, pi) ) $
-
-There is a pattern. What policy causes this pattern? #pause
-
-$ pi (a_0 | s_0; pi) = cases(
-    1 "if" a_0 = argmax_(a in A) Q(s_0, a, pi),
-    0 "otherwise"
-) $
+Q learning is old but still popular today #pause
+- Discovered in 1989 by Watkins #pause
+- Works well with deep neural networks #pause
+- Researchers are still improving it#footnote[_Simplifying Deep Temporal Difference Learning._ ICLR. 2024.] #footnote[_Exclusively Penalized Q-Learning for Offline Reinforcement Learning._ NeurIPS. 2025.] #pause
+- Our lab is using it in our research right now 
 
 
 ==
-$ pi (a_0 | s_0; pi) = cases(
+$ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0] $ #pause
 
-    1 "if" a_0 = argmax_(a in A) Q(s_0, a, pi),
+$ pi(a | s) = cases(
+    1 "if" a = argmax_(a_0 in A) Q(s, a_0, pi),
     0 "otherwise"
 ) $ #pause
 
-The policy uses the Q function #pause
+In $Q$ learning, we focus on learning $Q$ #pause
+- If we find the $Q$ function, we find an optimal policy: $argmax_(a) Q(s, a)$
 
-$ Q(s_0, a_0, pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma underbrace(V(s_1, pi), "Following" pi) $ #pause
-
-The Q function uses the policy #pause
-
-*Question:* Can we simplify the Q function using the policy? #pause
-
-$ V(s_0, pi) = max_(a in A) Q(s_0, a, pi) $ 
 
 ==
-$ pi (a_0 | s_0; pi) = cases(
+We have an equality we can use to learn $Q$ #pause
 
-    1 "if" a_0 = argmax_(a in A) Q(s_0, a, pi),
-    0 "otherwise"
-) $
+$ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0] $ #pause
 
-$ Q(s_0, a_0, pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, #pin(1)pi#pin(2)) $ 
+Move $Q$ to the right hand side, their sum should be zero #pause
 
-$ V(s_0, pi) = max_(a in A) Q(s_0, a, pi) $ #pause
+$ 0 = Q(s_0, a_0) - (bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0]) $ #pause
 
-Replace $V$ with $Q$ #pause
+If the sum is nonzero, then $Q$ has error $eta$ #pause
 
-$ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, pi) $ 
+$ eta = Q(s_0, a_0) - (bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0]) $ 
 
 ==
+$ eta = Q(s_0, a_0) - (bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0]) $ #pause
 
-*Definition:* In Temporal Difference Q learning, we learn $Q$ using #pause
+We can use the error $eta$ to improve $Q$ with learning rate $alpha$ #pause
 
-$ Q(s_0, a_0, pi) =  bb(E)[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, pi) $ #pause
+$ Q_(i+1)(s_0, a_0) = Q_(i)(s_0, a_0) - alpha dot eta $ #pause
 
-*Definition:* In Monte Carlo Q learning, we learn $Q$ using #pause
+$Q_(i+1)$ will converge to zero error #pause
 
-$ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + #pin(1)sum_(t=1)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_1; pi]#pin(2) $ #pause
+$ lim_(i -> oo) eta = 0 $ #pause
 
-#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 1.2em)[Return following $pi$] 
-
-==
-$ Q(s_0, a_0, pi) =  #pin(1)bb(E)[cal(R)(s_1) | s_0, a_0]#pin(2) + gamma max_(a in A) Q(s_1, a, pi) $ 
-
-$ Q(s_0, a_0, pi) = #pin(3)bb(E)[cal(R)(s_1) | s_0, a_0]#pin(4) + sum_(t=1)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_1; pi] $ #pause
-
-If we want to learn the left hand side, we must know the right hand side #pause
-
-*Question:* How do we find these terms? #pinit-highlight(1, 2) #pinit-highlight(3, 4)
+Then we learned a perfect $Q$!
 
 ==
-$ Q(s_0, a_0, pi) =  #pin(1)hat(bb(E))[cal(R)(s_1) | s_0, a_0]#pin(2) + gamma max_(a in A) Q(s_1, a, pi) $ 
+$ eta = Q(s_0, a_0) - (bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0]) $ #pause
 
-$ Q(s_0, a_0, pi) = #pin(3)hat(bb(E))[cal(R)(s_1) | s_0, a_0]#pin(4) + sum_(t=1)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_1; pi] $ 
+*Question:* There are expectations here, how do we evaluate this error? #pause
 
-*Question:* How do we find these terms? #pinit-highlight(1, 2) #pinit-highlight(3, 4)
+*Answer:* Approximate expectation with samples (like bandits) #pause
 
-*Answer:* Empirical expectation from episode data ($s_t, a_t, cal(R)(s_(t+1))$) #pause
-
-$ bold(E) = mat(s_0, s_1, s_2, dots; a_0, a_1, a_2, dots; r_0, r_1, r_2, dots)^top $
-
-//Take action $a_t$ in state $s_t$ and receive reward $cal(R)(s_(t+1))$
-
-==
-$ Q(s_0, a_0, pi) =  hat(bb(E))[cal(R)(s_1) | s_0, a_0]+ #pin(1)gamma max_(a in A) Q(s_1, a, pi)#pin(2) $ 
-
-$ Q(s_0, a_0, pi) = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + #pin(3)sum_(t=1)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_1; pi]#pin(4) $ #pause
-
-#side-by-side[*Question:* How to find these terms? #pinit-highlight(1, 2) #pinit-highlight(3, 4) #pause][
-$ bold(E) = mat(s_0, s_1, s_2, dots; a_0, a_1, a_2, dots; r_0, r_1, r_2, dots)^top $ #pause
-]
-
-
-#side-by-side[
-    *TD:* $gamma max_(a in A) Q(s_(t+1), a, pi) $ #pause
+#side-by-side(align: horizon)[
+    $ bold(E) = mat(s_0, a_0, r_0, d_0; s_1, a_1, r_1, d_1; s_2, a_2, r_2, d_2; dots.v, dots.v, dots.v, dots.v) $ #pause
 ][
-    *MC:* $gamma r_(t+1) + gamma^2 r_(t+2) + dots$ #pause
+    *Recall:* $r_t = cal(R)(s_(t+1))$, \ $d_t=1$: $s_(t+1)$ is terminal state #pause
 ]
 
-We know the right hand side, use it to learn the left hand side
+$ eta = Q(s_t, a_t) - r_t + gamma max_(a in A) Q(s_(t+1), a) $ 
 
 ==
 
-$ Q(s_0, a_0, pi) &=  hat(bb(E))[cal(R)(s_1) | s_0, a_0]+ not d gamma max_(a in A) Q(s_1, a, pi) \
+$ eta = Q(s_t, a_t) - r_t + gamma max_(a in A) Q(s_(t+1), a) $ #pause
 
-Q(s_0, a_0, pi) &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + sum_(t=1)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_1; pi] $ #pause
+We use terminal states to accelerate training #pause
+- In a terminal state ($d=1$), we know the future return is zero #pause
 
-Assume $Q (s, a, pi)$ has error $eta$ with right hand side #pause
-
-Use the error to update the Q function #pause
-
-$ Q_(i + 1)(s, a, pi) = Q_i (s, a, pi) - eta $ #pause
-
-Improve convergence with a learning rate $alpha$ #pause
-
-$ Q_(i + 1)(s, a, pi) = Q_i (s, a, pi) - alpha dot eta $
+$ eta = Q(s_t, a_t) - r_t + not d gamma max_(a in A) Q(s_(t+1), a) $
 
 ==
-*Monte Carlo update:* #pause
+*Definition:* Temporal Difference Q Learning #pause
 
-$ Q_(i+1)(s_0, a_0, pi) = Q_(i)(s_0, a_0, pi) - alpha dot eta $ #pause
+Given some training data 
 
-The error $eta$ is the difference between true and predicted value #pause
+$ bold(E) = mat(s_0, a_0, r_0, d_0; s_1, a_1, r_1, d_1; dots.v, dots.v, dots.v, dots.v) $ #pause
 
-#v(1em)
+We iteratively update $Q$ via the following objective until convergence #pause 
 
-$ eta = #pin(1)Q_(i)(s_0, a_0, pi)#pin(2) - #pin(3) (hat(bb(E)) #pin(5) [cal(R)(s_1) | s_0, a_0] + sum_(t=1)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_1; pi]) #pin(4) $ #pause
+$ Q_(i+1)(s_t, a_t) &= Q_(i)(s_t, a_t) - alpha dot eta \ #pause
+eta &= Q(s_t, a_t) - r_t + not d gamma max_(a in A) Q(s_(t+1), a) $ #pause
 
-#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Predicted value] #pause
-
-#pinit-highlight-equation-from((3,4), (5), fill: blue, pos: bottom, height: 1.2em)[Empirical value] #pause
-
-If we visit all $s, a in S times A$, guaranteed convergence to true Q function #pause
-
-$lim_(i -> oo) eta = 0$
+with learning rate $alpha$
 
 ==
-*Temporal Difference update:* #pause
+*Definition:* Monte Carlo Q Learning #pause
 
-$ Q_(i+1)(s_0, a_0, pi) = Q_(i)(s_0, a_0, pi) - alpha dot eta $ #pause
+Given some training data 
 
-The error $eta$ is the difference between true and predicted value #pause
+$ bold(E) = mat(s_0, a_0, r_0, d_0; s_1, a_1, r_1, d_1; dots.v, dots.v, dots.v, dots.v) $ #pause
 
-#v(1em)
+We iteratively update $Q$ via the following objective until convergence #pause 
 
-$ eta = #pin(1)Q_(i)(s_0, a_0, pi)#pin(2) - #pin(3) (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + #redm[$not d$] gamma max_(a in A) Q_i (s_1, a, pi)) #pin(4) $ #pause
-
-#text(fill: red)[小心!] If $s_1$ is a terminal state, future value is 0 ($not d="not terminated"$) #pause
-
-#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Predicted value] #pause
-
-#pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: bottom, height: 1.2em)[Empirical value] #pause
-
-If we visit all $s, a in S times A$, guaranteed convergence to true Q function #pause
-
-$lim_(i -> oo) eta = 0$
+$ Q_(i+1)(s_t, a_t) &= Q_(i)(s_t, a_t) - alpha dot eta \ #pause
+eta &= Q(s_t, a_t) - sum_(k=t)^oo not d gamma^k r_k $ 
 
 ==
-
 Last thing, we must collect episodes to train Q! #pause
-
-Can run policy in environment to create episodes #pause
+- Must run policy in environment to collect episodes #pause
 
 ```python
 states, next_states, rewards, terminateds = [], [], [], []
@@ -1097,9 +965,8 @@ episode = (states, next_states, rewards, terminateds)
 ==
 What policy do we sample actions from? #pause
 
-$ pi (a_0 | s_0; pi) = cases(
-
-    1 "if" a_0 = argmax_(a in A) Q(s_0, a, pi),
+$ pi (a_t | s_t) = cases(
+    1 "if" a_t = argmax_(a in A) Q(s_t, a_0),
     0 "otherwise"
 ) $ #pause
 
@@ -1108,28 +975,25 @@ $ pi (a_0 | s_0; pi) = cases(
 *Answer:* Always sample the same action (exploit, no exploration) #pause
 
 If Q function is wrong, always sample bad actions #pause
-
-Without correct actions, Q function will not improve! #pause
+- Without correct actions, Q function will not improve! #pause
 
 *Question:* What can we do?
 
 ==
-$ pi (a_0 | s_0; pi) = cases(
-
-    1 "if" a_0 = argmax_(a in A) Q(s_0, a, pi),
+$ pi (a_t | s_t) = cases(
+    1 "if" a_t = argmax_(a in A) Q(s_t, a_0),
     0 "otherwise"
 ) $ #pause
 
 Epsilon greedy policy! #pause
 
-$ pi (a_0 | s_0; pi) = cases(
-    (1 - epsilon) "if" a_0 = argmax_(a in A) Q(s_0, a, pi),
+$ pi (a_t | s_t) = cases(
+    (1 - epsilon) "if" a_t = argmax_(a in A) Q(s_t, a),
     epsilon / (|A|) "for" a in A
 ) $ #pause
 
 Sample random action with probability $epsilon$ #pause
-
-In the limit, we sample all possible actions in all states
+- In the limit, we sample all possible actions in all states
 
 ==
 
@@ -1139,7 +1003,7 @@ Navigation example, reward of 1 for reaching center tile #pause
 
 https://user-images.githubusercontent.com/1883779/113412338-97430100-93d5-11eb-856c-ef0f420d1acb.gif #pause
 
-https://mohitmayank.com/interactive_q_learning/q_learning.html
+// https://mohitmayank.com/interactive_q_learning/q_learning.html
 
 ==
 
@@ -1172,318 +1036,10 @@ $Q_(i,j)$ gives Q value for state $s=S_i$ and action $a=A_j$
 ==
 You have everything you need to solve homework #pause
 
-Due in 2 weeks (Weds 12 March, 23:59) #pause
+Due in 13 days (Weds 15 March, 23:59) #pause
 
 Download and submit `.py` and `.ipynb` files #pause
 
 Uses turnitin for checking #pause
 
 https://colab.research.google.com/drive/1xtBxAaVc3ax6_j59RC3NLQQPFcIEoau-?usp=sharing
-
-
-
-/*
-= Value Objectives
-
-==
-$ 
-V(s_0, pi) = bb(E)[cal(G)(bold(tau)) | s_0; pi] = sum_(t=0)^oo gamma^t sum_(s_(t + 1) in S) cal(R)(s_(t+1)) dot Pr (s_(t + 1) | s_0; pi)
-$
-
-*Idea:* Instead of computing the tree, can we learn to approximate it?
-
-
-$ V(s_0, pi, pi_V) = bb(E)[cal(G)(bold(tau)) | s_0; pi]; quad bold(tau) in (S times A)^n $
-
-*Question:* How can we learn $Theta_V$ such that it becomes the true $V$ function?
-
-*Answer:* Mean square error
-
-$ V(s_0, pi, pi_V) - bb(E)[cal(G)(bold(tau)) | s_0; pi] = 0 $
-
-==
-
-TODO: Expectation, so we can learn from samples
-
-$ V(s_0, pi, pi_V) - bb(E)[cal(G)(bold(tau)) | s_0; pi] = 0 $
-
-$ (V(s_0, pi, pi_V) - bb(E)[cal(G)(bold(tau)) | s_0; pi])^2 = 0 $
-
-$ argmin_(pi_V) (V(s_0, pi, pi_V) - bb(E)[cal(G)(bold(tau)) | s_0; pi])^2 $
-
-$ argmin_(pi_V) sum_(s_0 in S) (V(s_0, pi, pi_V) - bb(E)[cal(G)(bold(tau)) | s_0; pi])^2 $
-
-We do not know $bb(E)[cal(G)(bold(tau)) | s_0; pi]$?
-
-*Question:* What can we do when we do not know an expectation? (Hint: Bandits)
-
-*Answer:* Approximate the expectation by playing!
-
-$ argmin_(pi_V) sum_(s_0 in S) (V(s_0, pi, pi_V) - hat(bb(E))[cal(G)(bold(tau)) | s_0; pi])^2 $
-
-
-+ Run our policy in the environment
-+ Collect a trajectory $bold(tau)$
-// + Create subtrajectories $bold(tau)_(0:), bold(tau)_(1:), dots $
-+ Compute the return of the trajectory $cal(G)(bold(tau))$
-+ Now we have $hat(bb(E))_1[cal(G)(bold(tau)) | s_0, pi]$
-+ Repeat to improve estimate! $hat(bb(E))_k [cal(G)(bold(tau)) | s_0, pi]$
-
-==
-
-$ argmin_(pi_V) sum_(s_0 in S) (V(s_0, pi, pi_V) - hat(bb(E))[cal(G)(bold(tau)) | s_0; pi])^2 $
-
-
-+ Run our policy in the environment
-+ Collect a trajectory $bold(tau)$
-// + Create subtrajectories $bold(tau)_(0:), bold(tau)_(1:), dots $
-+ Compute the return of the trajectory $cal(G)(bold(tau))$
-+ Now we have $hat(bb(E))_1[cal(G)(bold(tau)) | s_0, pi]$
-+ Repeat to improve estimate! $hat(bb(E))_k [cal(G)(bold(tau)) | s_0, pi]$
-
-TODO: All $s_0$ in $tau$
-
-We call this the *Monte Carlo objective*
-
-We approximate the return using monte carlo trajectories
-
-Note that we *do not* know $Tr$!
-
-==
-
-1. Execute policy in environment and collect trajectory
-
-```python
-terminated = False
-state = env.reset()
-trajectory, rewards = [], []
-while not terminated:
-    action_distribution = policy(s, pi)
-    action = sample(action_distribution)
-    next_state, reward, terminated = env.step(action)
-    trajectory.append((state, action))
-    rewards.append(reward)
-    state = next_state
-return trajectory, rewards
-```
-
-==
-2. Compute the return of the trajectory
-```python
-def G(rewards, gamma):
-    return sum(r * gamma ** t for t in range(len(rewards)))
-
-# Approximate E_1[G] empirically
-# Compute the return for s_0 in trajectory
-E_1g = G(rewards, gamma)
-# Inefficient! We can treat each s in trajectory as s_0
-# n datapoints for each trajectory length n
-E_ng = []
-for i in range(len(rewards)):
-    E_ng.append(G(rewards[i:]))
-```
-==
-
-3. Train! Learn the value of a policy 
-```python
-pi_V = jnp.zeros(len(S))
-def V(state, pi, pi_V):
-    return pi_V[state]
-
-def update_V(states, returns, pi, pi_V, alpha=0.01):
-    for s, g in zip(states, returns):
-        pi_V[s] +=  alpha * (g - V(s, pi, pi_V))
-    return pi_V
-
-# Update_V using trajectories and returns
-```
-*/
-/*
-==
-
-
-But they will *always* approximate
-$ 
-V(s_0, pi) = bb(E)[cal(G)(bold(tau)) | s_0; pi] = sum_(t=0)^oo gamma^t sum_(s_(t + 1) in S) cal(R)(s_(t+1)) dot Pr (s_(t + 1) | s_0; pi)
-$
-
-For example
-
-$ V(s_0, pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, pi] $
-==
-
-$ Pr (s_(n+1) | s_0; pi) &= sum_(a_0, dots, a_n in A) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; pi) \
- 
-bb(E)[cal(G)(bold(tau)) | s_0; pi] &= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; pi)
-$
-
-We call the policy-conditioned return the *value function*
-
-$ 
-V(s_0, pi) = bb(E)[cal(G)(bold(tau)) | s_0; pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; pi)
-$
-
-The value function tells us how valuable a state $s_0$ is for the policy
-*/
-
-
-
-/*
-==
-
-$ V(s_0, pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $
-
-Factor out initial timestep
-
-$ V(s_0, pi) = gamma^0 bb(E)[cal(R)(s_(1)) | s_0; pi] + sum_(t=1)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $
-
-$gamma$ goes away
-
-$ V(s_0, pi) = bb(E)[cal(R)(s_(1)) | s_0; pi] + sum_(t=1)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $
-
-==
-$ V(s_0, pi) = bb(E)[cal(R)(s_(1)) | s_0; pi] + sum_(t=1)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $
-
-Factor out another gamma
-
-$ V(s_0, pi) = bb(E)[cal(R)(s_(1)) | s_0; pi] + gamma sum_(t=1)^oo gamma^(t-1) bb(E)[cal(R)(s_(t+1)) | s_0; pi] $
-
-Change sum index
-
-$ V(s_0, pi) = bb(E)[cal(R)(s_(1)) | s_0; pi] + gamma sum_(t=0)^oo gamma^(t) bb(E)[cal(R)(s_(t+2)) | s_0; pi] $
-
-==
-$ V(s_0, pi) = bb(E)[cal(R)(s_(1)) | s_0; pi] + gamma sum_(t=0)^oo gamma^(t) bb(E)[cal(R)(s_(t+2)) | s_0; pi] $
-
-*/
-
-
-
-/*
-= Monte Carlo Tree Search
-
-==
-*Question:* Why is Prof. Steven showing these stupid equations again?
-
-We have already seen the expected return many times 
-
-All you did was change the silly notation
-
-$ 
-bb(E)[cal(G)(bold(tau)) | s_0, a_0, a_1, dots] => 
-bb(E)[cal(G)(bold(tau)) | s_0; pi]
-$
-
-We will use this silly change to improve trajectory optimization
-
-The improved form is called *Monte-Carlo Tree Search* MCTS
-
-AlphaGo uses the MCTS variant of trajectory optimization
-
-==
-Trajectory optimization constructs a very large tree to find
-
-$ bb(E)[cal(G)(bold(tau)) | s_0, a_0, a_1, dots] $
-
-Optimal policy was intractable with $O(|S| dot |A|)^n$ complexity
-
-==
-
-
-#text(size: 20pt)[#traj_opt_tree]
-
-==
-Trajectory optimization constructs a very large tree to find
-
-$ bb(E)[cal(G)(bold(tau)) | s_0, a_0, a_1, dots] $
-
-Optimal policy was intractable with $O(|S| dot |A|)^n$ complexity
-
-*Question:* Does depending on policy make it better? How?
-
-$ bb(E)[cal(G)(bold(tau)) | s_0, pi] $
-
-*Answer:* Only consider actions with support under the policy
-
-Let us do an example to build intuition
-
-//If policy has action with probability one, then $O(|S| dot 1)^n$
-
-//*Question:* Can we think of any policies like this?
-
-==
-*Example:*
-
-Imagine we found an ok policy, maybe from copying a human
-
-$ pi (a_t | s_t; pi) =  cases( 
-  0.8 "if" a_t = argmax_(a_t in A) bb(E)[cal(G)(bold(tau)) | s_0, pi], 
-  0.2 / (|A|) "otherwise"
-) $
-
-Policy is optimal for 80% of actions, suboptimal for 20% of actions
-
-*Question:* How could we improve trajectory optimization with $pi$? 
-
-Hint: Think about efficiency and the size of decision tree
-
-*Answer:* Only consider actions $pi$ would take
-
-==
-
-#traj_opt_tree
-
-==
-#traj_opt_tree_pruned
-
-==
-Rather than trying all $a in A$ or uniformly sampling $a in A$
-
-
-==
-$ pi (a_t | s_t; pi) =  cases( 
-  1 "if" a_t = argmax_(a_t in A) bb(E)[cal(G)(bold(tau)) | s_0, pi], 
-  0 "otherwise"
-) $
-
-*Intution:* Limiting the support of the policy distribution can create much smaller decision trees
-
-Not all distributions have limited support
-
-Human policy can be random, nonzero support everywhere
-
-Policy is a distribution
-
-We can sample actions from it
-
-Given full support, approaches the true decision tree in the limit
-
-==
-
-Call this approach *Monte-Carlo tree search* (MCTS)
-
-It's like gambling to approximate 
-
-AlphaGo uses 
-
-Reasoning LLMs (ChatGPT-o1) rumored to use MCTS
-
-Only expands likely actions
-
-https://vgarciasc.github.io/mcts-viz/
-
-*/
-==
-$ Pr (s_(n+1) | s_0; pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; pi) ) $
-
-$ 
-bb(E)[cal(G)(bold(tau)) | s_0; pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr(s_(n + 1) | s_n, a_n)
-$
-
-//product_(t=0)^n [ sum_(s_(t+1) in S) sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) pi (a_t | s_t; pi)] $
-
-This is a process:
-+ Given the state, compute the action distribution $pi (a_t | s_t; pi)$
-+ Given the action distribution, compute the next state distribution $Tr(s_(t+1) | s_t, a_t)$
-+ Given the next state distribution, compute the reward distribution $R(s_(t+1))$
-*/
