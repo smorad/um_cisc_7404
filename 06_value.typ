@@ -8,8 +8,6 @@
 #import "@preview/pinit:0.2.2": *
 
 
-// TODO 2026 this is too long, maybe do one lecture just MC and another TD
-
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
@@ -132,11 +130,7 @@
   header: self => utils.display-current-heading(level: 1)
 )
 
-// TODO: Maybe move done flag stuff to deep value
-
-// TODO: Should change from s_0 to s_i here as its required for homework
 // To train over the whole episode, not just the initial timestep -- make it clear 
-// TODO: derivation error marked in value function, search for "where does P(s_1 | s_0; pi) go?"
 // TODO MAYBE: Get rid of s_0, a_0 -- eventually transition to s_t, a_t?
 // Required for PG later on?
 // TODO: pi in the Q function doesn't make sense later
@@ -183,20 +177,14 @@
 
 ==
 Trajectory optimization is model-based algorithm #pause
-
-Guaranteed optimal policy, given infinite compute  #pause
-
-We must make approximations to implement trajectory optimization #pause
-
-These approximations break optimality guarantees #pause
+- Guaranteed optimal policy, given infinite compute  #pause
+- We must make approximations to implement trajectory optimization #pause
+- These approximations break optimality guarantees #pause
 
 Today, we will look at new algorithms based on the notion of *value* #pause
-
-Uses fewer approximations and can achieve optimal policy #pause
-
-Can model infinitely long returns  #pause
-
-Expensive to train, but very cheap to use
+- Uses fewer approximations and can achieve optimal policy #pause
+- Can model infinitely long returns  #pause
+- Expensive to train, but very cheap to use
 
 ==
 
@@ -205,8 +193,7 @@ Recall the return from trajectory optimization #pause
 $ [cal(G)(bold(tau)) | s_0, #pin(1)a_0, a_1, dots#pin(2)] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, #pin(3)a_0, a_1, dots#pin(4)] $ #pause
 
 This is an *action-conditioned* discounted return #pinit-highlight(1,2) #pinit-highlight(3,4) #pause
-
-Conditioned/dependent on a sequence of actions  #pause
+- Conditioned/dependent on a sequence of actions  #pause
 
 There is no structure to the actions #pause
 - Random #pause
@@ -232,7 +219,10 @@ $ pi (a_t | s_t) =  cases(
     $ a^*_0, a^*_1, dots = argmax_(a_0, a_1, dots) bb(E)[cal(G)(bold(tau)) | s_0, a_0, a_1, dots] $ #pause
 ]
 
-Must construct and evaluate decision tree at each timestep!
+Must construct and evaluate decision tree 
+
+==
+#traj_opt_tree
 
 ==
 
@@ -240,13 +230,15 @@ $ [cal(G)(bold(tau)) | s_0, #pin(1)a_0, a_1, dots#pin(2)] = sum_(t=0)^oo gamma^t
 
 $ pi: S |-> Delta A $ #pause
 
-We saw last time that this was intractable #pause
-- Need to truncate sum to $n$ timesteps #pause
-- Must search over infinitely many actions to predict $cal(G)(bold(tau))$ #pause
+Last time, we saw the tree became infinitely wide and deep #pause
 
-*Question:* Can we predict the infinite sum in finite time? #pause
+*Question:* Can we represent this infinite tree in finite space? #pause
 
-What if we condition on a policy, instead of specific actions?
+*Question:* Can we compute the infinite sum in finite time? #pause
+
+*Answer:* Yes, this is the promise of RL #pause
+
+We must condition on a policy $pi$ instead of specific actions
 
 ==
 
@@ -256,7 +248,7 @@ $ a_0 tilde pi (dot | s_0), quad a_1 tilde pi (dot | s_1), quad a_2 tilde pi (do
 
 Condition on a single $pi$ instead of many actions #pause
 
-$ bb(E) [cal(G)(bold(tau)) | s_0; pi] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $ #pause
+$ bb(E) [cal(G)(bold(tau)) | s_0; #redm[$pi$]] = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; #redm[$pi$]] $ #pause
 
 Remember, $pi (a | s)$ provides a distribution over the action space
 
@@ -269,12 +261,12 @@ bb(E) [cal(G)(bold(tau)) | s_0; pi] &= sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)
 $
 
 Now, return is conditioned on the policy $pi$ #pause
-    - The expectation is conditioned on a function #pause
+    - The expectation is conditioned on a function of distributions #pause
     - Right now you should be confused #pause
-        - I wrote $pi$ but this notation does not tell us anything #pause
-    - Remember $cal(R)(s_(t+1))$ hides the magic #pause
+        - I wrote $pi$ but this notation tells us nothing #pause
+    - This notation tells us nothing, we must expand the expectation #pause
 
-Let us see how $bb(E)[cal(R)(s_(t+1))]$ changes when we condition on $pi$
+Let us see how $bb(E)[cal(R)]$ changes when we condition on $pi$
 
 ==
 
@@ -286,9 +278,9 @@ $ bb(E) [cal(G)(bold(tau)) | s_0, a_0, a_1, dots] =  sum_(t=0)^oo gamma^t cal(R)
 
 $ Pr(s_(t+1) | s_0, a_0, dots, a_t) => Pr (s_(t+1) | s_0; pi) $ #pause
 
-It is still not clear! Remember $Pr (s_(t+1) | s_0; pi)$ hides $Tr$
+It is still not clear! Remember $Pr (s_(t+1) | s_0; pi)$ hides $Tr$ #pause
 
-*Question:* What was $Tr(s_(t+1) | s_t, a_t)$? #pause
+*Question:* What was $Tr$? #pause
 
 *Answer:* State transition function  
 
@@ -362,12 +354,12 @@ $ Pr (s_(n+1) | s_0, a_0, a_1, dots) &= sum_(s_1, dots, s_n in S) product_(t=0)^
 Pr (s_(n+1) | s_0; #redm[$pi$]) &= sum_(s_1, dots, s_n in S) product_(t=0)^n ( underbrace(#redm[$sum_(a_t in A)$] Tr(s_(t+1) | s_t, a_t) dot #redm[$pi (a_t | s_t)$], "Depends on prob. of each action under" pi) ) $ #pause
 
 This gives us the state distribution at time $n+1$ if we follow policy $pi$ #pause
-- *Marginalize* out the action by summing across all possible actions
+- We *marginalize* the action by summing across all possible actions
 
 ==
 $ Pr (s_(n+1) | s_0; pi) &= sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t) ) $ #pause
 
-And we can plug this back into the expected return #pause
+Plug this back into the expected return #pause
 
 $ bb(E)[cal(G)(bold(tau)) | s_0; pi] =& #pause sum_(s_1 in S) cal(R)(s_1) dot Pr (s_1 | s_0; pi) \ #pause
 + gamma & sum_(s_2 in S) cal(R)(s_2) dot Pr (s_2 | s_0; pi) \ #pause
@@ -395,8 +387,9 @@ $ Pr (s_(n+1) | s_0; pi) &= sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t
 bb(E)[cal(G)(bold(tau)) | s_0; pi] &= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; pi) #pause
 $
 
-These two equations form the basis of all reinforcement learning #pause
+These two equations form the basis for all reinforcement learning #pause
 - DQN, DDPG, SAC, A3C, PPO, GRPO, etc #pause
+- ChatGPT, DeepSeek, Qwen, Claude, etc #pause
 - You must understand it! #pause
 
 *Goal:* Find $pi$ to maximize the expected return
@@ -417,7 +410,9 @@ $ V(s_0, pi) = bb(E)[cal(G)(bold(tau)) | s_0; pi] =  sum_(n=0)^oo gamma^n sum_(s
 $ V(s_0, pi) = bb(E)[cal(G)(bold(tau)) | s_0; pi] =  sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; pi) $ #pause
 
 Named the value function because $V$ tells us the value of any state $s_0$ #pause
-- Value $=$ expected return *under the current policy $pi$* #pause
+- Value $=$ expected return *following the policy $pi$* #pause
+
+*Example:*
 
 #side-by-side[
     $s = 240 "km/h"$ #pause   
@@ -505,12 +500,13 @@ Where should you live?
 = Temporal Difference Value Functions
 ==
 
-*Note:* We can write the value function in different ways #pause
-- Always approximates the expected discounted return starting from $s_0$ #pause
+We can write the value function in different ways #pause
+- Always represents the same thing (policy-conditioned return)  #pause
 
 We call the following equation the *Monte Carlo* value function 
 
-$ V(s_0, pi) =  sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; pi) $ #pause
+//$ V(s_0, pi) =  sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; pi) $ #pause
+$ V(s_0, pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $ #pause
 
 Difficult to compute the Monte Carlo value function #pause
 - How can we compute an infinite sum!? #pause
@@ -518,53 +514,52 @@ Difficult to compute the Monte Carlo value function #pause
     - Let's see if there is a better solution, try to rewrite infinite sum
 
 ==
+$ V(s_0, pi) = sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; pi] $ #pause
+
+First, expand the expectation into a sum #pause
 
 $ V(s_0, pi) = sum_(t=0)^oo gamma^t sum_(s_(t + 1) in S) cal(R)(s_(t+1)) dot Pr (s_(t + 1) | s_0; pi) $ #pause
 
 Factor out initial timestep $t=0$ out of the outer sum #pause
 
-$ V(s_0, pi) = gamma^0 sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(t=1)^oo gamma^t sum_(s_(t + 1) in S) cal(R)(s_(t+1)) dot Pr (s_(t + 1) | s_0; pi) $
+$ = gamma^0 sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) + sum_(t=1)^oo gamma^t sum_(s_(t + 1) in S) cal(R)(s_(t+1)) dot Pr (s_(t + 1) | s_0; pi) $
 
 ==
 
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(t=1)^oo gamma^t sum_(s_(t + 1) in S) cal(R)(s_(t+1)) dot Pr (s_(t + 1) | s_0; pi) $ #pause
+$ = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) + sum_(t=1)^oo gamma^t sum_(s_(t + 1) in S) cal(R)(s_(t+1)) dot Pr (s_(t + 1) | s_0; pi) $ #pause
 
 Rewrite sum starting from $t=0$ #pause
 
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(t=0)^oo gamma^(t+1) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) dot Pr (s_(t + 2) | s_0; pi) $
-
-==
-
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(t=0)^oo gamma^(t+1) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) dot Pr (s_(t + 2) | s_0; pi) $ #pause
+$ = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) + sum_(t=0)^oo gamma^(t+1) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) dot Pr (s_(t + 2) | s_0; pi) $ #pause
 
 Factor out $gamma$ #pause
 
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) dot Pr (s_(t + 2) | s_0; pi) $
+$ = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) dot Pr (s_(t + 2) | s_0; pi) $
 
 ==
 
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) dot Pr (s_(t + 2) | s_0; pi) $ #pause
+$ = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) dot Pr (s_(t + 2) | s_0; pi) $ #pause
 
 Split $Pr$ using Markov property #pause
 
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) sum_(s_1) Pr (s_(t + 2) | s_(1); pi) Pr (s_(1) | s_0; pi) $
+$ = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) sum_(s_1) Pr (s_(t + 2) | s_(1); pi) Pr (s_(1) | s_0; pi) $
 
 ==
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) sum_(s_1) Pr (s_(t + 2) | s_(1); pi) Pr (s_(1) | s_0; pi) $ #pause
+$ = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2)) sum_(s_1) Pr (s_(t + 2) | s_(1); pi) Pr (s_(1) | s_0; pi) $ #pause
 
 Exchange sums #pause
 
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(s_1) gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); pi) Pr (s_(1) | s_0; pi) $
+$ = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(s_1) gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); pi) Pr (s_(1) | s_0; pi) $
 
 ==
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(s_1) gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); pi) Pr (s_(1) | s_0; pi) $ #pause
+$ = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(s_1) gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); pi) Pr (s_(1) | s_0; pi) $ #pause
 
-Now, we can pull out $Pr$ for first state
+Now, we can pull out $Pr$ for first state #pause
 
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(s_1) Pr (s_(1) | s_0; pi) dot gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); pi) $
+$ = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(s_1) Pr (s_(1) | s_0; pi) dot gamma sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); pi) $
 
 ==
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(s_1) Pr (s_(1) | s_0; pi) dot gamma #pin(1)sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); pi)#pin(2) $ #pause
+$ = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(s_1) Pr (s_(1) | s_0; pi) dot gamma #pin(1)sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); pi)#pin(2) $ #pause
 
 *Question:* What is this term? Hint: #pinit-highlight(1,2) #pause
 
@@ -574,10 +569,6 @@ $ V(s_1, pi) = sum_(t=0)^oo gamma^t sum_(s_(t + 2) in S) cal(R)(s_(t+2)) Pr (s_(
 
 ==
 
-// TODO: Error here, where does P(s_1 | s_0; pi) go?
-
-// ... (Everything above this is perfectly correct!)
-
 $ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) dot Pr (s_( 1) | s_0; pi) \ + sum_(s_1 in S) Pr (s_(1) | s_0; pi) dot gamma underbrace(sum_(t=0)^oo gamma^(t) sum_(s_(t + 2) in S) cal(R)(s_(t+2))  Pr (s_(t + 2) | s_(1); pi), V(s_1, pi)) $ #pause
 
 Replace infinite sum with value function #pause
@@ -585,30 +576,34 @@ Replace infinite sum with value function #pause
 $ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) Pr (s_( 1) | s_0; pi) + sum_(s_ 1 in S) Pr (s_( 1) | s_0; pi) dot gamma V(s_1, pi) $
 
 ==
+$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) Pr (s_( 1) | s_0; pi) + sum_(s_ 1 in S) Pr (s_( 1) | s_0; pi) dot gamma V(s_1, pi) $
 
-$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) Pr (s_( 1) | s_0; pi) + sum_(s_ 1 in S) Pr (s_( 1) | s_0; pi) dot gamma V(s_1, pi) $ #pause
+Factor out gamma and rearrange terms for better clarity #pause
 
-Both terms share a sum, random variable, and probability #pause
+$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) Pr (s_( 1) | s_0; pi) + gamma sum_(s_ 1 in S) V(s_1, pi) Pr (s_( 1) | s_0; pi) $
 
-*Question:* $sum_(s_ 1 in S) Pr (s_( 1) | s_0; pi)$ is special, what is it? #pause
 
-$ bb(E)[cal(X)] = sum_(omega in Omega) Pr(omega) dot cal(X)(omega) $ #pause
+==
 
-$ V(s_0, pi) = bb(E)[cal(R)(s_1)| s_0; pi] + bb(E)[gamma V(s_1, pi) | s_0; pi] $ #pause
+$ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) Pr (s_( 1) | s_0; pi) + gamma sum_(s_ 1 in S) V(s_1, pi) Pr (s_( 1) | s_0; pi) $ #pause
 
-$ V(s_0, pi) = bb(E)[cal(R)(s_1)| s_0; pi] + gamma bb(E)[V(s_1, pi) | s_0; pi] $
+Both terms have a familiar form #pause
 
+*Question:* Sum over outcomes and probabilities is special. What is it? #pause
+
+$ bb(E)[cal(X)] = sum_(omega in Omega) cal(X)(omega) dot Pr(omega) $ #pause
+
+$ V(s_0, pi) = bb(E)[cal(R)(s_1)| s_0; pi] +gamma bb(E)[V(s_1, pi) | s_0; pi] $ 
 
 ==
 
 $ V(s_0, pi) = bb(E)[cal(R)(s_1)| s_0; pi] + gamma bb(E)[V(s_1, pi) | s_0; pi] $ #pause
 
-This is a huge finding! #pause
-- Value function has a recursive definition #pause
-- Can represent infinite sum (return) with one addition #pause
+Huge finding: the value function has a recursive definition #pause
+- No more infinite sum! #pause
+- Represents infinite tree and infinite sum in finite time/space #pause
 
 We call this the *Temporal Difference* (TD) value function #pause
-- Compute the return with a single transition $s_0 -> s_1$ #pause
 - Evaluate infinite-depth decision tree with one function 
 
 ==
@@ -676,20 +671,20 @@ We can derive the Q function from the value function
 ==
 $ V(s_0, pi) = bb(E)[cal(R)(s_1)| s_0; pi] + gamma bb(E)[V(s_1, pi) | s_0; pi] $ #pause
 
-First step, our new function is called $Q$
+First step, our new function is called $Q$ #pause
 
 $ Q(s_0, pi) = bb(E)[cal(R)(s_1)| s_0; pi] + gamma bb(E)[V(s_1, pi) | s_0; pi] $ #pause
 
-$Q$ conditions on action $a_0$
+$Q$ conditions on action $a_0$ #pause
 
-$ V(s_0, a_0, pi) = bb(E)[cal(R)(s_1)| s_0, a_0; pi] + gamma bb(E)[V(s_1, pi) | s_0, a_0; pi] $ #pause
+$ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1)| s_0, a_0; pi] + gamma bb(E)[V(s_1, pi) | s_0, a_0; pi] $ 
 
 ==
-$ V(s_0, a_0, pi) = bb(E)[cal(R)(s_1)| s_0, a_0; pi] + gamma bb(E)[V(s_1, pi) | s_0, a_0; pi] $ #pause
+$ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1)| s_0, a_0; pi] + gamma bb(E)[V(s_1, pi) | s_0, a_0; pi] $ #pause
 
 *Question:* Does the expected reward rely on $pi$? #pause
 
-*Answer:* No! $pi$ has no effect because we only consider action $a_0$! #pause
+*Answer:* No! $pi$ has no effect because we take action $a_0$ #pause
 - The transition function is $Tr(s_1 | s_0, a_0)$, no need for $pi$ #pause
 
 $ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[V(s_1, pi) | s_0, a_0; pi] $ #pause
@@ -706,7 +701,7 @@ $ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma sum_(s_1 in S) V(s_1, 
 
 Expectation does not rely on $pi$ because we take action $a_0$
 
-$ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma sum_(s_1 in S) V(s_1, pi) dot Pr (s_1 | s_0, a_0) $ #pause
+$ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma sum_(s_1 in S) V(s_1, pi) dot Tr (s_1 | s_0, a_0) $ #pause
 
 $ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[V(s_1, pi) | s_0, a_0] $ 
 
@@ -722,7 +717,7 @@ $ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, pi) 
 
 *Problem:* Second term relies on $a_1$ but we only give $a_0$ as input!
 
-*Solution:* Choose $a_1 tilde pi(dot | s_0)$
+*Solution:* Choose $a_1 tilde pi(dot | s_1)$
 
 $ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, pi) | s_0, a_0, pi] $ 
 
@@ -731,14 +726,16 @@ Let's compare $V$ to $Q$ #pause
 
 $ V(s_0, pi) &= bb(E)[cal(R)(s_1) | s_0; pi] &&+ gamma bb(E)[V(s_1, pi) | s_0; pi] \ #pause
 
+Q(s_0, a_0, pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] &&+ gamma bb(E)[V(s_1, pi) | s_0, a_0] \ #pause
+
 Q(s_0, a_0, pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] &&+ gamma bb(E)[Q(s_1, a_1, pi) | s_0, a_0; pi] $ #pause
 
-// TODO HIGHLIGHT FIRST TERM
 
 They are almost the same #pause
-- In fact, as we saw earlier we can write $Q$ in terms of $V$ #pause
-- The only difference is $Q$ relies on an initial action $a_0$ #pause
-    - This changes the expectation of the reward (very important)
+- Can write $Q$ in terms of $V$ (second equation) #pause
+- The second term is nearly the same for $V$ and $Q$
+- The major difference is $Q$ relies on an initial action $a_0$ #pause
+    - This will be important in future lectures
 
 = Greedy Q
 ==
@@ -776,18 +773,16 @@ If you know your $Q$ function, you can always take the best action #pause
 - Maximum happiness throughout your life
 
 ==
-$ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, pi) | s_0, a_0; pi] $ 
+$ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, pi) | s_0, a_0; pi] $ #pause
 
 The Q function tells us the *value of an action $a_0$* in state $s_0$ #pause
-
-// TODO HIGHLIGHT
 
 *Question:* How can we create a policy from the Q function? #pause
 
 Hint: Evaluate $Q$ for every action: $Q(s_0, a_A, pi), Q(s_0, a_B, pi), dots$ #pause
 
-$ pi(a | s) = cases(
-    1 "if" a = argmax_(a_0 in A) Q(s, a_0, pi),
+$ pi(a_0 | s_0) = cases(
+    1 "if" a_0 = argmax_(a in A) Q(s_0, a, pi),
     0 "otherwise"
 ) $ #pause
 
@@ -796,8 +791,8 @@ This is an optimal greedy policy
 ==
 $ Q(s_0, a_0, pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, pi) | s_0, a_0; pi] $ #pause
 
-$ pi(a | s) = cases(
-    1 "if" a = argmax_(a_0 in A) Q(s, a_0, pi),
+$ pi(a_0 | s_0) = cases(
+    1 "if" a_0 = #pin(1)argmax_(a in A)#pin(2) Q(s_0, a, pi),
     0 "otherwise"
 ) $ #pause
 
@@ -805,32 +800,32 @@ $Q$ relies on $pi$, and $pi$ relies on $Q$ #pause
 - Now that we know $pi$, we can simplify/rewrite $Q$ #pause
 
 *Question:* How? #pause // TODO Highlight argmax above for hint
+#pinit-highlight(1,2) #pause
 
-$ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0] $ #pause
+$ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a in A) Q(s_1, a) | s_0, a_0] $ 
 
 ==
 
-$ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0] $ #pause
+$ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a in A) Q(s_1, a) | s_0, a_0] $ #pause
 
-This is a very powerful equation #pause
-- Compute $Q(s_0, a_0)$ for all $a_0$ #pause
-- Pick the $a_0$ that maximizes $Q(s_0, a_0)$ #pause
-- This $a_0$ is *guaranteed* to be the optimal action #pause
+$ pi(a_0 | s_0) = cases(
+    1 "if" a_0 = argmax_(a in A) Q(s_0, a),
+    0 "otherwise"
+) $ #pause
 
-This considers the effect of $a_0$ on the *infinite* future #pause
+Because of the Markov property, we can apply this to any timestep #pause
+
+$ Q(s_t, a_t) = bb(E)[cal(R)(s_t) | s_t, a_t] + gamma bb(E)[max_(a in A) Q(s_(t+1), a) | s_t, a_t] $ #pause
+
+$ pi(a_t | s_t) = cases(
+    1 "if" a_t = argmax_(a in A) Q(s_t, a),
+    0 "otherwise"
+) $ #pause
 
 = Q Learning
 
 ==
 With greedy $Q$, we can introduce the $Q$ learning algorithm #pause
-```python
-Q = initialize()
-for epoch in epochs:
-    # Collect dataset from traversing MDP
-    E = collect_episode(Q)
-    # Update Q function to improve accuracy
-    Q = update(E, Q)
-```
 
 Q learning is an iterative *model-free* algorithm #pause
 
@@ -856,47 +851,88 @@ Q learning is old but still popular today #pause
 - Researchers are still improving it#footnote[_Simplifying Deep Temporal Difference Learning._ ICLR. 2024.] #footnote[_Exclusively Penalized Q-Learning for Offline Reinforcement Learning._ NeurIPS. 2025.] #pause
 - Our lab is using it in our research right now 
 
+==
+Q learning is a simple iterative algorithm
+
+```python
+Q = initialize()
+for epoch in epochs:
+    # Collect dataset by traversing MDP
+    E = collect_episode(Q)
+    # Update Q function to improve accuracy
+    Q = update(E, Q)
+```
+
 
 ==
-$ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0] $ #pause
+First, how can we model $Q$? #pause
+- However you want: polynomials, linear functions, neural networks #pause
 
-$ pi(a | s) = cases(
-    1 "if" a = argmax_(a_0 in A) Q(s, a_0, pi),
+For now, we will model $Q$ as an $S times A$ matrix #pause
+- Each state is a row, each action is a column #pause
+
+$
+Q(S_i, A_j) = mat(
+    Q(S_1, A_1), Q(S_1, A_2), dots;
+    Q(S_2, A_1), Q(S_2, A_2), dots;
+    dots.v, dots.v, dots.down, 
+)_(i, j)
+$ #pause
+
+$Q_(i,j)$ gives Q value for state $s=S_i$ and action $a=A_j$
+
+==
+*Question:* How to initialize $Q$? #pause
+
+*Answer:* Many different ways. For homework, keep it simple #pause
+
+$ Q(s, a) = bold(0) $ #pause
+
+Next, let us learn $Q$
+
+
+==
+$ Q(s_t, a_t) = bb(E)[cal(R)(s_(t+1)) | s_t, a_t] + gamma bb(E)[max_(a in A) Q(s_(t+1), a) | s_0, a_0] $ #pause
+
+$ pi(a_t | s_t) = cases(
+    1 "if" a_t = argmax_(a in A) Q(s_t, a),
     0 "otherwise"
 ) $ #pause
 
-In $Q$ learning, we focus on learning $Q$ #pause
+In $Q$ learning, we update $Q$ iteratively #pause
 - If we find the $Q$ function, we find an optimal policy: $argmax_(a) Q(s, a)$
+
+Let us see how to update $Q$
 
 
 ==
-We have an equality we can use to learn $Q$ #pause
+Start with our Q function definition #pause
 
-$ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0] $ #pause
+$ Q(s_t, a_t) = bb(E)[cal(R)(s_(t+1)) | s_t, a_t] + gamma bb(E)[max_(a in A) Q(s_(t+1), a) | s_t, a_t] $ #pause
 
-Move $Q$ to the right hand side, their sum should be zero #pause
+We want an objective we can minimize, move all terms to one side #pause
 
-$ 0 = Q(s_0, a_0) - (bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0]) $ #pause
+$ 0 = Q(s_t, a_t) - (bb(E)[cal(R)(s_(t+1)) | s_t, a_t] + gamma bb(E)[max_(a in A) Q(s_(t+1), a) | s_t, a_t]) $ #pause
 
 If the sum is nonzero, then $Q$ has error $eta$ #pause
 
-$ eta = Q(s_0, a_0) - (bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0]) $ 
+$ eta = Q(s_t, a_t) - (bb(E)[cal(R)(s_(t+1)) | s_t, a_t] + gamma bb(E)[max_(a in A) Q(s_(t+1), a) | s_t, a_t]) $ 
 
 ==
-$ eta = Q(s_0, a_0) - (bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0]) $ #pause
+$ eta = Q(s_t, a_t) - (bb(E)[cal(R)(s_(t+1)) | s_t, a_t] + gamma bb(E)[max_(a in A) Q(s_(t+1), a) | s_t, a_t]) $ #pause
 
 We can use the error $eta$ to improve $Q$ with learning rate $alpha$ #pause
 
-$ Q_(i+1)(s_0, a_0) = Q_(i)(s_0, a_0) - alpha dot eta $ #pause
+$ Q_(i+1)(s_t, a_t) = Q_(i)(s_t, a_t) - alpha dot eta $ #pause
 
 $Q_(i+1)$ will converge to zero error #pause
 
 $ lim_(i -> oo) eta = 0 $ #pause
 
-Then we learned a perfect $Q$!
+If $eta=0$, we learned a perfect $Q$!
 
 ==
-$ eta = Q(s_0, a_0) - (bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a_1 in A) Q(s_1, a_1) | s_0, a_0]) $ #pause
+$ eta = Q(s_t, a_t) - (bb(E)[cal(R)(s_(t+1)) | s_t, a_t] + gamma bb(E)[max_(a in A) Q(s_(t+1), a) | s_t, a_t]) $ #pause
 
 *Question:* There are expectations here, how do we evaluate this error? #pause
 
@@ -922,31 +958,32 @@ $ eta = Q(s_t, a_t) - r_t + not d gamma max_(a in A) Q(s_(t+1), a) $
 ==
 *Definition:* Temporal Difference Q Learning #pause
 
-Given some training data 
-
-$ bold(E) = mat(s_0, a_0, r_0, d_0; s_1, a_1, r_1, d_1; dots.v, dots.v, dots.v, dots.v) $ #pause
+#side-by-side(align: horizon)[
+    Given some training data 
+][
+    $ bold(E) = mat(s_0, a_0, r_0, d_0; s_1, a_1, r_1, d_1; dots.v, dots.v, dots.v, dots.v) $ #pause
+]
 
 We iteratively update $Q$ via the following objective until convergence #pause 
 
-$ Q_(i+1)(s_t, a_t) &= Q_(i)(s_t, a_t) - alpha dot eta \ #pause
-eta &= Q(s_t, a_t) - r_t + not d gamma max_(a in A) Q(s_(t+1), a) $ #pause
+$ Q_(i+1)(s_t, a_t) &= Q_(i)(s_t, a_t) - alpha underbrace([ Q_i (s_t, a_t) - (r_t + not d gamma max_(a in A) Q_i (s_(t+1), a)) ], eta) $ #pause
 
 with learning rate $alpha$
 
 ==
 *Definition:* Monte Carlo Q Learning #pause
 
-Given some training data 
-
-$ bold(E) = mat(s_0, a_0, r_0, d_0; s_1, a_1, r_1, d_1; dots.v, dots.v, dots.v, dots.v) $ #pause
-
+#side-by-side(align: horizon)[
+    Given some training data 
+][
+    $ bold(E) = mat(s_0, a_0, r_0, d_0; s_1, a_1, r_1, d_1; dots.v, dots.v, dots.v, dots.v) $ #pause
+]
 We iteratively update $Q$ via the following objective until convergence #pause 
 
-$ Q_(i+1)(s_t, a_t) &= Q_(i)(s_t, a_t) - alpha dot eta \ #pause
-eta &= Q(s_t, a_t) - sum_(k=t)^oo not d gamma^k r_k $ 
+$ Q_(i+1)(s_t, a_t) &= Q_(i)(s_t, a_t) - alpha underbrace([ Q_i (s_t, a_t) - sum_(k=t)^oo not d gamma^(k-t) r_k ], eta) $ 
 
 ==
-Last thing, we must collect episodes to train Q! #pause
+Last thing, we must collect episodes to train Q #pause
 - Must run policy in environment to collect episodes #pause
 
 ```python
@@ -966,7 +1003,7 @@ episode = (states, next_states, rewards, terminateds)
 What policy do we sample actions from? #pause
 
 $ pi (a_t | s_t) = cases(
-    1 "if" a_t = argmax_(a in A) Q(s_t, a_0),
+    1 "if" a_t = argmax_(a in A) Q(s_t, a),
     0 "otherwise"
 ) $ #pause
 
@@ -981,7 +1018,7 @@ If Q function is wrong, always sample bad actions #pause
 
 ==
 $ pi (a_t | s_t) = cases(
-    1 "if" a_t = argmax_(a in A) Q(s_t, a_0),
+    1 "if" a_t = argmax_(a in A) Q(s_t, a),
     0 "otherwise"
 ) $ #pause
 
@@ -1001,35 +1038,9 @@ Can we visualize Q learning? #pause
 
 Navigation example, reward of 1 for reaching center tile #pause
 
-https://user-images.githubusercontent.com/1883779/113412338-97430100-93d5-11eb-856c-ef0f420d1acb.gif #pause
+https://user-images.githubusercontent.com/1883779/113412338-97430100-93d5-11eb-856c-ef0f420d1acb.gif
 
 // https://mohitmayank.com/interactive_q_learning/q_learning.html
-
-==
-
-So far: #pause
-- Defined training objective (TD and MC updates) #pause
-- Defined dataset (episodes) #pause
-- Need to define model (Q function)! #pause
-
-Next time, we will use deep neural networks #pause
-
-Today and for homework, use a simple matrix
-
-==
-Model the Q function as a matrix #pause
-
-Each state is a row, each action is a column in a matrix #pause
-
-$
-mat(
-    Q(S_1, A_1), Q(S_1, A_2), dots;
-    Q(S_2, A_1), Q(S_2, A_2), dots;
-    dots.v, dots.v, dots.down, 
-)
-$ #pause
-
-$Q_(i,j)$ gives Q value for state $s=S_i$ and action $a=A_j$
 
 = Homework
 
@@ -1039,7 +1050,5 @@ You have everything you need to solve homework #pause
 Due in 13 days (Weds 15 March, 23:59) #pause
 
 Download and submit `.py` and `.ipynb` files #pause
-
-Uses turnitin for checking #pause
 
 https://colab.research.google.com/drive/1xtBxAaVc3ax6_j59RC3NLQQPFcIEoau-?usp=sharing
