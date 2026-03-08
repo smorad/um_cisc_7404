@@ -7,6 +7,17 @@
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
+// TODO 2026: Make it clear TD still relies on policy
+// and max operator is shorthand/implicit policy
+// then delete this from lecture 7
+
+// TODO 2026: We should not say TD/MC
+// Instead say Q learning and SARSA
+// Q learning is defined to be different than SARSA
+// Current writeup is likely confusing
+
+// TODO 2026: Perhaps mix done into gamma
+
 
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
@@ -117,6 +128,7 @@
 
 
 #show: university-theme.with(
+  config-common(handout: true),
   aspect-ratio: "16-9",
   config-info(
     title: [Value],
@@ -131,7 +143,6 @@
 )
 
 // To train over the whole episode, not just the initial timestep -- make it clear 
-// TODO MAYBE: Get rid of s_0, a_0 -- eventually transition to s_t, a_t?
 // Required for PG later on?
 // TODO: pi in the Q function doesn't make sense later
 // Go ahead and look at lecture 10, even for DDPG it is confusing
@@ -139,29 +150,6 @@
 // Use Q_(pi) for value-based methods
 // TODO: In equations, introduce Q - y, where y is label instead of single equation
     // Draws parallels to supervised learning
-
-
-// Problems with MPC, cannot do infinite
-// What if I told you we could build an infinitely deep tree?
-// Start with original E[G]
-// Introduce a policy into E[G], write out big equation
-// Introduce value function
-// Call this a value function
-// Value of a state
-// Examples of valuable states
-    // Studying no reward, but valuable because of return
-// Value functions
-// Value iteration (still needs model)
-// Value function objectives (MC)
-// Infinite step hard to determine
-// Derive TD
-// Value iteration with TD
-// What if we don't know the model?
-// Introduce TD learning
-// Introduce SARSA 
-// Introduce Q learning
-// Q learning exercise (frozenlake)
-// Training loop
 
 #title-slide()
 
@@ -296,38 +284,38 @@ Policy $pi$ outputs a distribution over the action space #pause
 
 *Question:* What is $Pr (s_(t+1) | s_t; pi)$? #pause Hint: Consider all possible actions #pause
 
-$ Pr (s_(t+1) | s_t; pi) = sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; pi) $ #pause
+$ Pr (s_(t+1) | s_t; pi) = sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t) $ #pause
 
 Combines the policy distribution and the next state distribution
 
 /*
 ==
 
-$ Pr (s_(t+1) | s_t; pi) = sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; pi) $ #pause
+$ Pr (s_(t+1) | s_t; pi) = sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t) $ #pause
 
 Write out the first few timesteps #pause
 
-$ Pr (s_1 | s_0; pi) &= sum_(a_0 in A) Tr(s_1 | s_0, a_0) dot pi (a_0 | s_0; pi) \ #pause
+$ Pr (s_1 | s_0; pi) &= sum_(a_0 in A) Tr(s_1 | s_0, a_0) dot pi (a_0 | s_0) \ #pause
 
-Pr (s_2 | s_0; pi) &= sum_(s_1 in S) sum_(a_1 in A) Tr(s_2 | s_1, a_1) dot pi (a_1 | s_1; pi) \ 
-& quad quad dot sum_(a_0 in A) Tr(s_1 | s_0, a_0) dot pi (a_0 | s_0; pi)
+Pr (s_2 | s_0; pi) &= sum_(s_1 in S) sum_(a_1 in A) Tr(s_2 | s_1, a_1) dot pi (a_1 | s_1) \ 
+& quad quad dot sum_(a_0 in A) Tr(s_1 | s_0, a_0) dot pi (a_0 | s_0)
 $
 
 ==
 
-$ Pr (s_1 | s_0; pi) &= sum_(a_0 in A) Tr(s_1 | s_0, a_0) dot pi (a_0 | s_0; pi) \
+$ Pr (s_1 | s_0; pi) &= sum_(a_0 in A) Tr(s_1 | s_0, a_0) dot pi (a_0 | s_0) \
 
-Pr (s_2 | s_0; pi) &= sum_(s_1 in S) sum_(a_1 in A) Tr(s_2 | s_1, a_1) dot pi (a_1 | s_1; pi) \ 
-& quad quad dot sum_(a_0 in A) Tr(s_1 | s_0, a_0) dot pi (a_0 | s_0; pi)
+Pr (s_2 | s_0; pi) &= sum_(s_1 in S) sum_(a_1 in A) Tr(s_2 | s_1, a_1) dot pi (a_1 | s_1) \ 
+& quad quad dot sum_(a_0 in A) Tr(s_1 | s_0, a_0) dot pi (a_0 | s_0)
 $ #pause
 
 Derive a general form for $Pr (s_(n+1) | s_0; pi)$ #pause
 
-$ Pr (s_(n+1) | s_0; pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; pi) ) $
+$ Pr (s_(n+1) | s_0; pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t) ) $
 
 ==
 
-$ Pr (s_(n+1) | s_0; pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; pi) ) $ #pause
+$ Pr (s_(n+1) | s_0; pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t) ) $ #pause
 
 Plug back into our expected reward #pause
 
@@ -581,7 +569,6 @@ $ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) Pr (s_( 1) | s_0; pi) + sum_(s_ 1 i
 Factor out gamma and rearrange terms for better clarity #pause
 
 $ V(s_0, pi) = sum_(s_ 1 in S) cal(R)(s_(1)) Pr (s_( 1) | s_0; pi) + gamma sum_(s_ 1 in S) V(s_1, pi) Pr (s_( 1) | s_0; pi) $
-
 
 ==
 
@@ -888,22 +875,10 @@ $Q_(i,j)$ gives Q value for state $s=S_i$ and action $a=A_j$
 
 $ Q(s, a) = bold(0) $ #pause
 
-Next, let us learn $Q$
-
-
-==
-$ Q(s_t, a_t) = bb(E)[cal(R)(s_(t+1)) | s_t, a_t] + gamma bb(E)[max_(a in A) Q(s_(t+1), a) | s_0, a_0] $ #pause
-
-$ pi(a_t | s_t) = cases(
-    1 "if" a_t = argmax_(a in A) Q(s_t, a),
-    0 "otherwise"
-) $ #pause
+Next, let us learn $Q$ #pause
 
 In $Q$ learning, we update $Q$ iteratively #pause
 - If we find the $Q$ function, we find an optimal policy: $argmax_(a) Q(s, a)$
-
-Let us see how to update $Q$
-
 
 ==
 Start with our Q function definition #pause
@@ -980,7 +955,7 @@ with learning rate $alpha$
 ]
 We iteratively update $Q$ via the following objective until convergence #pause 
 
-$ Q_(i+1)(s_t, a_t) &= Q_(i)(s_t, a_t) - alpha underbrace([ Q_i (s_t, a_t) - sum_(k=t)^oo not d gamma^(k-t) r_k ], eta) $ 
+$ Q_(i+1)(s_t, a_t, pi) &= Q_(i)(s_t, a_t, pi) - alpha underbrace([ Q_i (s_t, a_t, pi) - sum_(k=t)^oo not d gamma^(k-t) r_k ], eta) $ 
 
 ==
 Last thing, we must collect episodes to train Q #pause

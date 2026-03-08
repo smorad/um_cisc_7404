@@ -1,5 +1,5 @@
-#import "@preview/algorithmic:0.1.0"
-#import algorithmic: algorithm
+#import "@preview/algorithmic:1.0.6"
+#import algorithmic: style-algorithm, algorithm-figure, algorithm
 #import "@preview/touying:0.6.1": *
 #import themes.university: *
 #import "common.typ": *
@@ -13,10 +13,14 @@
 // TODO: In equations, introduce Q - y, where y is label instead of single equation
     // Draws parallels to supervised learning
 
+// TODO 2026: Add formal definition slide for MC and TD DQN
+
+// TODO 2026: Remove square indices
+
 #show: university-theme.with(
   aspect-ratio: "16-9",
   config-info(
-    title: [Deep Value],
+    title: [Deep Q Networks],
     subtitle: [CISC 7404 - Decision Making],
     author: [Steven Morad],
     institution: [University of Macau],
@@ -25,6 +29,30 @@
   //config-common(handout: true),
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
+)
+
+#let sgd =  algorithm(
+  line-numbers: false,
+  {
+    import algorithmic: *
+    Procedure(
+      "Gradient Descent",
+      ($bold(X)$, $bold(Y)$, $cal(L)$, $t$, $alpha$),
+      {
+        Assign[$bold(theta)$][Random()]
+        For(
+          $i in {1 dots t}$,
+          {
+            Comment[Compute the gradient of the loss]        
+            Assign[$bold(J)$][$(gradient_bold(theta) cal(L))(bold(X), bold(Y), bold(theta))$]
+            Comment[Update the parameters using the negative gradient]
+            Assign[$bold(theta)$][$bold(theta) - alpha dot bold(J)$]
+          },
+        )
+        Return[$bold(theta)$]
+      },
+    )
+  }
 )
 
 #title-slide()
@@ -37,80 +65,34 @@
 
 
 = Admin
-
+== 
+Final project group choice due next week (15 March) #pause
+- Find a group of 3-5 people #pause
+  - Cannot be more, cannot be less #pause
+- Submit your group on Moodle
 ==
-I noticed the last 1 hour of class everyone looks tired and sad #pause
+Homework for this course is different from the Deep Learning course #pause
+- All 3 homeworks based on 3 consecutive lectures #pause
+- Last lecture
+- This lecture
+- Next lecture #pause
 
-Three hours is a long time to pay attention, especially at night #pause
+All RL is based on two algorithms: #pause
+- Q learning (last lecture, this lecture) #pause
+- Policy gradient (next lecture) #pause
 
-Would you prefer: #pause
-+ To have a long break (1.5h + 0.5h + 1h) in the middle? #pause
-+ No breaks, end lecture early after 2 or 2.25 hours #pause
-+ Keep as-is (approximately 3 hours + 10 min break)
-
-
-==
-
-*HW1 bug:* #pause
-
-There was a bug in the `update_Q_TD0` starter code, thanks He Zhe! #pause
-
-Before: 
-```python
-terminateds = jnp.concatenate([jnp.zeros(states.shape[0], dtype=bool), jnp.array([1], dtype=bool)])
-``` #pause
-
-After:
-```python
-terminateds = jnp.concatenate([jnp.zeros(states.shape[0] - 1, dtype=bool), jnp.array([1], dtype=bool)])
-```
-
-==
-$ Q_(i+1)(s_0, a_0, theta_pi) = Q_(i)(s_0, a_0, theta_pi) - alpha dot eta $ #pause
-
-#v(2em)
-
-$ eta = #pin(1)Q_(i)(s_0, a_0, theta_pi)#pin(2) - #pin(3) (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + #redm[$not d_0$] gamma max_(a in A) Q_i (s_1, a, theta_pi)) #pin(4) $ #pause
-
-
-#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Predicted value] #pause
-
-#pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: bottom, height: 1.2em)[Empirical value] #pause
-
-#v(1em)
-
-#text(fill: red)[小心!] If $s_1$ is a terminal state, future value is 0 ($not d_0="not terminated"$) #pause
-
-Without the $not d$ term, takes longer to train!
+If you understand Q learning and policy gradient, learning other algorithms is very easy 
 
 ==
 
-I thought about coding deep Q networks in class today #pause
+Difficult to choose good due dates #pause
+- Both assignments due 04.19 #pause
+- Finishing assignments early will help you with all future lectures #pause
+- Assignments are more difficult than deep learning #pause
+  - Takes longer to train #pause
+  - May need hyperparameter tuning #pause
+  - If you start on the last day, you cannot finish both assignments
 
-But I realize if I do this, then you will not learn as much #pause
-
-Learning to debug is the \#1 skill to succeed in reinforcement learning #pause
-
-Instead, *you* will implement deep Q learning for your second homework #pause
-
-Homework 2: #pause
-- Deep Q learning #pause
-- Deep policy gradient #pause
-
-Will release after homework 1 due date
-
-==
-
-Next quiz in 2-3 weeks #pause
-
-As before, I will announce the quiz one week before #pause
-
-Focus on #pause
-- Returns #pause
-- Value functions #pause
-- Q learning #pause
-- Deep Q learning #pause
-- Policy gradient
 
 = Review
 
@@ -220,21 +202,16 @@ We can combine layers to create a *deep* neural network #pause
 
 ==
 We can create different models for different tasks #pause
-
-Standard tasks: #pause Multi-layer perceptron (MLP) #pause
-
-Image tasks: #pause Convolutional neural network (CNN) #pause
-
-Temporal tasks: #pause Recurrent neural network (RNN) #pause
-
-Image, temporal tasks: Transformer
+- Standard tasks: #pause Multi-layer perceptron (MLP) #pause
+- Image tasks: #pause Convolutional neural network (CNN) #pause
+- Temporal tasks: #pause Recurrent neural network (RNN) #pause
+- Image, temporal tasks: Transformer
 
 ==
   What functions can we represent using deep neural networks? #pause
+    - Any continuous function in a closed interval #pause
 
-  A deep neural network is a *universal function approximator* #pause
-
-  It can approximate *any* continuous function $g(x)$ to precision $eta$ #pause
+  It can approximate any continuous function $g(x)$ to precision $eta$ #pause
 
   $ | g(bold(x)) - f(bold(x), bold(theta)) | < eta $ #pause
 
@@ -246,16 +223,14 @@ Image, temporal tasks: Transformer
 ==
 
 Finding $bold(theta)$ is an optimization problem #pause
-
-In particular, we optimize a *loss function* #pause
+- We optimize (minimize) a *loss function* #pause
 
 $ cal(L): X times Y times Theta |-> bb(R) $ #pause
 
 $ argmin_(bold(theta)) cal(L)(bold(x), bold(y), bold(theta)) $ #pause
 
 Loss function measures the error between $f(bold(x), bold(theta))$ and desired $g(bold(x)) = bold(y)$ #pause
-
-In this class, we will build loss functions from two error functions
+- In this class, we build loss functions from two error functions
 
 ==
 
@@ -270,16 +245,16 @@ $ - sum_(i=1)^n sum_(j=1)^(d_y) P(g(bold(x)_([i]))_j | bold(x)_[i]) log f(bold(x
  = - sum_(i=1)^n sum_(j=1)^(d_y) P(y_([i], j) | bold(x)_[i]) log f(bold(x)_[i], bold(theta))_j  $
 ]
 ==
-#side-by-side[*Square error:*][
+#side-by-side(align: horizon)[*Square error:*][
   $ sum_(i=1)^n sum_(j=1)^d_y (f(bold(x)_([i]), bold(theta))_j - y_([i], j))^2 $ #pause
 ] 
 
-#side-by-side[*Cross entropy error:*][
+#side-by-side(align: horizon)[*Cross entropy error:*][
 $ - sum_(i=1)^n sum_(j=1)^(d_y) P(y_([i], j) | bold(x)_[i]) log f(bold(x)_[i], bold(theta))_j  $
 
 ] #pause
 
-*Question:* Which one will we use for Q learning? #pause
+*Question:* Which one will we use for deep Q learning? #pause
 
 *Answer:* Predict a scalar (expected return), so square error (regression)
 
@@ -300,9 +275,17 @@ $ argmin_bold(theta) cal(L)(bold(X), bold(Y), bold(theta)) = argmin_bold(theta) 
 
 ==
 
-*Question:* Which search method do we use? #pause
+*Question:* Which search method do we typically use? #pause
 
 *Answer:* Gradient-based methods (gradient descent, Adam, etc) #pause
+
+This is an iterative process #pause
+- Evaluate the loss at some point $bold(X), bold(Y), bold(theta)$ #pause
+- Update $bold(theta)$ by some small learning rate $alpha$ #pause
+
+$ bold(theta)_(t+1) = bold(theta)_t - (nabla_bold(theta)_t cal(L)) (bold(X), bold(Y), bold(theta)_t) $
+
+==
 
 
 #side-by-side[
@@ -313,7 +296,10 @@ $ argmin_bold(theta) cal(L)(bold(X), bold(Y), bold(theta)) = argmin_bold(theta) 
 ]
 
 
+==
+#sgd
 
+/*
 ==
 #algorithm({
 import algorithmic: *
@@ -333,7 +319,7 @@ Function("Gradient Descent", args: ($bold(X)$, $bold(Y)$, $cal(L)$, $t$, $alpha$
 Return[$bold(theta)$]
 })
 })
-
+*/
 
 ==
 We can put it all together in jax and equinox
@@ -354,7 +340,9 @@ net = nn.Sequential([
 ```
 
 ==
-We can extract parameters using `eqx.partition`
+We can extract parameters using `eqx.partition` #pause
+- This is for RL, we do not use it in deep learning #pause
+
 ```python
 import equinox as eqx
 # Get all arrays (parameters) in the network
@@ -419,62 +407,50 @@ for epoch in range(num_epochs):
 ```
 
 ==
-*Dirty secret of deep learning:* #pause We do not understand deep learning 
+*Dirty secret of deep learning:* #pause We do not understand deep learning #pause
 
 Biological inspiration, theoretical bounds, and mathematical guarantees #pause
+- For complex neural networks, deep learning is a *science* not *math* #pause
+- No accepted theory for why deep neural networks are so effective #pause
 
-For complex neural networks, deep learning is a *science* not *math* #pause
-
-No accepted theory for why deep neural networks are so effective #pause
-
-In modern deep learning, we progress using trial and error #pause
-
-Today we experiment, and maybe tomorrow we discover the theory #pause
-
-This applies even more to *deep reinforcement learning*
-
-
-
-
-
-
-
-
-
-
-
+This applies even more to *deep reinforcement learning* #pause
+- Something that should work does not work #pause
+- Something that works should not work #pause
+- We have no idea why (need more research!)
 
 = Motivation 
 ==
-After the homework and last lecture, you are experts in Q learning #pause
-
-In the homework, you trained a Q function to solve a task #pause
+After the last lecture, you understand Q learning #pause
 
 *Question:* Why introduce deep learning to Q learning? #pause
 
-It is really a problem of *scale* #pause
+It is much easier to learn $Q$ without a neural network #pause
+- Stronger convergence guarantees #pause
 
-Deep RL can solve much bigger problems than normal RL #pause
+It is a problem of *scale* #pause
+- Deep RL can solve much bigger problems than normal RL #pause
 
 Let me demonstrate this with an example problem
 
 ==
-*Example:* Learn a policy to pick up trash and put it in the bin #pause
+*Example:* Learn a policy to collect trash on UM campus #pause
 
 #cimage("fig/07/binrobot.png", height: 70%)
 
 ==
 *Question:* What is $S$? #pause
 
-- Camera image $bb(R)^(256 times 256 times 3)$ #pause
+- Camera image $[0, 1]^(256 times 256 times 3)$ #pause
 - Lidar scan $bb(R)_+^(4096)$ #pause
 - Arm position $[0, 1]^3$ #pause
 - Map position $[0, 1]^2$ #pause
 - Trash position $[0, 1]^(2 times k)$ #pause
 
-In your assignment, you store Q value for each state/action in a matrix #pause
+$ S = [0, 1]^(256 times 256 times 3) times bb(R)_+^(4096) times [0, 1]^3 times [0, 1]^2 times [0, 1]^(2 times k) $
 
-*Question:* What is the size of the matrix? #pause
+//In your assignment, you store Q value for each state/action in a matrix #pause
+
+*Question:* What is the size of the $Q$ matrix in assignment 1? #pause
 
 #side-by-side[$ S times A $ #pause][This would be a large matrix!]
 
@@ -521,10 +497,8 @@ $ A $
 )
 
 We must update Q for each $s, a$ separately #pause
-
-With TD updates, updating one cell means we must update all cells #pause
-
-It can take many states and actions for Q converge (HW up to 100k)
+- With TD updates, updating one cell means we must update all cells #pause
+- It can take many states and actions for Q converge (HW up to 100k)
 
 ==
 There is a lower sample complexity bound on convergence #footnote[Li, Gen, et al. "Is Q-Learning Minimax Optimal? A Tight Sample Complexity Analysis." Oper. Res. (2024).]#pause
@@ -537,14 +511,11 @@ $ (16348 | A |) / ((0.01)^5 dot 0.1^2) approx 1.6 times 10^16 times A $ #pause
 
 $64 times A$ petabytes of rewards to learn $Q$
 
-
-
 ==
 Simple Q learning works very well when the state space is small #pause
 
 We need a solution for infinite/continuous/large state spaces #pause
-
-We need a Q function that generalizes to new states #pause
+- $Q$ must generalize to new states #pause
 
 #let graph = tiling(size: (2cm, 2cm))[
   #place(line(start: (0%, 0%), end: (0%, 100%)))
@@ -560,57 +531,117 @@ $ A $
 ==
 
 We know that deep learning generalizes well #pause
-
-Can approximate any function with a deep neural network #pause
+- Approximate any continuous function with a deep neural network #pause
 
 Represent the Q function using a deep neural network #pause
-
-We call this *deep Q learning* #pause
+- We call this *deep Q learning* #pause
 
 Just because parameters exist, does not mean we can find them #pause
-
-There is *no guarantee* we will find parameters for the Q function #pause
+- *No guarantee* we will find good parameters for the Q function #pause
 
 In general, deep RL has no convergence guarantees #pause
+- Deep supervised learning also has weak guarantees, but it works well #pause
+- We can say the same for deep RL: weak guarantees but it works well #pause
 
-Deep supervised learning also has weak guarantees, but it works well #pause
+Let us learn the Q function using a deep neural network 
+==
+Recall that we define the TD form of $Q$ as 
 
-We can say the same for deep RL
+$ Q(s_0, a_0, pi) &= bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi] \
+ &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a, pi) | s_0, a_0; pi] $ #pause
+
+When using the greedy policy, we could make $pi$ implicit
+
+$ pi (a_t | s_t) = cases(
+  1 "if" a_t = argmax_(a in A) Q(s_t, a),
+  0 "otherwise"
+) $ #pause
+
+$ Q(s_0, a_0) &= max_(pi) bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi] \
+&= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a in A) Q(s_1, a) | s_0, a_0] $
 
 ==
-Let us try and learn the Q function using a deep neural network #pause
 
-First, define the Q function as a deep neural network #pause
+Now, let us make $Q$ a neural network with parameters $bold(theta)$ #pause
+
+$ Q(s_0, a_0, bold(theta)) $ #pause
+
+We must be careful, as our policy now implicitly relies on $bold(theta)$ #pause
+
+$ pi (a_t | s_t; bold(theta)) = cases(
+  1 "if" a_t = argmax_(a in A) Q(s_t, a, bold(theta)),
+  0 "otherwise"
+) $ #pause
+
+As does the expected return
+
+$ Q(s_0, a_0, bold(theta)) = bb(E)[cal(G)(bold(tau)) | s_0, a_0; bold(theta)] $ 
+
+/*
+==
+Deep Q learning uses the Temporal Difference objective #pause
+- Recall we can drop $pi$ if using the implicit greedy/$argmax$ policy #pause
+
+$ Q(s, a, pi) -> Q(s, a) $ #pause
+
+$ pi (a_t | s_t) = cases(
+  1 "if" a_t = argmax_(a in A) Q(s_t, a),
+  0 "otherwise"
+) $ #pause
+
+Now, let us represent $Q$ as a neural network
+
+==
+
+First, define the Q function as a deep neural network with params $bold(theta)$ #pause
 
 #side-by-side[Before:][
-  $ Q: S times A times Theta_pi |-> bb(R) $ #pause
+  $ Q: S times A |-> bb(R) $ #pause
 ]
-
 
 #side-by-side[
   After:
 ][
-  $ Q: S times A times Theta_pi times Theta_Q |-> bb(R) $ #pause
+  $ Q: S times A times Theta |-> bb(R) $ #pause
+] 
 
-  $ Q(s, a, theta_pi, bold(theta)_Q) $
-]
+Now, $pi$ explicitly depends on $bold(theta)$ #pause
 
-
-
+$ pi (a_t | s_t; bold(theta)) = cases(
+    1 "if" a_t = argmax_(a in A) Q(s_t, a, bold(theta)),
+    0 "otherwise"
+) $ 
 
 ==
-The Q function estimates the policy-conditioned discounted return #pause
+Before, we wrote the policy-conditioned discounted return as
 
-#v(2.5em)
+$ Q(s_0, a_0, pi) = bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi]
+$ #pause
 
-$ #pin(1)Q#pin(2)\(#pin(3)s_0, a_0#pin(4), #pin(9)theta_pi#pin(10), #pin(7)bold(theta)_Q#pin(8)) = #pin(5)bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi]#pin(6)
+Now, $Q$ is a deep neural network with parameters $bold(theta)$
+
+$ Q(s_0, a_0, pi, bold(theta)) = bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi, bold(theta)] $ #pause
+
+$bold(theta)$ fully determines the greedy policy #pause
+
+$ pi (a_t | s_t; bold(theta)) = cases(
+    1 "if" a_t = argmax_(a in A) Q(s_t, a, pi, bold(theta)),
+    0 "otherwise"
+) $ #pause
+
+//We will condition only on the neural network parameters $bold(theta)$ #pause
+
+$ Q(s_0, a_0, pi, bold(theta)) = bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi, bold(theta)] $ 
+*/
+==
+#v(1.2em)
+$ #pin(1)Q#pin(2)\(#pin(3)s_0, a_0#pin(4), #pin(7)bold(theta)#pin(8)) = #pin(5)bb(E)[cal(G)(bold(tau)) | s_0, a_0; bold(theta)]#pin(6)
 $ #pause
 
 #v(2em)
 
-Make this an optimization objective, so we can train a network #pause
-
-We must have an $f$, $bold(theta)$, and $bold(y)$ #pause
+We want to learn the parameters $bold(theta)$ through gradient descent #pause
+- Must make this look like a machine learning objective #pause
 
 $ f(bold(x), bold(theta)) = bold(y) $ #pause
 
@@ -620,235 +651,159 @@ $ f(bold(x), bold(theta)) = bold(y) $ #pause
 
 #pinit-highlight-equation-from((7,8), (7,8), fill: orange, pos: bottom)[$bold(theta)$] #pause
 
-#pinit-highlight-equation-from((9,10), (9,10), fill: purple, pos: top)[Policy, function of $bold(theta)_Q$] #pause
-
 #pinit-highlight-equation-from((5,6), (5,6), fill: green, pos: bottom)[$bold(y)$] 
-
 
 ==
 
 Let us find the optimization objective for deep Q learning #pause
 
-$ Q (s_0, a_0, theta_pi, bold(theta)_Q) = #pin(5)bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi]#pin(6)
+$ Q (s_0, a_0, bold(theta)) = #pin(5)bb(E)[cal(G)(bold(tau)) | s_0, a_0; bold(theta)]#pin(6)
 $ #pause
 
 Move everything to left #pause
 
-$ Q(s_0, a_0, theta_pi, bold(theta)_Q) - bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] = 0 
+$ Q(s_0, a_0, bold(theta)) - bb(E)[cal(G)(bold(tau)) | s_0, a_0; bold(theta)] = 0 
 $ #pause
 
 Use a distance measure we can minimize, choose square error #pause
 
-$ (Q(s_0, a_0, theta_pi, bold(theta)_Q) - bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi])^2 = 0 
+$ (Q(s_0, a_0, bold(theta)) - bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi])^2 = 0 
 $ 
 
 ==
-$ (Q(s_0, a_0, theta_pi, bold(theta)_Q) - bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi])^2 = 0 $ #pause
+$ (Q(s_0, a_0, bold(theta)) - bb(E)[cal(G)(bold(tau)) | s_0, a_0; bold(theta)])^2 = 0 $ #pause
 
-Minimize over neural network parameters #pause
+Evaluate expectation using TD and empirical samples #pause
 
-$ argmin_(bold(theta)_Q) [(Q(s_0, a_0, theta_pi, bold(theta)_Q) - bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi])^2 ] $ #pause
+$ (Q(s_0, a_0, bold(theta)) - (r_0 + not d_0 gamma max_(a in A) Q(s_1, a, bold(theta))))^2 = 0 $ #pause
 
-*Question:* Missing anything? #pause Hint: Other loss functions have sums #pause
+Remember, we can treat any timestep as $s_0$ due to Markov property #pause
 
-*Answer:* Minimize over all possible states and actions #pause
-
-$ argmin_(bold(theta)_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, bold(theta)_Q) - bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi])^2 ] $
-
-==
-$ argmin_(bold(theta)_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, bold(theta)_Q) - bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi])^2 ] $ #pause
-
-What is the meaning of $bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi]$ ? We need a number #pause
-
-*Question:* What are the two methods to compute $bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi]$? #pause
-
-*Answer:* Monte Carlo and Temporal Difference
+$ (Q(s_t, a_t, bold(theta)) - (r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, bold(theta))))^2 = 0 $ 
 
 
 ==
+$ (Q(s_t, a_t, bold(theta)) - (r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, bold(theta))))^2 = 0 $ 
 
-*Monte Carlo Objective:* #pause
+Now it is a loss function we can minimize #pause
 
-$ argmin_(bold(theta)_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, bold(theta)_Q) -  sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0; theta_pi] )^2 ] $ #pause
+$ cal(L)(bold(x), bold(theta)) = (Q(s_t, a_t, bold(theta)) - underbrace((r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, bold(theta))), y))^2 $ #pause
 
-*Temporal Difference Objective:* #pause
-
-$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, bold(theta)_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, theta_pi, bold(theta)_Q)))^2 ] $
-
-==
-#only("1-3")[
-$ argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, bold(theta)_Q) -  sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0; theta_pi] )^2 ]  $
-
-$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, bold(theta)_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, theta_pi, bold(theta)_Q)))^2 ] $ 
-]
-#only(4)[
-$ argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, bold(theta)_Q) -  sum_(t=0)^oo gamma^t #redm[$hat(bb(E))$] [cal(R)(s_(t+1)) | s_0, a_0; theta_pi] )^2 ]  $
-
-$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, bold(theta)_Q) - ( #redm[$hat(bb(E))$] [cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, theta_pi, bold(theta)_Q)))^2 ] $ 
-]
-
-#only((2,3,4))[Still have expectations, which we do not know]
-
-#only((3,4))[*Question:* Can we replace $bb(E)$ with something we know? Hint: Gambling]
-
-
-==
-
-$ argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, bold(theta)_Q) -  sum_(t=0)^oo gamma^t hat(bb(E)) [cal(R)(s_(t+1)) | s_0, a_0; theta_pi] )^2 ]  $
-
-$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ 
-&(Q(s_0, a_0, theta_pi, bold(theta)_Q) - ( hat(bb(E)) [cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, theta_pi, bold(theta)_Q)))^2 ] $ #pause
-
-Now we have something we can optimize! #pause
-
-==
-
-$ argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, bold(theta)_Q) -  sum_(t=0)^oo gamma^t hat(bb(E)) [cal(R)(s_(t+1)) | s_0, a_0; theta_pi] )^2 ]  $
-
-$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ 
-&(#pin(1)Q(s_0, a_0, theta_pi, bold(theta)_Q)#pin(2) - ( hat(bb(E)) [cal(R)(s_1) | s_0, a_0] + not d gamma #pin(3)max_(a in A) Q(s_1, a, theta_pi, bold(theta)_Q)#pin(4)))^2 ] $ 
-
-
-*Question:* Which is harder to optimize? #pause
-
-*Answer:* Temporal difference #pause
-
-
-#pinit-highlight(1, 2)
-#pinit-highlight(3, 4)
-
-==
-
-Rewrite expressions as loss functions to help with implementation #pause
-
-
-$ argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, bold(theta)_Q) -  sum_(t=0)^oo gamma^t hat(bb(E)) [cal(R)(s_(t+1)) | s_0, a_0; theta_pi] )^2 ]  $ #pause
-
-The Monte Carlo loss uses an episode $bold(x)$ of states and actions #pause
-
-$ cal(L)(bold(x), bold(theta)_Q) = \ argmin_(theta_Q) [ sum_(s_i, a_i in bold(x)) (Q(s_i, a_i, theta_pi, bold(theta)_Q) -  sum_(t=i)^oo gamma^t hat(bb(E)) [cal(R)(s_(t+1)) | s_i, a_i; theta_pi] )^2 ] $ 
-
-==
-$ cal(L)(bold(x), bold(theta)_Q) = \ argmin_(theta_Q) [ sum_(s_i, a_i in bold(x)) (Q(s_i, a_i, theta_pi, bold(theta)_Q) -  sum_(t=i)^oo gamma^(t-i) hat(bb(E)) [cal(R)(s_(t+1)) | s_i, a_i; theta_pi] )^2 ] $ #pause
-
-We approximate the expected reward empirically #pause
-
-$ argmin_(bold(theta)_Q) cal(L)(bold(x), bold(theta)_Q) = argmin_(theta_Q) [ sum_(s_i, a_i, r_i in bold(x)) (Q(s_i, a_i, theta_pi, bold(theta)_Q) -  sum_(t=i)^oo gamma^(t-i) r_t )^2 ] $ 
-
-==
-$ argmin_(bold(theta)_Q) cal(L)(bold(x), bold(theta)_Q) = argmin_(theta_Q) [ sum_(s_i, a_i, r_i in bold(x)) (Q(s_i, a_i, theta_pi, bold(theta)_Q) -  sum_(t=i)^oo gamma^(t-i) r_t )^2 ] $ #pause
-
-*Question:* Call this Monte Carlo return because of this objective. Why? #pause
-
-Monte Carlo is a famous casino. We approximate the expected return by "gambling" over the episode
-
-==
-$ argmin_(bold(theta)_Q) cal(L)(bold(x), bold(theta)_Q) = argmin_(theta_Q) [ sum_(s_i, a_i, r_i in bold(x)) (Q(s_i, a_i, theta_pi, bold(theta)_Q) -  sum_(t=i)^oo gamma^(t-i) r_t )^2 ] $ 
-
-Can train over batch/dataset $bold(X)$ containing many episodes $bold(x)$ #pause
-
-#text(size: 24pt)[$ argmin_(bold(theta)_Q) cal(L)(bold(X), bold(theta)_Q) =  argmin_(theta_Q) [ sum_(bold(x)_([j]) in bold(X)) sum_(s_i, a_i, r_i \ in bold(x)_([j])) (Q(s_i, a_i, theta_pi, bold(theta)_Q) - sum_(t=i)^oo gamma^(t-i) r_t )^2 ]  $ #pause]
-
-Now, lets do the TD loss function 
-
-==
-
-#text(size: 24pt)[
-
-$ &argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ 
-&(Q(s_0, a_0, theta_pi, bold(theta)_Q) - ( hat(bb(E)) [cal(R)(s_1) | s_0, a_0] + not d gamma max_(a in A) Q(s_1, a, theta_pi, bold(theta)_Q)))^2 ] $ #pause
-]
-
-#text(size: 24pt)[
-//Estimate the expected return #pause
-
-Rewrite over the episode $bold(x)$ #pause
-
-#v(-1em)
-$  argmin_(bold(theta)_Q) cal(L)(bold(x), bold(theta)_Q) = argmin_(theta_Q) [ sum_(s_i, a_i, d_i, s_(i+1) in bold(x)) \ 
-(Q(s_i, a_i, theta_pi, bold(theta)_Q) - ( hat(bb(E)) [cal(R)(s_(i+1)) | s_i, a_i] + not d_0 gamma max_(a in A) Q(s_(i+1), a, theta_pi, bold(theta)_Q)))^2 ] $ 
-
-// $ argmin_(bold(theta)_Q) cal(L)(bold(x), bold(theta)_Q) = argmin_(theta_Q) \  sum_(s_i, a_i, r_i, s_(i+1) \ in bold(x)) (Q(s_i, a_i, theta_pi, bold(theta)_Q) - ( r_t + not d gamma argmax_(a in A) Q(s_i, a, theta_pi, bold(theta)_Q) ))^2 $
-
-]
-
-==
-$ argmin_(bold(theta)_Q) cal(L)(bold(x), bold(theta)_Q) = argmin_(theta_Q) [ sum_(s_i, a_i, d_i, s_(i+1) in bold(x)) \ 
-(Q(s_i, a_i, theta_pi, bold(theta)_Q) - ( hat(bb(E)) [cal(R)(s_(i+1)) | s_i, a_i] + not d_0 gamma max_(a in A) Q(s_(i+1), a, theta_pi, bold(theta)_Q)))^2 ] $ #pause
-
-#v(-1em)
-Empirically compute expected reward #pause
-
-$ argmin_(bold(theta)_Q) cal(L)(bold(x), bold(theta)_Q) = argmin_(theta_Q) \  sum_(s_i, a_i, r_i, d_i, s_(i+1) \ in bold(x)) (Q(s_i, a_i, theta_pi, bold(theta)_Q) - ( r_i + not d_0 gamma argmax_(a in A) Q(s_i, a, theta_pi, bold(theta)_Q) ))^2 $
-==
-
-$ argmin_(bold(theta)_Q) cal(L)(bold(x), bold(theta)_Q) = argmin_(theta_Q) \  sum_(s_i, a_i, r_i, d_i, s_(i+1) \ in bold(x)) (Q(s_i, a_i, theta_pi, bold(theta)_Q) - ( r_i + not d_0 gamma argmax_(a in A) Q(s_i, a, theta_pi, bold(theta)_Q) ))^2 $
-
-#v(-0.5em)
-Do it over a batch #pause
-
-$ argmin_(bold(theta)_Q) cal(L)(bold(x), bold(theta)_Q) = argmin_(theta_Q) sum_(bold(x)_([j]) in bold(X)) \  sum_(s_i, a_i, r_i, d_i, s_(i+1) \ in bold(x)) (Q(s_i, a_i, theta_pi, bold(theta)_Q) - ( r_i + not d_0 gamma argmax_(a in A) Q(s_i, a, theta_pi, bold(theta)_Q) ))^2 $
-
-==
-
-To summarize, our two loss functions: #pause
-
-#text(size: 24pt)[
-
-$ argmin_(bold(theta)_Q) cal(L)(bold(X), bold(theta)_Q) =  argmin_(theta_Q) [ sum_(bold(x)_([j]) in bold(X)) sum_(s_i, a_i, r_i \ in bold(x)_([j])) (Q(s_i, a_i, theta_pi, bold(theta)_Q) - sum_(t=i)^oo gamma^(t-i) r_t )^2 ]  $ #pause
-]
-
-$ argmin_(bold(theta)_Q) cal(L)(bold(x), bold(theta)_Q) = argmin_(theta_Q) sum_(bold(x)_([j]) in bold(X)) \  sum_(s_i, a_i, r_i, d_i, s_(i+1) \ in bold(x)) (Q(s_i, a_i, theta_pi, bold(theta)_Q) - ( r_i + not d_0 gamma argmax_(a in A) Q(s_i, a, theta_pi, bold(theta)_Q) ))^2 $
-
-==
-
-Can optimize both loss functions using gradient descent #pause
-
-RL optimization is more difficult than supervised learning #pause
+*Question:* What is $bold(x)$? #pause
 
 #side-by-side[
+  A transition
+][
+  $ bold(x) = mat(s_t, a_t, r_t, d_t, s_(t+1)) $
+]
+
+==
+$ cal(L)(bold(x), bold(theta)) = (Q(s_t, a_t, bold(theta)) - (r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, bold(theta))))^2 $ 
+
+$ bold(x) = mat(s_t, a_t, r_t, d_t, s_(t+1)) $ #pause
+
+Finally we should consider a batch of transitions #pause
+
+$ bold(X) = vec(bold(x)_0, dots.v, bold(x)_n) $ #pause
+
+$ cal(L)(bold(X), bold(theta)) = sum_(s_t, a_t, r_t, d_t, s_(t+1) in bold(X)) (Q(s_t, a_t, bold(theta)) - (r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, bold(theta))))^2 $ 
+
+==
+$ cal(L)(bold(X), bold(theta)) = sum_(s_t, a_t, r_t, d_t, s_(t+1) in bold(X)) (Q(s_t, a_t, bold(theta)) - (r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, bold(theta))))^2 $ #pause
+
+We can use gradient descent to search for optimal $bold(theta)$ #pause
+
+$ bold(theta)_(t+1) = bold(theta)_t + alpha dot (nabla_bold(theta)_t cal(L)) (bold(X), bold(theta)_t) $
+
+
+= Target Networks
+==
+$ cal(L)(bold(X), bold(theta)) = sum_(s_t, a_t, r_t, d_t, s_(t+1) in bold(X)) (Q(s_t, a_t, bold(theta)) - (r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, bold(theta))))^2 $ 
+
+If you perform gradient descent on this objective, you will find
+
+$ Q(s_0, a_0, bold(theta)) = oo $ #pause
+
+*Question:* Can you see why? #pause Hint: What if $s_0 = s_1$? #pause
+
+$ Q(s_0, a_0, bold(theta)) = r_0 + max_(a in A) Q(s_0, a_0, bold(theta)) $ #pause
+
+#side-by-side[
+  *Question:* What if $r_0 = 1$? #pause
+][
+  $ Q_(i+1) = 1 + Q_i #pause quad quad lim_(i -> oo) Q = oo $
+]
+
+
+==
+$ nabla_bold(theta) sum_(bold(X)) (#redm[$Q(s_t, a_t, bold(theta))$] - (r_t + not d_t gamma max_(a in A) #redm[$Q(s_(t+1), a, bold(theta))$]))^2 $ #pause 
+
+The label depends on the function we are learning #pause
+- Cannot use standard gradient descent to learn this #pause
+
+Use the *target network* trick to solve this #pause
+
+$ nabla_#redm[$bold(theta)$] sum_(bold(X)) (Q(s_t, a_t, #redm[$bold(theta)$]) - (r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, #bluem[$bold(theta)_(T)$])))^2 $ #pause
+
+We let $bold(theta)_T$ be an old version of $bold(theta)$
+- $Q$ in label treated as constant, can optimize with gradient descent
+
+==
+```python
+theta = ... # Initialize parameters
+theta_T = theta.copy()
+
+for epoch in range(num_epochs):
+  grad = grad(L)(theta, theta_T, X)
+  theta = optimizer.update(theta, grad)
+  if epoch % 200 == 0:
+    # Update target parameters
+    theta_T = theta.copy()
+```
+
+==
+RL optimization is more difficult than supervised learning #pause
+
+#side-by-side(align: top)[
   *Supervised Learning:* #pause
-  - Static inputs #pause
-  - Static labels #pause
-  - Limited dataset #pause
-    - Human can clean 
+  - Fixed inputs #pause
+  - Fixed labels #pause
+  - Finite dataset #pause
+    - Human can clean #pause
     - Bad to overfit #pause
 ][
   *Reinforcement Learning:* #pause
-  - Inputs change as $theta_pi$ changes #pause
+  - Inputs $bold(x)$ change as $pi"/"theta$ changes #pause
     - Visit new/different states #pause
-  - Labels change as $theta_pi$ changes #pause
-    - $bb(E)[cal(G)(bold(tau)) | theta_pi]$
+  - Labels $bold(y)$ change as $pi"/"theta$ changes #pause
+    - $bb(E)[cal(G)(bold(tau)) | pi"/"theta]$ #pause
   - Infinite dataset #pause
-    - Can always collect from env
-    - Bad $theta_pi$ means bad dataset
+    - Bad $pi"/"theta$ means bad dataset #pause
     - Overfitting no problem
 ]
 
 = Experience Replay
 ==
 Optimization is difficult in RL #pause
-
-Most RL papers train for 10M-10B environment steps #pause
-
-It takes a long time to train a deep Q function #pause
+- It takes a long time to train a deep Q function #pause
+- Most RL papers train for 10M-10B environment steps #pause
 
 Let us see if we can improve training speed
 
 ==
 ```python
 for epoch in range(num_epochs):
-  terminated = False
+  d = False # terminated
   s = env.reset()
   episode = []
   # Step between 1 and infinity times to get one episode
-  while not terminated:
-    a = policy(s, theta_Q)
+  while not d:
+    a = policy(s, theta)
     next_s, r, d = env.step(action)
     episode.append([s, a, r, d, next_s])
   # Compute gradient over episode
-  J = grad(L)(theta_Q, episode)
-  theta_Q = update(theta_Q, grad)
+  J = grad(L)(theta, episode)
+  theta = update(theta, grad)
 ``` #pause
 
 *Question:* Which part is slowest? #pause *Answer:* Collecting episodes
@@ -856,17 +811,17 @@ for epoch in range(num_epochs):
 ==
 ```python
 for epoch in range(num_epochs):
-  terminated = False
+  d = False # terminated
   s = env.reset()
   episode = []
   # Step between 1 and infinity times to get one episode
-  while not terminated:
-    a = policy(s, theta_Q)
+  while not d:
+    a = policy(s, theta)
     next_s, r, d = env.step(action)
     episode.append([s, a, r, d, next_s])
   # Compute gradient over episode
-  J = grad(L)(theta_Q, episode)
-  theta_Q = update(theta_Q, grad)
+  J = grad(L)(theta, episode)
+  theta = update(theta, grad)
 ``` #pause
 
 Collect episode, train, throw away episode, start again
@@ -877,25 +832,25 @@ What if we reuse episodes? #pause
 ```python
 episodes = []
 for epoch in range(num_epochs):
-  terminated = False
+  d = False # terminated
   s = env.reset()
   episode = []
-  while not terminated:
-    a = policy(s, theta_Q)
+  while not d:
+    a = policy(s, theta)
     next_s, r, d = env.step(action)
     episode.append([s, a, r, d, next_s])
   episodes.append(episode)
-  J = grad(L)(theta_Q, episodes) # Train over ALL episodes
-  theta_Q = update(theta_Q, grad)
+  J = grad(L)(theta, episodes) # Train over ALL episodes
+  theta = update(theta, grad)
 ``` 
 
 ==
-When we reuse episodes, we call it *experience replay* #pause
+*Experience Replay* stores transitions for reuse #pause
 
-#side-by-side[
-  Store episodes in a *replay buffer* (list) #pause
+#side-by-side(align: horizon)[
+  Append to a *replay buffer* (list) #pause
 ][
-$ bold(B)_t = mat(
+$ bold(D) = mat(
   bold(s)_1, bold(a)_1, bold(r)_1, bold(d)_1;
   dots.v, dots.v, dots.v, dots.v;
   bold(s)_t, bold(a)_t, bold(r)_t, bold(d)_t
@@ -904,8 +859,8 @@ $
 ] #pause
 
 
-#side-by-side[
-  Create a dataset from the buffer #pause
+#side-by-side(align: horizon)[
+  Sample a batch from the buffer #pause
 ][
 $ bold(X)_t = mat(
   bold(s)_31, bold(a)_31, bold(r)_31, bold(d)_31;
@@ -917,57 +872,76 @@ $ bold(X)_t = mat(
 #side-by-side[
   Train on the dataset #pause
 ][
-  $ argmin_(bold(theta)_Q) cal(L)(bold(X)_t, bold(theta)_Q) $
+  $ bold(theta)_(t+1) = bold(theta)_t - alpha dot cal(L)(bold(X)_t, bold(theta)_t) $
 ] #pause
 
-Humans do experience replay when they dream!
+==
+*Question:* Humans do experience replay. What do we call it? #pause
+
+*Answer:* Dreaming! #footnote[Liu, Yunzhe, et al. "Experience replay is associated with efficient nonlocal learning." Science 372.6544 (2021): eabf1357.] #pause
+
++ Collect information by interaction with the world (wake) #pause
++ Stop interacting with the world (sleep)
++ Replay memories and learn from them (dream)
+
 
 
 ==
 *On-policy* algorithms must throw away episodes after training #pause
-
-Must collect data using the current policy, cannot use experience replay #pause
+- Must collect data using the current $pi$, cannot use experience replay #pause
 
 *Off-policy* algorithms can reuse old episodes and use experience replay #pause
+- In fact, for off policy algorithms, data can come from anywhere #pause
+  - Previous policy #pause
+  - Previous training run #pause
+  - Human policy #pause
 
-In fact, for off policy algorithms, data can come from anywhere #pause
-- Previous policy #pause
-- Previous training run #pause
-- Human policy #pause
-
-*Question:* Which is Q learning? #pause 
-
-Let us find out!
+*Question:* Which is Deep Q learning? 
 
 ==
-Start with the Monte Carlo return #pause
+The TD objective is off-policy (can reuse old data)
 
-$ argmin_(theta_Q) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, theta_pi, bold(theta)_Q) -  sum_(t=0)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_0, a_0; #pin(1)theta_pi#pin(2)] )^2 ] $ #pause
+$ Q(s_0, a_0, pi) &= bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi] \
+ &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a, pi) | s_0, a_0; pi] $ #pause
+
+==
+The Monte Carlo objective is on-policy (cannot reuse old data)
+
+
+==
+Start with the Monte Carlo objective #pause
+
+//$ argmin_(theta) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, pi, bold(theta)) -  sum_(t=0)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_0, a_0; #pin(1)pi#pin(2)] )^2 ] $ #pause
+
+$ argmin_(bold(theta)) sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, pi, bold(theta)) - sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0; #pin(1)pi#pin(2)] )^2 $
 
 *Question:* On-policy or off-policy? #pause *Answer:* On-policy. Why? #pause
 
 #pinit-highlight(1, 2)
 
-Our return is conditioned on the policy #pause
+The return is conditioned on the policy #pause
+- If the policy changes, the return $r_0 + gamma r_1 + gamma^2 r_2 + dots $ is not valid! #pause
 
-If the policy changes, the return $r_0 + gamma r_1 + gamma^2 r_2 + dots $ is not valid! #pause
+$pi$ is an implicit function of $theta$: $pi -> argmax_a Q(s, a, theta)$
 
-Old episode gives us $hat(bb(E))[cal(R)(s_(t+1)) | s_0, a_0; theta_("old")]$  #pause
+//Old episode gives 
 
-We need $hat(bb(E))[cal(R)(s_(t+1)) | s_0, a_0; theta_pi]$
+//Old episode gives us $hat(bb(E))[cal(R)(s_(t+1)) | s_0, a_0; theta_("old")]$  #pause
+
+We need $hat(bb(E))[cal(R)(s_(t+1)) | s_0, a_0; pi]$
 
 ==
 What about TD return? #pause
 
-$ &argmin_(bold(theta)_Q) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, theta_pi, bold(theta)_Q) - ( hat(bb(E))[cal(R)(s_1) | s_0, a_0] + not d_0 gamma max_(a in A) Q(s_1, a, #pin(1)theta_pi#pin(2), bold(theta)_Q)))^2 ] $ #pause
+$ &argmin_(bold(theta)) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, pi, bold(theta)) - ( hat(bb(E))[cal(R)(s_1) | s_0, a_0] + not d_0 gamma max_(a in A) Q(s_1, a, #pin(1)pi#pin(2), bold(theta))))^2 ] $ #pause
 
 *Question:* On-policy or off-policy? #pause *Answer:* Off-policy. Why? #pause
 
 #pinit-highlight(1, 2) #pause
 
-Q function depends on $theta_pi$, but reward does not!
+Q function depends on $pi$, but reward does not!
 
-Do we know $argmax_(a in A) Q(s_1, a, #pin(1)theta_pi#pin(2), bold(theta)_Q)$? #pause Yes! Just plug in $s_1$
+Do we know $argmax_(a in A) Q(s_1, a, #pin(1)pi#pin(2), bold(theta))$? #pause Yes! Just plug in $s_1$
 
 ==
 
@@ -985,61 +959,6 @@ TD is not always better than MC #pause
 
 MC needs more training data, but TD has harder optimization
 
-= Target Networks
-==
-If you train a deep Q network using TD, you will find
-
-$ Q(s_0, a_0, theta_pi, bold(theta)_Q) = oo $ #pause
-
-$ (Q(s_0, a_0, theta_pi, bold(theta)_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0] + not d_0 gamma max_(a in A) Q(s_1, a, #pin(1)theta_pi#pin(2), bold(theta)_Q)))^2 $ #pause
-
-*Question:* Can you see why? #pause Hint: What if $s_0 approx s_1$? #pause
-
-$ Q(s_0, a_0, theta_pi, bold(theta)_Q) = r_0 + max_(a in A) Q(s_0, a_0, theta_pi, bold(theta)_Q) $ #pause
-
-*Question:* If $r_0 = 1$, what happens? #pause
-
-$ Q_(i+1) = 1 + Q_i #pause quad quad lim_(i -> oo) ? $
-
-==
-It is difficult to train deep neural networks recursively #pause
-
-The label depends on the function we train! #pause
-
-$ (Q(s_0, a_0, theta_pi, bold(theta)_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0] + not d_0 gamma max_(a in A) Q(s_1, a, #pin(1)theta_pi#pin(2), bold(theta)_Q)))^2 $ #pause
-
-We use *target networks* to break this dependence #pause
-
-$ (Q(s_0, a_0, theta_pi, bold(theta)_Q) - ( bb(E)[cal(R)(s_1) | s_0, a_0] + not d_0 gamma max_(a in A) Q(s_1, a, #pin(1)theta_pi#pin(2), theta_#redm[$T$])))^2 $ 
-
-==
-Usually, the target parameters are older parameters
-
-```python
-theta_Q = ... # Initialize parameters
-theta_T = theta_Q.copy()
-
-for epoch in range(num_epochs):
-  grad = grad(L)(theta_Q, theta_T, X)
-  theta_Q = optimizer.update(theta_Q, grad)
-  if epoch % 200 == 0:
-    # Update target parameters
-    theta_T = theta_Q.copy()
-```
-
-
-
-
-
-
-// Objective function
-// Difference between off and on policy
-// MC return is on-policy
-  // As policy changes, old rewards become stale
-  // TD0 return only considers next reward, (do example)
-  // Why choose MC over TD0?
-    // Deadly triad 
-// Eligibility trace
 
 = Deep Q Networks
 // Discuss paper
@@ -1053,10 +972,8 @@ for epoch in range(num_epochs):
 
 ==
 Deep reinforcement learning was first discovered in the 1980s #pause
-
-However, it did not work very well and could only solve simple tasks #pause
-
-We discovered deep learning, experience replay, and target networks
+- However, it did not work very well and could only solve simple tasks #pause
+- We discovered deep learning, experience replay, and target networks
 
 Deep Q Networks (DQN) combined them to beat humans on Atari #footnote[Human-level control through deep reinforcement learning. _Nature._ 2014.] #pause
 
@@ -1142,31 +1059,31 @@ Neural network can infer velocity from multiple images
 ==
 Normally, the Q function takes action as input #pause
 
-$ Q: S times A times Theta_pi times Theta_Q |-> bb(R) $ #pause
+$ Q: S times A times (S |-> Delta A) times Theta |-> bb(R) $ #pause
 
 
 Then, we run $Q$ for all actions #pause
 
 $ a = argmax_i vec(
-  Q(s, a=1, theta_pi, bold(theta)_Q),
-  Q(s, a=2, theta_pi, bold(theta)_Q),
+  Q(s, a=1, pi, bold(theta)),
+  Q(s, a=2, pi, bold(theta)),
   dots.v,
-  Q(s, a=i, theta_pi, bold(theta)_Q),
+  Q(s, a=i, pi, bold(theta)),
  ) $ #pause
 
 For each action, we must execute $Q$ network $|A|$ times. Not efficient!
 
 ==
 
-$ Q: S times A times Theta_pi times Theta_Q |-> bb(R) $ #pause
+$ Q: S times A times (S |-> Delta A) times Theta_Q |-> bb(R) $ #pause
 
 In DQN, the authors estimate all $Q$ at once #pause
 
-$ Q: S times Theta_pi times Theta_Q |-> bb(R)^(|A|) $ #pause
+$ Q: S times (S |-> Delta A) times Theta_Q |-> bb(R)^(|A|) $ #pause
 
 The neural network outputs $|A|$ values -- one for each action #pause
 
-$ a = argmax_i Q(s, theta_pi, bold(theta)_Q)_i $ #pause
+$ a = argmax_i Q(s, pi, bold(theta))_i $ #pause
 
 This is $|A|$ times faster!
 
@@ -1185,10 +1102,10 @@ for epoch in range(num_epochs):
     s, r, d, next_s = env.step(a)
     replay_buffer.insert((s, a, r, d, next_s))
     X = random.sample(replay_buffer, batch_size)
-    theta_Q, model = eqx.partition(Q, is_array) 
-    theta_Q = td_update(theta_Q, theta_T, Q, X)
-    theta_T = copy(theta_Q) if epoch % j == 0 else theta_T
-    Q = eqx.combine(theta_Q, model)
+    theta, model = eqx.partition(Q, is_array) 
+    theta = td_update(theta, theta_T, Q, X)
+    theta_T = copy(theta) if epoch % j == 0 else theta_T
+    Q = eqx.combine(theta, model)
 ```
 
 ==
@@ -1202,8 +1119,7 @@ Mario Kart: https://www.youtube.com/watch?v=lnnHmVNO07Q #pause
 
 Super Smash Bros: https://www.youtube.com/watch?v=7rDfIcdszxQ
 
-
-Pokemon https://youtu.be/DcYLT37ImBY?si=AeR2WkQg4X-tWa5v
+//Pokemon https://youtu.be/DcYLT37ImBY?si=AeR2WkQg4X-tWa5v
 
 
 

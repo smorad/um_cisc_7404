@@ -10,28 +10,6 @@
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
-// TODO: Move policy conditioned return and MCTS from lecture 6 into this lecture
-
-// TODO: Should always factorize into P(s_n | s_0, a_0, ...) and R(s_n)
-// much easier for students and less writing (also done in future lectures)
-// TODO: Rename policy as pi (not theta_pi)
-// Later, just introduce pi_theta as needed, say pi_theta = (pi, theta)
-// Important for Q learning to depend on policy
-// Because often we don't have parameters for max Q
-
-
-/*
-TODO: Equations are confusing
-
-Rewrite as two parts, ie
-
-$ Pr (s_(n+1) | s_0; pi, theta_pi) = sum_(a_0, dots, a_n in A) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) $
-
-$ 
-bb(E)[cal(G)(bold(tau)) | s_0; pi, theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr(s_(n + 1) | s_n, a_n)
-$
-*/
-
 
 #let traj_opt_mdp = diagram({
 
@@ -143,9 +121,10 @@ $
 
 
 #show: university-theme.with(
+  config-common(handout: true),
   aspect-ratio: "16-9",
   config-info(
-    title: [Algorithms],
+    title: [Trajectory Optimization],
     subtitle: [CISC 7404 - Decision Making],
     author: [Steven Morad],
     institution: [University of Macau],
@@ -182,6 +161,8 @@ Questions written in both simplified Chinese and English
 
 ==
 Finish coding
+
+https://colab.research.google.com/drive/1rDNik5oRl27si8wdtMLE7Y41U5J2bx-I
 
 
 = Algorithms
@@ -453,7 +434,7 @@ This will create the best ad creator possible!
 *Answer:* No, maximize the discounted return, not the reward!
 
 
-= Trajectory Optimization New
+= Trajectory Optimization 
 
 ==
 Optimal policy for reward is fairly simple #pause
