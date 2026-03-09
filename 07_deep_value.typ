@@ -236,21 +236,21 @@ Loss function measures the error between $f(bold(x), bold(theta))$ and desired $
 
 *Square error:* The squared distance over a dataset of size $n$ #pause
 
-$ sum_(i=1)^n sum_(j=1)^d_y (f(bold(x)_([i]), bold(theta))_j - g(bold(x))_j)^2 = sum_(i=1)^n sum_(j=1)^d_y (f(bold(x)_([i]), bold(theta))_j - y_([i], j))^2 $ #pause
+$ sum_(i=1)^n sum_(j=1)^d_y (f(bold(x)_(i), bold(theta))_j - g(bold(x))_j)^2 = sum_(i=1)^n sum_(j=1)^d_y (f(bold(x)_(i), bold(theta))_j - y_(i, j))^2 $ #pause
 
 *Cross entropy error:* The categorical error over a dataset of size $n$ #pause
 
 #text(size: 23pt)[
-$ - sum_(i=1)^n sum_(j=1)^(d_y) P(g(bold(x)_([i]))_j | bold(x)_[i]) log f(bold(x)_[i], bold(theta))_j 
- = - sum_(i=1)^n sum_(j=1)^(d_y) P(y_([i], j) | bold(x)_[i]) log f(bold(x)_[i], bold(theta))_j  $
+$ - sum_(i=1)^n sum_(j=1)^(d_y) P(g(bold(x)_(i))_j | bold(x)_i) log f(bold(x)_i, bold(theta))_j 
+ = - sum_(i=1)^n sum_(j=1)^(d_y) P(y_(i, j) | bold(x)_i) log f(bold(x)_i, bold(theta))_j  $
 ]
 ==
 #side-by-side(align: horizon)[*Square error:*][
-  $ sum_(i=1)^n sum_(j=1)^d_y (f(bold(x)_([i]), bold(theta))_j - y_([i], j))^2 $ #pause
+  $ sum_(i=1)^n sum_(j=1)^d_y (f(bold(x)_(i), bold(theta))_j - y_(i, j))^2 $ #pause
 ] 
 
 #side-by-side(align: horizon)[*Cross entropy error:*][
-$ - sum_(i=1)^n sum_(j=1)^(d_y) P(y_([i], j) | bold(x)_[i]) log f(bold(x)_[i], bold(theta))_j  $
+$ - sum_(i=1)^n sum_(j=1)^(d_y) P(y_(i, j) | bold(x)_i) log f(bold(x)_i, bold(theta))_j  $
 
 ] #pause
 
@@ -261,17 +261,17 @@ $ - sum_(i=1)^n sum_(j=1)^(d_y) P(y_([i], j) | bold(x)_[i]) log f(bold(x)_[i], b
 ==
 We can use both errors in a loss function #pause
 
-$ cal(L)(bold(X), bold(Y), bold(theta)) = sum_(i=1)^n sum_(j=1)^d_y (f(bold(x)_([i]), bold(theta))_j - y_([i], j))^2 $ #pause
+$ cal(L)(bold(X), bold(Y), bold(theta)) = sum_(i=1)^n sum_(j=1)^d_y (f(bold(x)_(i), bold(theta))_j - y_(i, j))^2 $ #pause
 
-$ cal(L)(bold(X), bold(Y), bold(theta)) = - sum_(i=1)^n sum_(j=1)^(d_y) P(y_([i], j) | bold(x)_[i]) log f(bold(x)_[i], bold(theta))_j  $
+$ cal(L)(bold(X), bold(Y), bold(theta)) = - sum_(i=1)^n sum_(j=1)^(d_y) P(y_(i, j) | bold(x)_i) log f(bold(x)_i, bold(theta))_j  $
 
 ==
 
 When we train a neural network, we search $Theta$ for $bold(theta)$ that minimize $cal(L)$ #pause
 
-$ argmin_bold(theta) cal(L)(bold(X), bold(Y), bold(theta)) = argmin_bold(theta) sum_(i=1)^n sum_(j=1)^d_y (f(bold(x)_([i]), bold(theta))_j - y_([i], j))^2 $ #pause
+$ argmin_bold(theta) cal(L)(bold(X), bold(Y), bold(theta)) = argmin_bold(theta) sum_(i=1)^n sum_(j=1)^d_y (f(bold(x)_(i), bold(theta))_j - y_(i, j))^2 $ #pause
 
-$ argmin_bold(theta) cal(L)(bold(X), bold(Y), bold(theta)) = argmin_bold(theta) - sum_(i=1)^n sum_(j=1)^(d_y) P(y_([i], j) | bold(x)_[i]) log f(bold(x)_[i], bold(theta))_j  $
+$ argmin_bold(theta) cal(L)(bold(X), bold(Y), bold(theta)) = argmin_bold(theta) - sum_(i=1)^n sum_(j=1)^(d_y) P(y_(i, j) | bold(x)_[i]) log f(bold(x)_i, bold(theta))_j  $
 
 ==
 
@@ -283,7 +283,7 @@ This is an iterative process #pause
 - Evaluate the loss at some point $bold(X), bold(Y), bold(theta)$ #pause
 - Update $bold(theta)$ by some small learning rate $alpha$ #pause
 
-$ bold(theta)_(t+1) = bold(theta)_t - (nabla_bold(theta)_t cal(L)) (bold(X), bold(Y), bold(theta)_t) $
+$ bold(theta)_(t+1) = bold(theta)_t - alpha dot (nabla_bold(theta)_t cal(L)) (bold(X), bold(Y), bold(theta)_t) $
 
 ==
 
@@ -332,9 +332,9 @@ seed = random.key(0)
 key, *net_keys= random.split(seed, 4)
 net = nn.Sequential([
   nn.Linear(d_x, d_h, key=net_keys[0]), 
-  nn.Lambda(jax.nn.leaky_relu),
+  nn.Lambda(jax.nn.relu),
   nn.Linear(d_h, d_h, key=net_keys[1]), 
-  nn.Lambda(jax.nn.leaky_relu),
+  nn.Lambda(jax.nn.relu),
   nn.Linear(d_h, d_y, key=net_keys[2]), 
 ])
 ```
@@ -408,8 +408,6 @@ for epoch in range(num_epochs):
 
 ==
 *Dirty secret of deep learning:* #pause We do not understand deep learning #pause
-
-Biological inspiration, theoretical bounds, and mathematical guarantees #pause
 - For complex neural networks, deep learning is a *science* not *math* #pause
 - No accepted theory for why deep neural networks are so effective #pause
 
@@ -424,8 +422,8 @@ After the last lecture, you understand Q learning #pause
 
 *Question:* Why introduce deep learning to Q learning? #pause
 
-It is much easier to learn $Q$ without a neural network #pause
-- Stronger convergence guarantees #pause
+It is easier to learn $Q$ without a neural network #pause
+- Easy to debug, simpler algorithms, strong convergence guarantees #pause
 
 It is a problem of *scale* #pause
 - Deep RL can solve much bigger problems than normal RL #pause
@@ -446,13 +444,11 @@ Let me demonstrate this with an example problem
 - Map position $[0, 1]^2$ #pause
 - Trash position $[0, 1]^(2 times k)$ #pause
 
-$ S = [0, 1]^(256 times 256 times 3) times bb(R)_+^(4096) times [0, 1]^3 times [0, 1]^2 times [0, 1]^(2 times k) $
-
-//In your assignment, you store Q value for each state/action in a matrix #pause
+$ S = [0, 1]^(256 times 256 times 3) times bb(R)_+^(4096) times [0, 1]^3 times [0, 1]^2 times [0, 1]^(2 times k) $ #pause
 
 *Question:* What is the size of the $Q$ matrix in assignment 1? #pause
 
-#side-by-side[$ S times A $ #pause][This would be a large matrix!]
+#side-by-side[*Answer:* $S times A$ #pause][This would be a large matrix!]
 
 ==
 Let us consider a simplification, only have the map position #pause
@@ -483,7 +479,7 @@ $ S in {1, dots, 128}^2 $ #pause
 
 $ 16384 times A $ #pause
 
-Very large but not infinite
+Large but not infinite, we can learn this
 
 ==
 #let graph = tiling(size: (2cm, 2cm))[
@@ -497,8 +493,8 @@ $ A $
 )
 
 We must update Q for each $s, a$ separately #pause
-- With TD updates, updating one cell means we must update all cells #pause
-- It can take many states and actions for Q converge (HW up to 100k)
+- With TD, we update once cell per datapoint #pause
+- It can take many states and actions for Q converge
 
 ==
 There is a lower sample complexity bound on convergence #footnote[Li, Gen, et al. "Is Q-Learning Minimax Optimal? A Tight Sample Complexity Analysis." Oper. Res. (2024).]#pause
@@ -513,9 +509,8 @@ $64 times A$ petabytes of rewards to learn $Q$
 
 ==
 Simple Q learning works very well when the state space is small #pause
-
-We need a solution for infinite/continuous/large state spaces #pause
-- $Q$ must generalize to new states #pause
+- We need a solution for infinite/continuous/large state spaces #pause
+  - $Q$ must generalize to new/unseen states #pause
 
 #let graph = tiling(size: (2cm, 2cm))[
   #place(line(start: (0%, 0%), end: (0%, 100%)))
@@ -531,13 +526,13 @@ $ A $
 ==
 
 We know that deep learning generalizes well #pause
-- Approximate any continuous function with a deep neural network #pause
+- Learns an accurate continuous function given limited datapoints #pause
 
 Represent the Q function using a deep neural network #pause
-- We call this *deep Q learning* #pause
+- We call this *Deep Q Learning* #pause
 
 Just because parameters exist, does not mean we can find them #pause
-- *No guarantee* we will find good parameters for the Q function #pause
+- *No guarantee* we will find good parameters for a deep Q function #pause
 
 In general, deep RL has no convergence guarantees #pause
 - Deep supervised learning also has weak guarantees, but it works well #pause
@@ -550,7 +545,7 @@ Recall that we define the TD form of $Q$ as
 $ Q(s_0, a_0, pi) &= bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi] \
  &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a, pi) | s_0, a_0; pi] $ #pause
 
-When using the greedy policy, we could make $pi$ implicit
+If we use the greedy policy, we can make $pi$ implicit
 
 $ pi (a_t | s_t) = cases(
   1 "if" a_t = argmax_(a in A) Q(s_t, a),
@@ -566,7 +561,7 @@ Now, let us make $Q$ a neural network with parameters $bold(theta)$ #pause
 
 $ Q(s_0, a_0, bold(theta)) $ #pause
 
-We must be careful, as our policy now implicitly relies on $bold(theta)$ #pause
+We must be careful, as our greedy policy now relies on $bold(theta)$ #pause
 
 $ pi (a_t | s_t; bold(theta)) = cases(
   1 "if" a_t = argmax_(a in A) Q(s_t, a, bold(theta)),
@@ -667,7 +662,7 @@ $ #pause
 
 Use a distance measure we can minimize, choose square error #pause
 
-$ (Q(s_0, a_0, bold(theta)) - bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi])^2 = 0 
+$ (Q(s_0, a_0, bold(theta)) - bb(E)[cal(G)(bold(tau)) | s_0, a_0; bold(theta)])^2 = 0 
 $ 
 
 ==
@@ -702,7 +697,7 @@ $ cal(L)(bold(x), bold(theta)) = (Q(s_t, a_t, bold(theta)) - (r_t + not d_t gamm
 
 $ bold(x) = mat(s_t, a_t, r_t, d_t, s_(t+1)) $ #pause
 
-Finally we should consider a batch of transitions #pause
+Finally, we should compute the loss over a batch of transitions #pause
 
 $ bold(X) = vec(bold(x)_0, dots.v, bold(x)_n) $ #pause
 
@@ -718,7 +713,7 @@ $ bold(theta)_(t+1) = bold(theta)_t + alpha dot (nabla_bold(theta)_t cal(L)) (bo
 
 = Target Networks
 ==
-$ cal(L)(bold(X), bold(theta)) = sum_(s_t, a_t, r_t, d_t, s_(t+1) in bold(X)) (Q(s_t, a_t, bold(theta)) - (r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, bold(theta))))^2 $ 
+$ cal(L)(bold(X), bold(theta)) = sum_(s_t, a_t, r_t, d_t, s_(t+1) in bold(X)) (Q(s_t, a_t, bold(theta)) - (r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, bold(theta))))^2 $ #pause
 
 If you perform gradient descent on this objective, you will find
 
@@ -739,12 +734,12 @@ $ Q(s_0, a_0, bold(theta)) = r_0 + max_(a in A) Q(s_0, a_0, bold(theta)) $ #paus
 $ nabla_bold(theta) sum_(bold(X)) (#redm[$Q(s_t, a_t, bold(theta))$] - underbrace((r_t + not d_t gamma max_(a in A) #redm[$Q(s_(t+1), a, bold(theta))$]), "Label"))^2 $ #pause 
 
 The label depends on the function we are learning #pause
-- Cannot use standard gradient descent to learn this #pause
-- Use the *target network* trick to solve this #pause
+- Cannot use gradient descent here, requires residual gradient descent #pause
+- Gradient descent is faster, use *target networks* to solve this #pause
 
 $ nabla_#redm[$bold(theta)$] sum_(bold(X)) (Q(s_t, a_t, #redm[$bold(theta)$]) - (r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, #bluem[$bold(theta)_(T)$])))^2 $ #pause
 
-$Q$ in label treated as constant, can optimize with gradient descent
+Label $Q$ is constant (semi-gradient), optimize with gradient descent 
 
 ==
 We let $bold(theta)_T$ be an old version of $bold(theta)$
@@ -933,6 +928,7 @@ $ Q(s_0, a_0, #redm[$pi$]) &= bb(E)[cal(G)(bold(tau)) | s_0, a_0; #redm[$pi$]] \
 
 We approximate the future using our network $Q$ #pause
 - The policy $pi$ on the RHS is the same policy $pi$ on the LHS! #pause
+  - If we update the policy on the LHS, the RHS also updates #pause
 - This process is known as *bootstrapping*
 
 ==
@@ -962,7 +958,8 @@ Temporal Difference Q learning is special! #pause
 - It is off-policy, can reuse data and train faster #pause
 
 TD is not always better than MC #pause
-- MC needs more training data, but TD is harder to optimize
+- MC needs more training data, but TD is harder to optimize #pause
+- Fast environment with guaranteed termination, choose MC
 
 
 = Deep Q Networks
@@ -1116,3 +1113,9 @@ Finally, let us look at some successes of deep Q learning #pause
 - https://huggingface.co/learn/deep-rl-course/en/unit3/hands-on #pause
 - Mario Kart: https://www.youtube.com/watch?v=lnnHmVNO07Q #pause
 - Super Smash Bros: https://www.youtube.com/watch?v=7rDfIcdszxQ
+
+= Homework
+==
+You have everything you need to start homework 2 
+
+https://colab.research.google.com/drive/1qKXsaOpT27paCmPA-Hbh_-PtbQnrrkla
