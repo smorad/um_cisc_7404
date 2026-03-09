@@ -20,7 +20,7 @@
 #show: university-theme.with(
   aspect-ratio: "16-9",
   config-info(
-    title: [Deep Q Networks],
+    title: [Deep Q Learning],
     subtitle: [CISC 7404 - Decision Making],
     author: [Steven Morad],
     institution: [University of Macau],
@@ -731,24 +731,23 @@ $ Q(s_0, a_0, bold(theta)) = r_0 + max_(a in A) Q(s_0, a_0, bold(theta)) $ #paus
 #side-by-side[
   *Question:* What if $r_0 = 1$? #pause
 ][
-  $ Q_(i+1) = 1 + Q_i #pause quad quad lim_(i -> oo) Q = oo $
+  $ Q(s_0, bold(theta)_(t+1)) = 1 + Q(s_0, bold(theta)_(t+1)) $
 ]
 
 
 ==
-$ nabla_bold(theta) sum_(bold(X)) (#redm[$Q(s_t, a_t, bold(theta))$] - (r_t + not d_t gamma max_(a in A) #redm[$Q(s_(t+1), a, bold(theta))$]))^2 $ #pause 
+$ nabla_bold(theta) sum_(bold(X)) (#redm[$Q(s_t, a_t, bold(theta))$] - underbrace((r_t + not d_t gamma max_(a in A) #redm[$Q(s_(t+1), a, bold(theta))$]), "Label"))^2 $ #pause 
 
 The label depends on the function we are learning #pause
 - Cannot use standard gradient descent to learn this #pause
-
-Use the *target network* trick to solve this #pause
+- Use the *target network* trick to solve this #pause
 
 $ nabla_#redm[$bold(theta)$] sum_(bold(X)) (Q(s_t, a_t, #redm[$bold(theta)$]) - (r_t + not d_t gamma max_(a in A) Q(s_(t+1), a, #bluem[$bold(theta)_(T)$])))^2 $ #pause
 
-We let $bold(theta)_T$ be an old version of $bold(theta)$
-- $Q$ in label treated as constant, can optimize with gradient descent
+$Q$ in label treated as constant, can optimize with gradient descent
 
 ==
+We let $bold(theta)_T$ be an old version of $bold(theta)$
 ```python
 theta = ... # Initialize parameters
 theta_T = theta.copy()
@@ -872,7 +871,7 @@ $ bold(X)_t = mat(
 #side-by-side[
   Train on the dataset #pause
 ][
-  $ bold(theta)_(t+1) = bold(theta)_t - alpha dot cal(L)(bold(X)_t, bold(theta)_t) $
+  $ bold(theta)_(t+1) = bold(theta)_t - alpha dot nabla_bold(theta)_t cal(L)(bold(X)_t, bold(theta)_t) $
 ] #pause
 
 ==
@@ -881,7 +880,7 @@ $ bold(X)_t = mat(
 *Answer:* Dreaming! #footnote[Liu, Yunzhe, et al. "Experience replay is associated with efficient nonlocal learning." Science 372.6544 (2021): eabf1357.] #pause
 
 + Collect information by interaction with the world (wake) #pause
-+ Stop interacting with the world (sleep)
++ Stop interacting with the world (sleep) #pause
 + Replay memories and learn from them (dream)
 
 
@@ -899,65 +898,71 @@ $ bold(X)_t = mat(
 *Question:* Which is Deep Q learning? 
 
 ==
-The TD objective is off-policy (can reuse old data)
+Let us look at the TD objective #pause
 
 $ Q(s_0, a_0, pi) &= bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi] \
- &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a, pi) | s_0, a_0; pi] $ #pause
+ &= bb(E)[#greenm[$cal(R)(s_1)$] | #redm[$s_0$], #bluem[$a_0$]] + gamma bb(E)[Q(s_1, a, pi) | s_0, a_0; pi] $ #pause
+
+Training data $#redm[$s_0$], #bluem[$a_0$], #greenm[$r_0$], s_1$ does *not* rely on $pi$ #pause
+- It is defined for any $s_0, a_0$ given to $Q$ #pause
+- $bb(E)[Q(s_1, a, pi) | s_0, a_0; pi]$: Here, $s_1$ comes from $a_0$ not $pi$ #pause
+  - What about $r_2, r_3, dots$ that $Q(s_1, a, pi)$ represents? $a_1, a_2 tilde pi$ #pause
+    - We approximate them with $Q$, $pi$ on RHS is same as $pi$ on LHS
+
+Deep Q learning (TD objective) is off-policy #pause
+- We can reuse old data!
 
 ==
-The Monte Carlo objective is on-policy (cannot reuse old data)
+Let us look at the TD objective #pause
 
+$ Q(s_0, a_0, pi) &= bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi] \
+ &= bb(E)[#greenm[$cal(R)(s_1)$] | #redm[$s_0$], #bluem[$a_0$]] + gamma bb(E)[Q(s_1, a_1, pi) | s_0, a_0; pi] $ #pause
 
-==
-Start with the Monte Carlo objective #pause
+Training data $#redm[$s_0$], #bluem[$a_0$], #greenm[$r_0$], s_1$ does *not* rely on $pi$! #pause
+- It is defined by transition dynamics for whichever $s_0, a_0$ we query #pause
+- In $bb(E)[Q(s_1, a_1, pi) | s_0, a_0; pi]$, state $s_1$ comes from $#bluem[$a_0$]$, not $pi$ #pause
 
-//$ argmin_(theta) [ sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, pi, bold(theta)) -  sum_(t=0)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_0, a_0; #pin(1)pi#pin(2)] )^2 ] $ #pause
+*Question:* What about the future rewards $r_1, r_2, dots$ hidden inside $Q(s_1, a_1, pi)$? 
+Don't those require taking future actions $a_1, a_2 tilde pi$? #pause
 
-$ argmin_(bold(theta)) sum_(s_0 in S) sum_(a_0 in A) (Q(s_0, a_0, pi, bold(theta)) - sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0; #pin(1)pi#pin(2)] )^2 $
-
-*Question:* On-policy or off-policy? #pause *Answer:* On-policy. Why? #pause
-
-#pinit-highlight(1, 2)
-
-The return is conditioned on the policy #pause
-- If the policy changes, the return $r_0 + gamma r_1 + gamma^2 r_2 + dots $ is not valid! #pause
-
-$pi$ is an implicit function of $theta$: $pi -> argmax_a Q(s, a, theta)$
-
-//Old episode gives 
-
-//Old episode gives us $hat(bb(E))[cal(R)(s_(t+1)) | s_0, a_0; theta_("old")]$  #pause
-
-We need $hat(bb(E))[cal(R)(s_(t+1)) | s_0, a_0; pi]$
+*Answer:* Yes, but we don't use real data for the future! 
 
 ==
-What about TD return? #pause
+$ Q(s_0, a_0, #redm[$pi$]) &= bb(E)[cal(G)(bold(tau)) | s_0, a_0; #redm[$pi$]] \
+ &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, #redm[$pi$]) | s_0, a_0; #redm[$pi$]] $ #pause
 
-$ &argmin_(bold(theta)) [ sum_(s_0 in S) sum_(a_0 in A) \ &(Q(s_0, a_0, pi, bold(theta)) - ( hat(bb(E))[cal(R)(s_1) | s_0, a_0] + not d_0 gamma max_(a in A) Q(s_1, a, #pin(1)pi#pin(2), bold(theta))))^2 ] $ #pause
+We approximate the future using our network $Q$ #pause
+- The policy $pi$ on the RHS is the same policy $pi$ on the LHS! #pause
+- This process is known as *bootstrapping*
 
-*Question:* On-policy or off-policy? #pause *Answer:* Off-policy. Why? #pause
+==
+Let us look at a Monte Carlo objective #pause
 
-#pinit-highlight(1, 2) #pause
+$ Q(s_0, a_0, pi) &= bb(E)[cal(G)(bold(tau)) | s_0, a_0; pi] \
+ &= sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0, a_0; pi] #pause \
+ &= bb(E)[#redm[$cal(R)(s_(1))$] | s_0, a_0]
+ + gamma bb(E)[#bluem[$cal(R)(s_(2))$] | s_0, a_0 ; pi] + dots \
+ &approx #redm[$r_0$] + gamma #bluem[$r_1$] + dots
+ $ #pause
 
-Q function depends on $pi$, but reward does not!
+Training data $#redm[$r_0$]$ comes from $a_0, s_0$ #pause
+- Where does $#bluem[$r_1$]$ come from?
+  - $a_1 tilde pi_beta$, where $pi_beta$ collected the data #pause
 
-Do we know $argmax_(a in A) Q(s_1, a, #pin(1)pi#pin(2), bold(theta))$? #pause Yes! Just plug in $s_1$
+Monte Carlo objectives are on-policy, cannot reuse old data!
 
 ==
 
 To summarize: #pause
 
 Monte Carlo Q learning is on-policy #pause
-
-Cannot reuse data, takes a long time to train #pause
+- Cannot reuse data, takes a long time to train #pause
 
 Temporal Difference Q learning is special! #pause
-
-It is off-policy, can reuse data and train faster #pause
+- It is off-policy, can reuse data and train faster #pause
 
 TD is not always better than MC #pause
-
-MC needs more training data, but TD has harder optimization
+- MC needs more training data, but TD is harder to optimize
 
 
 = Deep Q Networks
@@ -973,13 +978,11 @@ MC needs more training data, but TD has harder optimization
 ==
 Deep reinforcement learning was first discovered in the 1980s #pause
 - However, it did not work very well and could only solve simple tasks #pause
-- We discovered deep learning, experience replay, and target networks
+- We discovered deep learning, experience replay, and target networks #pause
 
 Deep Q Networks (DQN) combined them to beat humans on Atari #footnote[Human-level control through deep reinforcement learning. _Nature._ 2014.] #pause
-
-After this paper, people realized that RL can work for hard tasks #pause
-
-You have all the tools you need to implement DQN, except for one
+- After this paper, people realized that RL can work for hard tasks #pause
+- You have all the tools you need to implement DQN, except for one
 
 /*
 ==
@@ -1057,33 +1060,33 @@ Neural network can infer velocity from multiple images
 */
 
 ==
-Normally, the Q function takes action as input #pause
+Normally, the greedy Q function takes action as input #pause
 
-$ Q: S times A times (S |-> Delta A) times Theta |-> bb(R) $ #pause
+$ Q: S times A times Theta |-> bb(R) $ #pause
 
 
 Then, we run $Q$ for all actions #pause
 
 $ a = argmax_i vec(
-  Q(s, a=1, pi, bold(theta)),
-  Q(s, a=2, pi, bold(theta)),
+  Q(s, a=1, bold(theta)),
+  Q(s, a=2, bold(theta)),
   dots.v,
-  Q(s, a=i, pi, bold(theta)),
+  Q(s, a=i, bold(theta)),
  ) $ #pause
 
 For each action, we must execute $Q$ network $|A|$ times. Not efficient!
 
 ==
 
-$ Q: S times A times (S |-> Delta A) times Theta_Q |-> bb(R) $ #pause
+$ Q: S times A times Theta |-> bb(R) $ #pause
 
 In DQN, the authors estimate all $Q$ at once #pause
 
-$ Q: S times (S |-> Delta A) times Theta_Q |-> bb(R)^(|A|) $ #pause
+$ Q: S times Theta |-> bb(R)^(|A|) $ #pause
 
 The neural network outputs $|A|$ values -- one for each action #pause
 
-$ a = argmax_i Q(s, pi, bold(theta))_i $ #pause
+$ a = argmax_i Q(s, bold(theta))_i $ #pause
 
 This is $|A|$ times faster!
 
@@ -1110,24 +1113,6 @@ for epoch in range(num_epochs):
 
 ==
 Finally, let us look at some successes of deep Q learning #pause
-
-https://huggingface.co/learn/deep-rl-course/en/unit3/hands-on #pause
-
-//Mario Kart https://www.youtube.com/watch?v=VIwGxOdXGfw #pause
-
-Mario Kart: https://www.youtube.com/watch?v=lnnHmVNO07Q #pause
-
-Super Smash Bros: https://www.youtube.com/watch?v=7rDfIcdszxQ
-
-//Pokemon https://youtu.be/DcYLT37ImBY?si=AeR2WkQg4X-tWa5v
-
-
-
-// = Modern Deep Q Learning
-// Exploration vs exploitation
-  // Boltzmann policy
-// PER?
-// Polyak updates
-// Regularization
-// Distributional Q learning
-// PQN
+- https://huggingface.co/learn/deep-rl-course/en/unit3/hands-on #pause
+- Mario Kart: https://www.youtube.com/watch?v=lnnHmVNO07Q #pause
+- Super Smash Bros: https://www.youtube.com/watch?v=7rDfIcdszxQ
