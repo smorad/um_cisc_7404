@@ -1,10 +1,10 @@
-#import "@preview/algorithmic:0.1.0"
-#import algorithmic: algorithm
+#import "@preview/algorithmic:1.0.6"
+#import algorithmic: style-algorithm, algorithm-figure, algorithm
 #import "@preview/touying:0.6.1": *
 #import themes.university: *
 #import "common.typ": *
-#import "@preview/cetz:0.3.4": canvas
-#import "@preview/cetz-plot:0.1.1": plot
+#import "@preview/cetz:0.4.2"
+#import "@preview/cetz-plot:0.1.3"
 #import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
@@ -13,35 +13,39 @@
 
 #let log_trick = { 
     set text(size: 25pt)
-    canvas(length: 1cm, {
-  plot.plot(
-    size: (10, 4),
-    name: "plot",
-    x-tick-step: 2,
-    y-tick-step: none,
-    y-ticks: (0, 1),
-    y-min: -1,
-    y-max: 1,
-    {
-      plot.add(
-        domain: (0, 5), 
-        style: (stroke: (thickness: 5pt, paint: red)),
-        label: $ Pr (x; theta) $,
-        x => calc.pow(x, 3) / (1 + calc.pow(x, 4)) ,
-      )
-      plot.add(
-        domain: (0.01, 5), 
-        style: (stroke: (thickness: 3pt, paint: blue)),
-        label: $ log Pr (x; theta) $,
-        x => calc.log(calc.abs(calc.pow(x, 3)) / (1 + calc.pow(x, 4))),
-      )
-    })
+    cetz.canvas(length: 1cm, {
+        import cetz.draw: *
+        import cetz-plot: *
+        plot.plot(
+            size: (10, 4),
+            name: "plot",
+            x-tick-step: 2,
+            y-tick-step: none,
+            y-ticks: (0, 1),
+            y-min: -1,
+            y-max: 1,
+            {
+            plot.add(
+                domain: (0, 5), 
+                style: (stroke: (thickness: 5pt, paint: red)),
+                label: $ Pr (x; theta) $,
+                x => calc.pow(x, 3) / (1 + calc.pow(x, 4)) ,
+            )
+            plot.add(
+                domain: (0.01, 5), 
+                style: (stroke: (thickness: 3pt, paint: blue)),
+                label: $ log Pr (x; theta) $,
+                x => calc.log(calc.abs(calc.pow(x, 3)) / (1 + calc.pow(x, 4))),
+            )
+            })
 })}
 
 #let overshoot = { 
     set text(size: 25pt)
-    canvas(length: 1cm, 
+    cetz.canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (10, 6),
             name: "plot",
@@ -50,27 +54,29 @@
             y-ticks: (0, 1),
             y-min: 0,
             y-max: 1,
-            x-label: $ theta_pi $,
+            x-label: $ bold(theta) $,
             y-label: $ cal(G) $,
             {
             plot.add(
                 domain: (0, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] $,
+                label: $ bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] $,
                 x => calc.pow(x, 1) / (1 + calc.pow(x, 16)) ,
             )
             plot.add-anchor("pt", (1,1))
             })
     //draw.line("plot.pt", ((), "|-", (0,1)), mark: (start: ">"), name: "line")
-    draw.circle((3.6, 4.3), radius: 0.2cm, fill: black)
-    draw.circle((7.5, 0), radius: 0.2cm, fill: black)
+    circle((3.6, 4.3), radius: 0.2cm, fill: black)
+    circle((7.5, 0), radius: 0.2cm, fill: black)
     }
 )}
 
 #let policy_shift = { 
     set text(size: 25pt)
-    canvas(length: 1cm, 
+    cetz.canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (10, 4),
             name: "plot",
@@ -85,31 +91,34 @@
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_(pi, 1)) $,
+                label: $ pi (a | s; bold(theta)_(1)) $,
                 x => normal_fn(-1, 0.5, x),
             ) 
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: blue)),
-                label: $ pi (a | s; theta_(pi, 2)) $,
+                label: $ pi (a | s; bold(theta)_(2)) $,
                 x => normal_fn(-0.5, 0.3, x),
             )
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: green)),
-                label: $ pi (a | s; theta_(pi, 3)) $,
+                label: $ pi (a | s; bold(theta)_(3)) $,
                 x => normal_fn(-0.1, 0.23, x),
             )
+            plot.annotate({
+                line((0,0), (0,4), stroke: orange)
+                content((0,5), text(fill: orange)[$ argmax_(a in A) cal(G) $])
             })
-            draw.line((5,0), (5,4), stroke: orange)
-            draw.content((5,5), text(fill: orange)[$ argmax_(a in A) cal(G) $])
-    //draw.line("plot.pt", ((), "|-", (0,1)), mark: (start: ">"), name: "line")
+        })
     }
 )}
 #let big_policy_shift = { 
     set text(size: 25pt)
-    canvas(length: 1cm, 
+    cetz.canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (10, 6),
             name: "plot",
@@ -124,13 +133,13 @@
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_pi) $,
+                label: $ pi (a | s; bold(theta)) $,
                 x => normal_fn(-1, 0.5, x),
             )
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: blue)),
-                label: $ pi (a | s; theta_pi + eta) $,
+                label: $ pi (a | s; bold(theta) + eta) $,
                 x => normal_fn(1, 0.2, x),
             )
             })
@@ -160,13 +169,6 @@
     outline(title: none, indent: 1em, depth: 1)
 )
 
-// TODO: Keep G in sum in final results
-// Then, instead of sum_(s, a in tau)
-// Can do sum_(s in S, a in A) G * nabla log pi
-// $ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(t=0)^oo bb(E)[cal(G)(bold(tau)) | s_t; theta_pi] dot nabla_(theta_pi) log pi (a_t | s_t; theta_pi) $
-// But need to be careful as this is all t
-// Left side should also sum over all t
-
 
 // Two core algorithms for model-free decision making
 // One is Q learning the other is policy gradient
@@ -180,58 +182,14 @@
 
 = Admin
 ==
-
-Homework 1 was due yesterday 23:59 #pause
-
-How was the homework? #pause
-
-We are about 50% finished with the course #pause
-
-Any opinions/feedback on the course? #pause
-- Can also talk after class #pause
-- Or email smorad at um.edu.mo 
+Exam next week #pause
+- I still need to write it #pause
+- Will post exam topics on Moodle tomorrow
 
 ==
 If you want full participation marks, you must participate in lecture #pause
-
-
-Right now, the following students have full participation marks: #pause
-#side-by-side[
-- LIU KEJIA
-- LIU HUANRONG
-- HOI HOU HONG
-- CHEN ZELAI
-- WANG ZEKANG
-- HE ZHE
-][
-- WANG MENGQI
-- ZHANG BORONG
-- HE ENHAO
-- QIAO YULIN
-- ZHUANG HANQIN
-- KAM KA HOU
-]
-
-==
-Some names might be missing! #pause
-
-I am bad with names, but I remember faces #pause
-
-I have a list of university pictures linked to names #pause
-
-Some of you look very different in your university pictures #pause
-
-If you often answer questions but are missing from the list, I will remember you #pause
-
-Come talk to me during the break or after class #pause
-
-For everyone else, there is still time to participate
-
-#side-by-side[
-    Ask/answer lecture questions #pause
- ][
-    Ask questions at office hours
- ]
+- Ask/answer lecture questions #pause
+- Ask questions at office hours
 
 
 ==
@@ -240,19 +198,20 @@ A cute video of trajectory optimization #pause
 https://www.youtube.com/watch?v=tudxHzZ5_ls
 
 ==
-Richard Sutton and Andrew Barto (authors of RL textbook) recently won the Turing award ("Nobel prize of computing") #pause
 
-#cimage("fig/08/turing.jpg", height: 70%)
+Last year, two authors of the RL textbook won the Turing Awards #pause
+
+#cimage("fig/08/turing.jpg", height: 80%)
 
 ==
-They won the award "For developing the conceptual and algorithmic foundations of reinforcement learning" #pause
+Richard Sutton was the first to combine neural networks with RL #pause
+- He is widely considered the father of modern RL #pause
+- He also was also responsible for the algorithm we will review today #pause
 
 Richard Sutton's _Bitter Lesson_ #pause
 
 http://www.incompleteideas.net/IncIdeas/BitterLesson.html
 
-
-// Still want to maximize the return (restate this), dependent on theta
 
 = Review
 
@@ -270,34 +229,32 @@ There are two types of algorithms #pause
 - Policy gradient methods (today's material) #pause
 
 All other algorithms are some combination of these two methods #pause
+- After today, you can understand any decision making algorithm #pause
 
-Once you know policy gradient, you can understand any decision making algorithm #pause
-
-*Note:* LLM finetuning almost always uses policy gradient methods #pause
+*Note:* LLM training almost always uses policy gradient methods #pause
 - Direct Preference Optimization (DPO) #pause
 - Group Relative Policy Optimization (GRPO) #pause
 
-Policy gradient can change pretrained model parameters 
+Policy gradient can change pretrained model parameters #pause
+- Hear "finetuning", think policy gradient
 
 ==
 
 Q learning is perfect, why do we need a new algorithm? #pause
+- With Q learning, we learn a Q function #pause
+- From the Q function, we derive an optimal policy #pause
 
-With Q learning, we learn a Q function #pause
-
-From the Q function, we derive an optimal policy #pause
-
-$ pi (a_t | s_t; theta_pi) =  cases( 
-  1 "if" a_t = argmax_(a in A) Q(s_t, a, theta_pi), 
+$ pi (a_t | s_t; bold(theta)) =  cases( 
+  1 "if" a_t = argmax_(a in A) Q(s_t, a, bold(theta)), 
   0 "otherwise"
 ) $ #pause
 
 So why do we need a new algorithm?
 
 /*
-The policy is if/else -- it does not require parameters $theta_pi$ to implement #pause
+The policy is if/else -- it does not require parameters $bold(theta)$ to implement #pause
 
-You may wonder why I have used $theta_pi$ throughout the course #pause
+You may wonder why I have used $bold(theta)$ throughout the course #pause
 
 Today, we will see why
 */
@@ -326,8 +283,8 @@ $ A in [0, 2 pi]^(12) $ #pause
 *Question:* Can we use our greedy max Q policy for BenBen? #pause
 ]
 
-$ pi (a_t | s_t; theta_pi) =  cases( 
-  1 "if" a_t = argmax_(a in A) Q(s_t, a, theta_pi), 
+$ pi (a_t | s_t; bold(theta)) =  cases( 
+  1 "if" a_t = argmax_(a in A) Q(s_t, a, bold(theta)), 
   0 "otherwise"
 ) $ #pause
 
@@ -336,30 +293,27 @@ $ pi (a_t | s_t; theta_pi) =  cases(
 ==
 
 Can discretize action space (similar to last time, discretized state space) #pause
-
-Discrete actions lead to clunky/clumsy robots #pause
-
-We want our BenBen to dance naturally #pause
+- Discrete actions lead to clunky/clumsy robots #pause
+- We want our BenBen to dance naturally #pause
 
 More flexible algorithm, policy for discrete or *continuous* action spaces #pause
-
-In continuous action spaces, there are infinitely many actions #pause
-
-Policy gradient can learn over this infinite action space #pause
-
-Does that sound impossible?
+- In continuous action spaces, there are infinitely many actions #pause
+- Policy gradient can learn over this infinite action space #pause
+    - Does that sound impossible?
 
 ==
 
-The secret is directly learning the policy (action distribution) #pause
+In Q learning, we learn parameters $bold(theta)$ for $Q$ #pause
+- Learn $Q$, use $Q$ in greedy policy #pause
+    - Greedy policy is implicitly a function of $bold(theta)$ #pause
+- In policy gradient, $bold(theta)$ represent policy parameters #pause
+    - Learn policy directly, without $Q$ #pause
 
-$ pi (a | s; theta_pi) $ #pause
+$ pi (a | s; bold(theta)) $ #pause
 
 This is a distribution over the action space #pause
-
-Some distributions (like Gaussian) have infinite support #pause
-
-If $pi (a | s; theta_pi)$ is Gaussian, every action has nonzero probability #pause
+- Some distributions (like Gaussian) have infinite support #pause
+- If $pi (a | s; bold(theta))$ is Gaussian, every action has nonzero probability #pause
 
 We can improve the action distribution over time
 
@@ -370,40 +324,54 @@ We can improve the action distribution over time
 // Off policy PG (leads into actor critic?)
 
 ==
-*Definition:* General form of policy-conditioned discounted return #pause
+Recall the policy-conditioned discounted return #pause
 
 $ 
-bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; theta_pi)
+bb(E)[cal(G)(bold(tau)) | s_0; pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; pi)
 $ #pause
 
 Where the state distribution is #pause
 
-$ Pr (s_(n+1) | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ) $ 
+$ Pr (s_(n+1) | s_0; pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t) ) $ 
+
+==
+Let us make $pi$ a neural network with parameters $bold(theta)$ #pause
+
+$ pi (a_t | s_t; bold(theta)) $ #pause
+
+We can say that the parameters $bold(theta)$ fully determine $pi$ #pause
+
+$ Pr (s_(n+1) | s_0; bold(theta)) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) ) $ #pause
+
+And write the expected return in terms of $bold(theta)$ instead of $pi$ #pause
+
+$ bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; bold(theta))
+$ #pause
 
 ==
 
 $ 
-bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; theta_pi)
+bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; bold(theta))
 $ #pause
 
-*Question:* What can we change here to change the return? #pause
+*Question:* Which term can we change here to improve the return? #pause
 
-*Answer:* The policy parameters $theta_pi$ #pause
+*Answer:* The policy parameters $bold(theta)$ #pause
 
-$ Pr(s_(n + 1) | s_n) = sum_(a_n in A) Tr (s_(n+1) | s_n, a_n) dot pi (a_n | s_n; theta_pi) $ #pause
+$ Pr (s_(n + 1) | s_n; bold(theta)) = sum_(a_n in A) Tr (s_(n+1) | s_n, a_n) dot pi (a_n | s_n; bold(theta)) $ #pause
 
-*Question:* How should we change $theta_pi$? #pause
+*Question:* How should we change $bold(theta)$? #pause
 
-*Answer:* Change $theta_pi$ so we reach good $s in S$, making the return larger
+*Answer:* Change $bold(theta)$ to reach good $s in S$, making the return larger
 
 
 ==
 
 $ 
-bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; theta_pi)
+bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; bold(theta))
 $ #pause
 
-We want to make $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$ larger #pause
+We want to make $bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)]$ larger #pause
 
 *Question:* How to change the policy parameters to improve the return? #pause
 
@@ -420,11 +388,11 @@ HINT: Calculus and optimization #pause
 
 #v(1.5em)
 
-$ #pin(5)theta_(pi, i+1)#pin(6) = #pin(1)theta_(pi, i)#pin(2) + alpha dot #pin(3)gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)]#pin(4) $ #pause
+$ #pin(5)bold(theta)_(i+1)#pin(6) = #pin(1)bold(theta)_(i)#pin(2) + alpha dot #pin(3)gradient_(bold(theta)_(i)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_(i)]#pin(4) $ #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Current policy] #pause
 
-#pinit-highlight-equation-from((3,4), (3,3), fill: blue, pos: bottom, height: 1.2em)[$theta$ direction that maximizes return] #pause
+#pinit-highlight-equation-from((3,4), (3,3), fill: blue, pos: bottom, height: 1.2em)[$bold(theta)$ direction that maximizes return] #pause
 
 #pinit-highlight-equation-from((5,6), (5,6), fill: orange, pos: bottom, height: 1.2em)[New policy] 
 
@@ -432,31 +400,31 @@ $ #pin(5)theta_(pi, i+1)#pin(6) = #pin(1)theta_(pi, i)#pin(2) + alpha dot #pin(3
 
 #v(1em)
 
-$ #pin(5)theta_(pi, i+1)#pin(6) = #pin(1)theta_(pi, i)#pin(2) + alpha dot #pin(3)gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)]#pin(4) $
+$ #pin(5)bold(theta)_(i+1)#pin(6) = #pin(1)bold(theta)_(i)#pin(2) + alpha dot #pin(3)gradient_(bold(theta)_(i)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_(i)]#pin(4) $
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Current policy] 
 
-#pinit-highlight-equation-from((3,4), (3,3), fill: blue, pos: bottom, height: 1.2em)[$theta$ direction that maximizes return] 
+#pinit-highlight-equation-from((3,4), (3,3), fill: blue, pos: bottom, height: 1.2em)[$bold(theta)$ direction that maximizes return] 
 
 #pinit-highlight-equation-from((5,6), (5,6), fill: orange, pos: bottom, height: 1.2em)[New policy] #pause
 
 #v(1.5em)
 
-If find $gradient_(theta_(pi)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi)]$, we can improve the policy and return #pause
+If find $gradient_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)]$, we can improve the policy and return #pause
 
 #align(center, policy_shift)
 
 ==
 
 $ 
-bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; theta_pi)
+bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; bold(theta))
 $ #pause
 
-$ Pr (s_(n+1) | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ) $ #pause
+$ Pr (s_(n+1) | s_0; bold(theta)) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) ) $ #pause
 
 We want 
 
-$ gradient_(theta_(pi)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi)] $ #pause
+$ gradient_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] $ #pause
 
 First, combine top two equations so we have more space
 
@@ -464,15 +432,15 @@ First, combine top two equations so we have more space
 
 #text(size: 23pt)[
 $ 
-bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; theta_pi)
+bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; bold(theta))
 $ 
 
-$ Pr (s_(n+1) | s_0; theta_pi) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ) $ #pause
+$ Pr (s_(n+1) | s_0; bold(theta)) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) ) $ #pause
 
 Plug line 2 into line 1 #pause
 
 $ 
-bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ (sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ))
+bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ (sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) ))
 $ // Rewrite
 ]
 
@@ -480,89 +448,89 @@ $ // Rewrite
 
 #text(size: 23pt)[
 $ 
-bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ (sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ))
+bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ (sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) ))
 $ #pause
 
-Take the gradient with respect to $theta_pi$ of both sides #pause
+Take the gradient with respect to $bold(theta)$ of both sides #pause
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = nabla_(theta_pi)[ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ (sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ))]
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = nabla_(bold(theta))[ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ (sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) ))]
 $ // Take gradient of both sides
 ]
 ==
 
 #text(size: 23pt)[
 $ 
-= nabla_(theta_pi) [ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ (sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ))]
+= nabla_(bold(theta)) [ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ (sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) ))]
 $  #pause
 
 Move gradient inside sums #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ nabla_(theta_pi) [sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) )]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ nabla_(bold(theta)) [sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) )]
 $ // Move gradient inside
 ]
 
 ==
 #text(size: 23pt)[
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ nabla_(theta_pi) [sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) )]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ nabla_(bold(theta)) [sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(a_t in A) Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) )]
 $ #pause 
 
-Rewrite $Pr (s_(n+1) | s_0; theta_pi)$ by pulling action sum outside #pause
+Rewrite $Pr (s_(n+1) | s_0; bold(theta))$ by pulling action sum outside #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ nabla_(theta_pi) [sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) product_(t=0)^n  Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ] 
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ nabla_(bold(theta)) [sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) product_(t=0)^n  Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) ] 
 $ // Rewrite p(s_n | s_0) pulling action sum outside
 ]
 ==
 #text(size: 23pt)[
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ nabla_(theta_pi) [sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) product_(t=0)^n  Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ] 
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot \ nabla_(bold(theta)) [sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) product_(t=0)^n  Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) ] 
 $ #pause
 
 Move the gradient operator further inside the sum #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(theta_pi) [ product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(bold(theta)) [ product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) ]
 $ // Move gradient further inside
 ]
 ==
 #text(size: 23pt)[
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(theta_pi) [ product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(bold(theta)) [ product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)) ]
 $ #pause
 
 Want to move $nabla$ inside, split product #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(theta_pi) [ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot (product_(t=0)^n pi (a_t | s_t; theta_pi)) ] // Split product
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(bold(theta)) [ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot (product_(t=0)^n pi (a_t | s_t; bold(theta))) ] // Split product
 $
 ]
 
-//Cannot move $nabla_(theta_pi)$ further inside, as all $s_(t+1)$ depends on $pi (a_0 | s_0; theta_pi)$ #pause
+//Cannot move $nabla_(bold(theta))$ further inside, as all $s_(t+1)$ depends on $pi (a_0 | s_0; bold(theta))$ #pause
 
 ==
 #text(size: 23pt)[
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(theta_pi) [ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot (product_(t=0)^n pi (a_t | s_t; theta_pi)) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ nabla_(bold(theta)) [ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot (product_(t=0)^n pi (a_t | s_t; bold(theta))) ]
 $ #pause
 
 First term is a constant factor, pull out constant #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot nabla_(theta_pi)[product_(t=0)^n pi (a_t | s_t; theta_pi) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot nabla_(bold(theta))[product_(t=0)^n pi (a_t | s_t; bold(theta)) ]
 $
 ]
 ==
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot nabla_(theta_pi)[product_(t=0)^n pi (a_t | s_t; theta_pi) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot nabla_(bold(theta))[product_(t=0)^n pi (a_t | s_t; bold(theta)) ]
 $ #pause
 
 Can use chain and product rule, but will create a mess of terms #pause
 
-$ nabla_(theta_pi) [ pi (a_n | s_n; theta_pi) dots dot pi (a_0 | s_0; theta_pi)] = \
- nabla_(theta_pi) [ pi (a_n | s_n; theta_pi) ] dot pi (a_(n-1) | s_(n-1); theta_pi) dots $
+$ nabla_(bold(theta)) [ pi (a_n | s_n; bold(theta)) dots dot pi (a_0 | s_0; bold(theta))] = \
+ nabla_(bold(theta)) [ pi (a_n | s_n; bold(theta)) ] dot pi (a_(n-1) | s_(n-1); bold(theta)) dots $
 
 It will be very expensive/intractable to compute all terms!
 
@@ -604,7 +572,7 @@ $
 #side-by-side(align: horizon)[
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot nabla_(theta_pi)[product_(t=0)^n pi (a_t | s_t; theta_pi) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot nabla_(bold(theta))[product_(t=0)^n pi (a_t | s_t; bold(theta)) ]
 $ #pause
     
 ][
@@ -614,19 +582,19 @@ $ #pause
 Apply log-derivative trick to $nabla product$ #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot nabla_(theta_pi)[log( product_(t=0)^n pi (a_t | s_t; theta_pi) ) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; bold(theta)) dot nabla_(bold(theta))[log( product_(t=0)^n pi (a_t | s_t; bold(theta)) ) ]
 $ // log trick: grad f(x) = f(x) grad log f(x)
 ]
 ==
 #text(size: 23pt)[
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot nabla_(theta_pi)[log( product_(t=0)^n pi (a_t | s_t; theta_pi) ) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; bold(theta)) dot nabla_(bold(theta))[log( product_(t=0)^n pi (a_t | s_t; bold(theta)) ) ]
 $ #pause // log trick: grad f(x) = f(x) grad log f(x)
 
 The log of products is the sum of logs: $log(a b) = log(a) + log(b)$ #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot nabla_(theta_pi)[sum_(t=0)^n log pi (a_t | s_t; theta_pi)  ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; bold(theta)) dot nabla_(bold(theta))[sum_(t=0)^n log pi (a_t | s_t; bold(theta))  ]
 $ // split log prods to sum logs
 
 ]
@@ -634,26 +602,26 @@ $ // split log prods to sum logs
 ==
 #text(size: 23pt)[
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot nabla_(theta_pi)[sum_(t=0)^n log pi (a_t | s_t; theta_pi)  ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; bold(theta)) dot nabla_(bold(theta))[sum_(t=0)^n log pi (a_t | s_t; bold(theta))  ]
 $ #pause 
 
 Gradient of sum is sum of gradients #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; bold(theta)) dot sum_(t=0)^n nabla_(bold(theta)) log pi (a_t | s_t; bold(theta))  
 $ // Distribute grad into sum
 ]
 
 ==
 #text(size: 23pt)[
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; theta_pi) dot sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t)) dot product_(t=0)^n pi (a_t | s_t; bold(theta)) dot sum_(t=0)^n nabla_(bold(theta)) log pi (a_t | s_t; bold(theta))  
 $  #pause
 
 Last step, recombine product #pause
 
 $ 
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi)) dot sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)  
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \  (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta))) dot sum_(t=0)^n nabla_(bold(theta)) log pi (a_t | s_t; bold(theta))  
 $ 
 
 ]
@@ -661,20 +629,18 @@ $
 
 ==
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi))  sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)))  sum_(t=0)^n nabla_(bold(theta)) log pi (a_t | s_t; bold(theta))
 $ #pause
 
 *Definition:* This is the *policy gradient* #pause
-
-Rewrote the gradient of the return in terms of the gradient of policy #pause
-
-But this is a bit messy, and we don't know how to train it yet!
+- Rewrote the gradient of the return in terms of the gradient of policy #pause
+- But this is a bit messy, and we don't know how to train it yet!
 
 ==
 We have the policy gradient #pause
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi))  sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot  sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) \ (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)))  sum_(t=0)^n nabla_(bold(theta)) log pi (a_t | s_t; bold(theta))
 $ #pause
 
 Can we write it in a simpler form so we can approximate it?
@@ -682,7 +648,7 @@ Can we write it in a simpler form so we can approximate it?
 ==
 #text(size: 23pt)[
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) \ #pin(1)dot sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; theta_pi))#pin(2)  sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) \ #pin(1)dot sum_(s_1, dots, s_n in S) sum_(a_0, dots, a_n in A) (product_(t=0)^n Tr(s_(t+1) | s_t, a_t) dot pi (a_t | s_t; bold(theta)))#pin(2)  sum_(t=0)^n nabla_(bold(theta)) log pi (a_t | s_t; bold(theta)) 
 $ #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 2em)[*Question:* Is this familiar?] #pause
@@ -690,7 +656,7 @@ $ #pause
 #v(2em)
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) #pin(5)Pr (s_(n+1) | s_0; theta_pi)#pin(6)  sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = \ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) #pin(5)Pr (s_(n+1) | s_0; bold(theta))#pin(6)  sum_(t=0)^n nabla_(bold(theta)) log pi (a_t | s_t; bold(theta)) 
 $
 
 #pinit-highlight(5, 6)
@@ -698,134 +664,142 @@ $
 
 ==
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ #pin(1)sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; theta_pi)#pin(2)  sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = \ #pin(1)sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; bold(theta))#pin(2)  sum_(t=0)^n nabla_(bold(theta)) log pi (a_t | s_t; bold(theta)) 
 $ #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 2em)[*Question:* Is this familiar?] #pause
 
 #v(2em)
 
-$ #redm[$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] $] $
+$ #redm[$ bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] $] $
 
 ==
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; theta_pi) sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = \ sum_(#pin(1)n=0#pin(2))^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; bold(theta)) sum_(t=0)^(#pin(3)n#pin(4)) nabla_(bold(theta)) log pi (a_t | s_t; bold(theta)) 
 $ #pause
 
 Would like to rewrite as 
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] sum_(t=0)^n nabla_(bold(theta)) log pi (a_t | s_t; bold(theta)) 
 $ #pause
 
-Careful, $pi$ relies on $n$ -- cannot write this way
+#pinit-highlight(1, 2)
+#pinit-highlight(3, 4)
+Careful, rightmost sum relies on $n$ -- cannot rewrite expectation like this 
 
 ==
-$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = \ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; theta_pi) sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
-$ #pause
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = \ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; bold(theta)) sum_(t=0)^(n) nabla_(bold(theta)) log pi (a_t | s_t; bold(theta)) $ #pause
 
-#math.cancel(angle: 90deg)[$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi) 
-$] #pause
+Focus on the gradient for just the initial action ($a_0$) #pause
 
-$sum_(t=0)^n nabla_(theta_pi) log pi (a_t | s_t; theta_pi)$ must be inside the expectation #pause
+$ nabla_(bold(theta) | a_0) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = \ sum_(n=0)^oo gamma^n sum_(s_(n + 1)) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; bold(theta)), bb(E)[cal(G) | s_0; bold(theta)] dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) $ 
 
-Just consider a single $s_0, a_0$ #pause
+==
+$ nabla_(bold(theta) | a_0) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = \ underbrace(sum_(n=0)^oo gamma^n sum_(s_(n + 1)) cal(R)(s_(n+1)) Pr (s_(n+1) | s_0; bold(theta)), bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)]) dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) $ 
 
-$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold(tau)) mid(|) s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
-$ 
+Now we can rewrite this as an expectation #pause
+
+$ nabla_(bold(theta) | a_0) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) | s_0; bold(theta)] $ 
+
+Markov property: Treat each timestep $t$ in a trajectory as the start $s_0, a_0$ #pause
+
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) | s_0; bold(theta)] $ 
+
+==
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) | s_0; bold(theta)] $ #pause
+
+*Question:* Can we pull the $nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta))$ term out of $bb(E)[dots]$? #pause
+
+*Hint:* Recall that the expectation sums over actions
+
+$ sum_(s_1, dots, s_n in S) product_(t=0)^n ( sum_(#redm[$a_t in A$]) Tr(s_(t+1) | s_t, a_t) dot pi (#redm[$a_t$] | s_t) ) $ #pause
+
+*Answer:* Cannot pull $log pi$ out, this $bb(E)$ sums over actions 
 
 ==
 *Definition:* The policy gradient family of algorithms #pause
 
 Update the parameters iteratively until convergence #pause
 
-$ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] $ #pause
+$ bold(theta)_(i+1) = bold(theta)_(i) + alpha dot gradient_(bold(theta)_(i)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_(i)] $ #pause
 
 Using the policy gradient #pause
 
-$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold(tau)) mid(|) s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
-$ 
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) | s_0; bold(theta)] $ 
+
+==
+$ bold(theta)_(i+1) = bold(theta)_(i) + alpha dot gradient_(bold(theta)_(i)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_(i)] $ 
+
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) | s_0; bold(theta)] $  #pause
+
+*Question:* Is policy gradient on-policy or off-policy? #pause
+
+*Answer:* On-policy (cannot reuse old data) #pause
+- Collect data using $pi (a | s; bold(theta))$ #pause
+- Update parameters $bold(theta)_(i+1) = ...$ #pause
+- You need $nabla_(bold(theta)_(i+1)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_(i+1)]$ but your data is $bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_(i)]$
+
 
 = REINFORCE
 ==
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold(tau)) mid(|) s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) | s_0; bold(theta)]  
 $  #pause
 
 This is our formula #pause
 
 *Question:* How do we compute this expectation? #pause
 
-*Answer:* Empirically! #pause
+*Answer:* Empirically! #pause *Note:* Use full trajectory for $bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)]$ #pause
 
-$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] approx hat(bb(E))[ cal(G)(bold(tau)) mid(|) s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
-$ 
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] approx sum_(t=0)^oo cal(G)(bold(tau)_t) dot pi (a_t | s_t; bold(theta)) $
+
+//Where $bold(tau)_t$ starts at timestep $t$: $bold(tau)_t = (s_t, a_t, s_(t+1), a_(t+1), dots)$
+#side-by-side[
+    $ bold(tau)_0 = mat(s_0, s_1, s_2, dots; a_0, a_1, a_2, dots)^top $
+][
+    $ bold(tau)_1 = mat(s_1, s_2, dots; a_1, a_2, dots)^top $
+][
+    $ bold(tau)_2 = mat(s_2, dots; a_2, dots)^top $ 
+]
 
 ==
-$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] approx hat(bb(E))[ cal(G)(bold(tau)) mid(|) s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) 
-$ #pause
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] approx sum_(t=0)^oo cal(G)(bold(tau)_t) dot pi (a_t | s_t; bold(theta)) $
 
-Requires a full trajectory to compute one sample of $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$ #pause
+$ = &cal(G)(mat(s_0, s_1, s_2, dots; a_0, a_1, a_2, dots)^top) && dot pi (a_0 | s_0; bold(theta)) \
++  &cal(G)(mat(s_1, s_2, dots; a_1, a_2, dots)^top) && dot pi (a_1 | s_1; bold(theta)) \ 
++ &cal(G)(mat(s_2, dots; a_2, dots)^top) && dot pi (a_2 | s_2; bold(theta)) \
++ & dots
 
-*Question:* Can we do better? #pause
-
-*Answer:* Approximate expectation starting at $s_0, s_1, dots$ in $tau$! #pause
-
-$ 
-bold(tau)_0 &= (s_A, a_A, s_B, a_B, s_C, a_C, dots) \ #pause
-bold(tau)_1 &= (s_B, a_B, s_C, a_C, dots) \ #pause
 $
 
-$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s; theta_pi] approx sum_(t=0)^oo underbrace(hat(bb(E))[ cal(G)(bold(tau))  mid(|) s_t; theta_pi], "Return starting at" t) dot nabla_(theta_pi) log pi (a_t | s_t; theta_pi)
-$ 
 
 ==
-*Definition:* The REINFORCE algorithm updates $theta_pi$ with empirical (Monte Carlo) returns #pause
+*Definition:* The REINFORCE algorithm updates $bold(theta)$ with empirical (Monte Carlo) returns #pause
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s; theta_pi] approx sum_(t=0)^oo underbrace(hat(bb(E))[ cal(G)(bold(tau))  mid(|) s_t; theta_pi], "Return starting at" t) dot nabla_(theta_pi) log pi (a_t | s_t; theta_pi)
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] approx sum_(t=0)^oo cal(G)(bold(tau)_t) dot nabla_(bold(theta)) log pi (a_t | s_t; bold(theta))
 $ #pause
 
-$ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s; theta_(pi, i)] $
+$ bold(tau)_t = mat(s_t, a_t; s_(t+1), a_(t+1); dots.v, dots.v) $
+
+$ bold(theta)_(i+1) = bold(theta)_(i) + alpha dot gradient_(bold(theta)_(i)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_(i)] $
 
 ==
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s; theta_pi] approx sum_(t=0)^oo hat(bb(E))[ cal(G)(bold(tau))  mid(|) s_t; #pin(1)theta_pi#pin(2)] dot nabla_(theta_pi) log pi (a_t | s_t; theta_pi)
-$  #pause
-
-$ theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s; theta_(pi, i)] $
-
-*Question:* Is REINFORCE on-policy or off-policy? #pause
-
-HINT: 
-- On-policy algorithms require data collected with $theta_pi$
-- Off-policy algorithms can use data collected with any policy #pause
-
-*Answer:* On-policy, empirical return based on $theta_pi$ 
-
-#pinit-highlight(1, 2)
-
-==
-$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s; theta_pi] approx sum_(t=0)^oo hat(bb(E))[ cal(G)(bold(tau))  mid(|) s_t;#pin(1)theta_pi#pin(2)] dot nabla_(theta_pi) log pi (a_t | s_t; theta_pi) \ #pause
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s; bold(theta)] approx sum_(t=0)^oo hat(bb(E))[ cal(G)(bold(tau))  mid(|) s_t;#pin(1)bold(theta)#pin(2)] dot nabla_(bold(theta)) log pi (a_t | s_t; bold(theta)) \ #pause
 
 theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s; theta_(pi, i)] $ #pause
 
-*Question:* Any other ways to express $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$? #pause 
+*Question:* Any other ways to express $bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)]$? #pause 
 
 *Answer:* Value or Q function #pause
 
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] &= V(s_0, theta_pi) dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) \
+nabla_(bold(theta)_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] &= V(s_0, bold(theta)_V, bold(theta)_pi) dot nabla_(bold(theta)_pi) log pi (a_0 | s_0; bold(theta)_pi) \
 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] &= Q(s_0, a_0, theta_pi) dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi)
+nabla_(bold(theta)_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] &= Q(s_0, a_0, bold(theta)_Q, bold(theta)_pi) dot nabla_(bold(theta)_pi) log pi (a_0 | s_0; bold(theta)_pi)
 $ #pause
 
 We call this *actor-critic*, more discussion next time
@@ -835,22 +809,18 @@ We call this *actor-critic*, more discussion next time
 
 ==
 We can implement our policy using all sorts of action distributions #pause
-
-For discrete tasks, we often use *categorical* distributions #pause
-
-For continuous tasks, we usually use *normal* distributions #pause
-
-However, some people say beta distributions work better! #footnote["Improving stochastic policy gradients in continuous control with deep reinforcement learning using the beta distribution." International conference on machine learning. PMLR, 2017.]
+- For discrete tasks, we often use *categorical* distributions #pause
+- For continuous tasks, we usually use *normal* distributions #pause
+    - However, some people say beta distributions work better! #footnote["Improving stochastic policy gradients in continuous control with deep reinforcement learning using the beta distribution." International conference on machine learning. PMLR, 2017.]
 
 ==
 The coding looks a little bit different than the math #pause
-
-We often separate the model, policy distribution, and sampled action #pause
+- We often separate the model, policy distribution, and sampled action #pause
 
 ```python
 # Compute "logits", unnormalized probabilities
 z = model(x) 
-# Create distribution pi(a | s; theta_pi)
+# Create distribution pi(a | s; theta)
 p_a = dist(z) # For loss function
 # Sample action that we use in environment
 a = sample(p_a) # For env step
@@ -939,10 +909,9 @@ def REINFORCE_loss(model, episode):
     mus, log_sigmas = model(episode.states)
     # Log probability of action we took under action dist 
     # log pi(a = episode.a | s)
-    log_probs = -(
-        (episode.actions - mus) ** 2 
-        / (2 * exp(log_sigmas) ** 2) + log_sigmas
-    )
+    # (a-mus)**2 / (2*exp(log_sigmas)**2)+log_sigmas
+    log_probs = vmap(jax.scipy.stats.norm.logpdf)(
+        episode.actions, mus, exp(log_sigmas))
     policy_gradient = mean(G * log_probs)
     # Want gradient ascent, library does gradient descent
     return -policy_gradient
@@ -951,114 +920,13 @@ def REINFORCE_loss(model, episode):
 = Homework
 
 ==
-Homework 2 is the final homework, and it is a little special #pause
+Homework 3 is the last homework #pause
+- *Start early*, one training run can take up to an hour #pause
+- If you have bugs, you will need to restart training #pause
+- If you wait until the day before, you will not succeed #pause
 
-Choose only one assignment #pause
-- Policy gradient (easier, max 80/100) #pause
-- Deep Q learning (harder, max 100/100) #pause
-
-I will only grade one assignment #pause
-
-You can try and estimate the return for completing each assignment #pause
-
-My suggestion: start with policy gradient #pause
-
-If you solve policy gradient early, then try deep Q learning #pause
-
-Deep Q learning requires more hyperparameter tuning
+Due 04.19, same as deep Q learning assignment
 
 ==
 
-*Start early*, one training run can take up to an hour #pause
-
-If you have bugs, you will need to restart training #pause
-
-If you wait until the day before, you will not succeed #pause
-
-Due in 3 weeks (04.09)
-
-==
-
-https://colab.research.google.com/drive/1JWfMYviwt7tgU08QDeIZV82MuzVQZbX1?usp=sharing
-
-https://colab.research.google.com/drive/1qKXsaOpT27paCmPA-Hbh_-PtbQnrrkla?usp=sharing
-
-/*
-
-= Natural Policy Gradient
-
-==
-When the policy $pi$ is linear, things work well
-
-When $pi$ is nonlinear (deep network), it can be more difficult to train
-
-*Question:* Why?
-
-*Answer:* A small parameter update can cause a big change in policy 
-
-== 
-With a deep network, a small change in $theta_pi$ can result in a large distribution shift 
-
-$ pi ( dot | s; theta_pi) approx.not pi (dot | s; theta_pi + eta ) $
-
-Small parameter updates can destroy the policy or cause large changes
-
-$ theta_(pi, i+1) = theta_(pi, i) + underbrace(alpha dot bb(E)[cal(G)(bold(tau)) | s_0; theta_pi], eta) $  
-
-Even with a small learning rate $alpha$, we still have this issue!
-
-==
-
-Updates can result in *overshooting*
-
-#align(center, overshoot)
-
-This also happens in supervised learning, but is easier to recover
-
-If the policy breaks in RL, we collect bad training data
-
-==
-
-Small parameter updates can cause large shifts in the policy distribution
-
-With a neural network, updating $pi(a | s = S_i)$ changes $pi(a | s = S_j)$
-
-#align(center, big_policy_shift)
-
-==
-
-One of the main causes of these issues is the *optimization space*
-
-We update our parameters using Euclidean distance in parameter space 
-
-$ "d"(theta_(pi, i + 1), theta_(pi, i)) < k $
-
-Euclidean change in parameter does not bound the action distribution
-
-$ "d" (pi (dot | s; theta_pi), pi (dot | s; theta_pi + eta)) lt.not k $
-
-Can we bound the change in action distribution?
-
-==
-Right now, the update is euclidean in the parameter space
-
-$ theta_(pi, i+1) approx theta_(pi, i) + eta $  
-
-But unbounded in the policy distribution space
-
-$ pi (dot | s; theta_pi) approx.not pi (dot | s; theta_pi + eta) $
-
-Instead, we want to bound the policy in the distribution space
-
-*Question:* Can we measure the distance between two distributions?
-
-*Answer:* Yes, using *KL divergence*
-
-==
-
-$ "KL" ["Pr"_1, "Pr"_2] = sum_(omega in Omega) "Pr"_1(omega) dot log ("Pr"_1(omega)) / ("Pr"_2(omega)) $
-
-For policies
-
-$ "KL" [pi (dot | s; theta_pi), pi (dot | s; theta_pi + eta) ] = sum_(a in A) pi (dot | s; theta_pi) dot log (pi (dot | s; theta_pi)) / (pi (dot | s; theta_pi + eta)) $
-*/
+https://colab.research.google.com/drive/1JWfMYviwt7tgU08QDeIZV82MuzVQZbX1

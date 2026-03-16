@@ -3,7 +3,7 @@
 #import "@preview/touying:0.6.1": *
 #import themes.university: *
 #import "common.typ": *
-#import "@preview/cetz:0.3.2"
+#import "@preview/cetz:0.4.2"
 #import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
@@ -26,7 +26,7 @@
     institution: [University of Macau],
     logo: image("fig/common/bolt-logo.png", width: 4cm)
   ),
-  //config-common(handout: true),
+  config-common(handout: true),
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
 )
@@ -65,6 +65,9 @@
 
 
 = Admin
+==
+Homework 1 due in less than one week #pause
+  - 2026.03.16 
 == 
 Final project group choice due next week (15 March) #pause
 - Find a group of 3-5 people #pause
