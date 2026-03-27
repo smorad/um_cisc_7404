@@ -1,10 +1,10 @@
-#import "@preview/algorithmic:0.1.0"
-#import algorithmic: algorithm
+#import "@preview/algorithmic:1.0.6"
+#import algorithmic: style-algorithm, algorithm-figure, algorithm
 #import "@preview/touying:0.6.1": *
 #import themes.university: *
 #import "common.typ": *
-#import "@preview/cetz:0.3.4": canvas
-#import "@preview/cetz-plot:0.1.1": plot
+#import "@preview/cetz:0.4.2"
+#import "@preview/cetz-plot:0.1.3"
 #import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
@@ -14,14 +14,16 @@
 
 #let pathology_left = { 
     set text(size: 25pt)
-    canvas(length: 1cm, 
+    cetz.canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (6, 4),
             name: "plot",
             x-tick-step: 2,
             y-tick-step: none,
-            y-ticks: (0, 1),
+            y-ticks: (0,),
             y-min: 0,
             y-max: 4,
             x-label: $ a $,
@@ -30,33 +32,37 @@
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_(pi)) $,
-                x => normal_fn(1, 0.4, x),
+                label: $ pi (a | s; bold(theta)_(pi)) $,
+                x => normal_fn(1, 0.3, x),
             ) 
 
+
+            plot.annotate({
+                line((-1.8,0), (-1.8,4), stroke: (paint: orange, thickness: 1mm))
+                content((-1.8,4.5), text(fill: orange)[$ a $])
+
+                line((-1,0), (-1,4), stroke: (paint: orange, thickness: 1mm))
+                content((-1,4.5), text(fill: orange)[$ a $])
+
+                line((0,0), (0,4), stroke: (paint: orange, thickness: 1mm))
+                content((0,4.5), text(fill: orange)[$ a $])
             })
-
-            draw.line((1,0), (1,4), stroke: orange)
-            draw.content((1,5), text(fill: orange)[$ a $])
-
-            draw.line((2,0), (2,4), stroke: orange)
-            draw.content((2,5), text(fill: orange)[$ a $])
-
-            draw.line((3,0), (3,4), stroke: orange)
-            draw.content((3,5), text(fill: orange)[$ a $])
+        })
     }
 )}
 
 #let pathology_right = { 
     set text(size: 25pt)
-    canvas(length: 1cm, 
+    cetz.canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (6, 4),
             name: "plot",
             x-tick-step: 2,
             y-tick-step: none,
-            y-ticks: (0, 1),
+            y-ticks: (0,),
             y-min: 0,
             y-max: 4,
             x-label: $ a $,
@@ -65,59 +71,67 @@
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_(pi)) $,
-                x => normal_fn(-0.3, 0.4, x),
+                label: $ pi (a | s; bold(theta)_(pi)) $,
+                x => normal_fn(-0.3, 0.3, x),
             ) 
 
+
+            plot.annotate({
+                line((-1.5,0), (-1.5,4), stroke: (paint: orange, thickness: 1mm))
+                content((-1.5,4.5), text(fill: orange)[$ a $])
+
+                line((1,0), (1,4), stroke: (paint: orange, thickness: 1mm))
+                content((1,4.5), text(fill: orange)[$ a $])
+
+                line((1.75,0), (1.75,4), stroke: (paint: orange, thickness: 1mm))
+                content((1.75,4.5), text(fill: orange)[$ a $])
             })
-
-            draw.line((1,0), (1,4), stroke: orange)
-            draw.content((1,5), text(fill: orange)[$ a $])
-
-            draw.line((4,0), (4,4), stroke: orange)
-            draw.content((4,5), text(fill: orange)[$ a $])
-
-            draw.line((5,0), (5,4), stroke: orange)
-            draw.content((5,5), text(fill: orange)[$ a $])
+        })
     }
 )}
 
 #let pathology_fix = { 
     set text(size: 25pt)
-    canvas(length: 1cm, 
+    cetz.canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (6, 4),
             name: "plot",
             x-tick-step: 2,
             y-tick-step: none,
-            y-ticks: (0, 1),
+            y-ticks: (0,),
             y-min: 0,
             y-max: 4,
             x-label: $ a $,
             y-label: $ Pr (a | s) $,
             {
             plot.add(
-                domain: (-2, 2), 
+                domain: (-2, 8), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_(pi)) $,
-                x => normal_fn(-0.33, 0.1, x),
+                label: $ pi (a | s; bold(theta)_(pi)) $,
+                x => normal_fn(-0.5, 0.3, x),
             ) 
 
+
+            plot.annotate({
+                for a in range(0, 8)  {
+                    line((a+1,0), (a+1,4), stroke: orange)
+                    content((a+1,5), text(fill: orange)[$ a $])
+
+                }
             })
-
-            for a in range(0, 7)  {
-                draw.line((a,0), (a,4), stroke: orange)
-                draw.content((a,5), text(fill: orange)[$ a $])
-
-            }
+        })
     }
 )}
 
 #let adv_left = { 
     set text(size: 25pt)
-    canvas(length: 1cm, 
+    cetz.canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (6, 4),
             name: "plot",
@@ -132,27 +146,31 @@
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_(pi)) $,
+                label: $ pi (a | s; bold(theta)_(pi)) $,
                 x => normal_fn(0, 0.5, x),
             ) 
 
+
+            plot.annotate({
+                line((-1.8,0), (-1.8,4), stroke: (paint: orange, thickness: 1mm))
+                content((-1.8,4.5), text(fill: orange)[$ a $])
+
+                line((-1,0), (-1,4), stroke: (paint: orange, thickness: 1mm))
+                content((-1,4.5), text(fill: orange)[$ a $])
+
+                line((0,0), (0,4), stroke: (paint: orange, thickness: 1mm))
+                content((0,4.5), text(fill: orange)[$ a $])
             })
-
-            draw.line((1,0), (1,4), stroke: orange)
-            draw.content((1,5), text(fill: orange)[$ a $])
-
-            draw.line((2,0), (2,4), stroke: orange)
-            draw.content((2,5), text(fill: orange)[$ a $])
-
-            draw.line((3,0), (3,4), stroke: orange)
-            draw.content((3,5), text(fill: orange)[$ a $])
+        })
     }
 )}
 
 #let adv_right = { 
     set text(size: 25pt)
-    canvas(length: 1cm, 
+    cetz.canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (6, 4),
             name: "plot",
@@ -167,20 +185,21 @@
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_(pi)) $,
+                label: $ pi (a | s; bold(theta)_(pi)) $,
                 x => normal_fn(0, 0.5, x),
             ) 
 
+            plot.annotate({
+                line((-1.5,0), (-1.5,4), stroke: (paint: orange, thickness: 1mm))
+                content((-1.5,4.5), text(fill: orange)[$ a $])
+
+                line((1,0), (1,4), stroke: (paint: orange, thickness: 1mm))
+                content((1,4.5), text(fill: orange)[$ a $])
+
+                line((1.75,0), (1.75,4), stroke: (paint: orange, thickness: 1mm))
+                content((1.75,4.5), text(fill: orange)[$ a $])
             })
-
-            draw.line((1,0), (1,4), stroke: orange)
-            draw.content((1,5), text(fill: orange)[$ a $])
-
-            draw.line((4,0), (4,4), stroke: orange)
-            draw.content((4,5), text(fill: orange)[$ a $])
-
-            draw.line((5,0), (5,4), stroke: orange)
-            draw.content((5,5), text(fill: orange)[$ a $])
+        })
     }
 )}
 
@@ -231,56 +250,13 @@
 = Admin
 
 ==
-How is homework 2? #pause
+Some people finished all assignments! #pause
+- Great job! Now you can relax (except for final project) #pause
 
-Deadlines #pause
-- 1 Quiz next week #pause
-- Final project proposal due day after quiz #pause
-- Homework 2 due in 2 weeks #pause
-- Last quiz in #sym.tilde 1 month
-- Final project #sym.tilde 6 weeks
+I recommend you finish at least one homework this week #pause
+- Homeworks take some time to complete
 
 ==
-
-Quiz next week, topics: #pause
-
-#side-by-side[
-- Actor critic 
-    - Basic algorithm
-    - Advantages
-    - Off-policy gradient
-    - Trust regions
-    - Will not cover PPO #pause
-][
-- Policy gradient 
-    - Expectations, returns, notation
-    - Optimization objective
-    - REINFORCE #pause
-][
-- Q learning 
-    - Expectations, returns, notation
-    - Different objectives
-    - Relationships between $V$ and $Q$ #pause
-]
-
-Format/difficulty will be similar to last time (3-4 questions, 75 mins) #pause
-
-Continue lecture after quiz next week? Will you be too tired?
-
-= Final Project
-==
-
-Final project information is released #pause
-
-Suggest project and group members by next Friday (28th) #pause
-
-Find (or create) a gymnasium environment #pause
-- Ensure your task is MDP #pause
-- Can also try POMDP, but make sure you are prepared! #pause
-- Groups of 5, results should be impressive #pause
-- Due just before final exam study week #pause
-
-https://ummoodle.um.edu.mo/pluginfile.php/6900679/mod_resource/content/6/project.pdf
 
 = Review
 
@@ -294,97 +270,111 @@ https://ummoodle.um.edu.mo/pluginfile.php/6900679/mod_resource/content/6/project
 // Q function is "critic" because it scores the actor
 
 ==
-Today, we will investigate modern forms of policy gradient #pause
-
-These forms of policy gradient also learn Q or V functions jointly #pause
-
-We will learn the prerequisites to implement PPO, the most popular RL algorithm #pause
+I want to show you how OpenAI classifies RL algorithms
+- Now, you know enough RL to understand this diagram #pause
 
 ==
 
 #cimage("fig/09/algos.png")
 
 ==
+Today, we will investigate modern forms of policy gradient #pause
+- These forms of policy gradient also learn Q or V functions #pause
+- These are popular algorithms you probably heard of before #pause
+    - PPO, A2C, etc 
+
+==
 Recall the policy gradient #pause
 
-$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) $ #pause
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) | s_0; bold(theta)] $ #pause
 
 We previously computed the Monte Carlo policy gradient (REINFORCE) #pause
 
-$ bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = sum_(t=0)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_0; theta_pi] $ #pause
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] approx sum_(t=0)^oo cal(G)(bold(tau)_t) dot nabla_(bold(theta)) log pi (a_t | s_t; bold(theta)) $ #pause
 
 *Question:* Why don't we always use Monte Carlo? #pause
 
 *Answer:* Requires collecting an infinite sequence of rewards!
 
 ==
-$ bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = sum_(t=0)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_0; theta_pi] $ #pause
+Today, we will introduce different types of parameters #pause
 
-*Question:* Other way to compute $bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi]$? #pause
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) | s_0; bold(theta)] $ #pause
+
+We will use $bold(theta)_pi$ to represent policy parameters #pause
+
+$ nabla_(bold(theta)_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)_pi) log pi (a_0 | s_0; bold(theta)_pi) | s_0; bold(theta)_pi] $ #pause
+
+==
+$ nabla_(bold(theta)_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)_pi) log pi (a_0 | s_0; bold(theta)_pi) | s_0; bold(theta)_pi] $ #pause
+
+*Question:* Other way to compute $bb(E)[ cal(G)(bold(tau)) | s_0; bold(theta)_pi]$? #pause
 
 *Answer:* Can use $Q$ or $V$ function with TD objective #pause
 
-$ V(s_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, theta_pi] + gamma V(s_1, theta_pi) $ #pause
+Remember we can fully define policy using $bold(theta)_pi$ #pause
 
-$ Q(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0, theta_pi] + gamma Q(s_1, a_1, theta_pi) $ #pause
+$ V(s_0, pi) equiv V(s_0, bold(theta)_pi) $ #pause
 
-I want to quickly repeat the relationship between $V$ and $Q$
+$ V(s_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, bold(theta)_pi] + gamma bb(E)[V(s_1, bold(theta)_pi) | s_0; bold(theta)_pi] \  #pause
+
+Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, bold(theta)_pi) | s_0, a_0; bold(theta)_pi] $ #pause
+
+I want to quickly review the relationship between $V$ and $Q$
 
 ==
-$ V(s_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, theta_pi] + gamma V(s_1, theta_pi) \
-Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0, theta_pi] + gamma Q(s_1, a_1, theta_pi) $ #pause
+$ V(s_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, bold(theta)_pi] + gamma bb(E)[V(s_1, bold(theta)_pi) | s_0; bold(theta)_pi] \  
+
+Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, a_1, bold(theta)_pi) | s_0, a_0; bold(theta)_pi] $ #pause
 
 $Q$ and $V$ are closely related, we derived $Q$ from $V$ #pause
 
-$ Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0, theta_pi] + gamma V(s_1, theta_pi) $ #pause
+$ Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[V(s_1, bold(theta)_pi) | s_0, a_0; bold(theta)_pi] $ #pause
 
 This means we can convert $Q$ to $V$ or $V$ to $Q$ #pause
+- Only need to choose $a_0 tilde pi (dot | s_0; bold(theta)_pi)$ #pause
 
-If you choose $a_0 tilde pi (dot | s_0; theta_pi)$ for $Q$ #pause
-
-$ Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, cancel(a_0), theta_pi] + gamma V(s_1, theta_pi) #pause \
-&= V(s_0, theta_pi)
+$ Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, #redm[$cancel(a_0) => bold(theta)_pi$]] + gamma bb(E)[V(s_1, bold(theta)_pi) | s_0, a_0; bold(theta)_pi] #pause \
+&= V(s_0, bold(theta)_pi)
 $
 
-
-
 ==
-Now that $V$ and $Q$ are clear, back to policy gradient #pause
+//Now that $V$ and $Q$ are clear, back to policy gradient #pause
 
-Policy gradient objective uses the expected policy-conditioned return #pause
+Policy gradient maximizes the policy-conditioned expected return #pause
 
-$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] =  bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) $ #pause
+$ nabla_(bold(theta)_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)_pi) log pi (a_0 | s_0; bold(theta)_pi) | s_0; bold(theta)_pi] $ #pause
 
 Represent expected policy-conditioned return using value function #pause
+- Use a neural network value function with parameters $bold(theta)_V$
 
-$ bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = V(s_0, theta_pi) $ #pause
+$ bb(E)[ cal(G)(bold(tau)) | s_0; bold(theta)_pi] = V(s_0, bold(theta)_V, bold(theta)_pi) $ #pause
+
 
 Replace MC return with $V"/"Q$ in policy gradient, call it *actor-critic* #pause
 
 #v(1.2em)
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = #pin(1)V(s_0, theta_pi)#pin(2) dot nabla_(theta_pi) log #pin(3)pi (a_0 | s_0; theta_pi)#pin(4)
+nabla_(bold(theta)_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[#pin(1)V(s_0, bold(theta)_V, bold(theta)_pi)#pin(2) dot nabla_(bold(theta)_pi) log #pin(3)pi (a_0 | s_0; bold(theta)_pi)#pin(4) | s_0 ; bold(theta)_pi]
 $ #pause
-
-
 
 #pinit-highlight-equation-from((3,4), (3,4), fill: red, pos: top, height: 1.2em)[Actor pick action] #pause
 
-#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 1.2em)[Critic gives actor score] 
+#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: top, height: 1.2em)[Critic scores actor] 
 
 ==
 
-*Definition:* The actor-critic algorithm that jointly trains a policy network and value function #pause
+*Definition:* Actor-critic algorithms jointly train a policy network $pi (a | s; bold(theta)_pi)$ and value function $V(s, bold(theta)_V, bold(theta)_pi)$ #pause
 
 $ 
-theta_(pi, i+1) = theta_(pi, i) + alpha dot underbrace(V(s_0, theta_(pi, i), theta_(V, i)), "Expected return") dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; theta_(pi, i))
+bold(theta)_(pi, i+1) = bold(theta)_(pi, i) + alpha dot underbrace(V(s_0, bold(theta)_(V, i), bold(theta)_(pi, i)), "Expected return") dot nabla_(bold(theta)_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i))
 $ #pause
 
-$ theta_(V, i+1) = \ argmin_theta_(V, i) underbrace((V(s_0, theta_(pi, i), theta_(V,i)) - (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_pi]+ not d gamma V(s_0, theta_(pi, i), theta_(V,i) )))^2, "TD error") $ #pause
+//$ bold(theta)_(V, i+1) = \ argmin_bold(theta)_(V, i) underbrace((V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i)) - (bb(E)[cal(R)(s_(1)) + not d gamma V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i) ) | s_0 ; bold(theta)_pi]))^2, "TD error") $ #pause
+$ bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) underbrace((V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i)) - (r_0 + not d gamma V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i) )))^2, "TD error") $ #pause
 
-Repeat process until convergence: $theta_(pi, i+1)=theta_(pi, i), quad theta_(V, i+1)=theta_(V, i)$ #pause
-
-Can train policy with single transition $s_0, a_0, s_1, r_0, d_0$
+Repeat process until convergence #pause
+- Can update $pi$ and $V$ with single transition $(s_0, a_0, s_1, r_0, d_0)$
 
 
 = Advantage Actor Critic
@@ -402,38 +392,33 @@ Can train policy with single transition $s_0, a_0, s_1, r_0, d_0$
     // Replace Q with V
 
 ==
-$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = V(s_0, theta_pi) dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi)
-$ #pause
 
-*Question:* Any scenarios where reward is always negative? #pause
+
+*Question:* Any tasks where reward is always negative? #pause
 
 *Answer:* Distance to goal, $cal(R)(s_(t+1)) = -(s_(t+1) - s_g)^2$ #pause
 
-*Question:* What happens to return if reward is always negative? #pause
+$ nabla_(bold(theta)_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[V(s_0, bold(theta)_V, bold(theta)_pi) dot nabla_(bold(theta)_pi) log pi (a_0 | s_0; bold(theta)_pi) | s_0 ; bold(theta)_pi] $
 
-*Answer:* Return always negative #pause
+*Question:* What happens to $V$/$cal(G)$ if reward is always negative? #pause
 
-$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = - | V(s_0, theta_pi) | dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi)
-$ #pause
+*Answer:* $V$/$cal(G)$ always negative #pause
+
+$ -|V(s_0, bold(theta)_V, bold(theta)_pi)| dot nabla_(bold(theta)_pi) log pi (a_0 | s_0; bold(theta)_pi) $ #pause
 
 Similar results if reward is always positive #pause
 
-$ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = | V(s_0, theta_pi) | dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi)
-$
+$ |V(s_0, bold(theta)_V, bold(theta)_pi)| dot nabla_(bold(theta)_pi) log pi (a_0 | s_0; bold(theta)_pi) $ 
 
 ==
 $ 
-nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = - | V(s_0, theta_pi) | dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi)
+nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = - | V(s_0, bold(theta)_pi) | dot nabla_(theta_pi) log pi (a_0 | s_0; bold(theta)_pi)
 $ #pause
 
 *Example:* MDP with one state and continuous actions, negative reward #pause
 
 Sample $k$ transitions $(s_0, a_0, r_0, d_0, s_1)$ for each policy update #pause
-
-What if we cannot sample all possible actions? #pause
+- With continuous actions, we cannot sample all possible actions #pause
 
 #side-by-side[
     #pathology_left #pause
@@ -461,57 +446,61 @@ Policy keeps oscillating, can destabilize learning #pause
 
 ==
 
-#side-by-side[
-    #pathology_fix #pause
-][
+#pathology_fix #pause
+
 *Question:* Any solutions? #pause
 
-Hint: Think about the mean of the return #pause
-
-*Answer:* Recenter return such that mean is zero #pause
-
-Does not completely solve issue, maybe $cal(R)(s_A) < 0$
-]
-What if we: #pause
-- Almost never update policy #pause
+We should not update the policy for every action #pause
 - Update the policy *only* if action is better/worse than expected 
 
 ==
 *Question:* What is the expected performance of the policy? #pause
 
-$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = V(s_0, theta_pi) $ #pause
+$ bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = V(s_0, bold(theta)_pi) $ #pause
 
 *Question:* What is the expected performance of a specific action? #pause
 
-$ bb(E)[cal(G)(bold(tau)) | s_0, a_0; theta_pi] = Q(s_0, a_0, theta_pi) $ #pause
+$ bb(E)[cal(G)(bold(tau)) | s_0, a_0; bold(theta)_pi] = Q(s_0, a_0, bold(theta)_pi) $ #pause
 
 *Question:* How can we tell if an action is better/worse than expected? #pause
 
-$ bb(E)[cal(G)(bold(tau)) | s_0, a_0 ; theta_pi] - bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] #pause
-     = Q(s_0, a_0, theta_pi) - V(s_0, theta_pi) $
+$ bb(E)[cal(G)(bold(tau)) | s_0, a_0 ; bold(theta)_pi] - bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] #pause
+     = underbrace(Q(s_0, a_0, bold(theta)_pi), "any" a_0) - underbrace(V(s_0, bold(theta)_pi), a_0 tilde pi(dot | bold(theta)_pi)) $ #pause
+
+
+#side-by-side[
+    $ Q(a_Q) > V => a_Q > a; quad pi(a_Q) arrow.t #pause $
+][
+    $ Q(a_Q) < V => a_Q < a; quad pi(a_Q) arrow.b #pause $
+]
 
 ==
 
-$ A(s_0, a_0, theta_pi) = Q(s_0, a_0, theta_pi) - V(s_0, theta_pi) $ #pause
+$ A(s_0, a_0, bold(theta)_Q, bold(theta)_V, bold(theta)_pi)  = Q(s_0, a_0, bold(theta)_Q, bold(theta)_pi) - V(s_0, bold(theta)_V, bold(theta)_pi) $ #pause
 
 We call this the *advantage*, tells us if we should change policy #pause
 
-If $a_0$ produces better than expected return, increase policy probability #pause
+$ Q(a_Q) > V(a tilde pi) => a_Q > a; quad pi(a_Q) arrow.t $ #pause
+
+//If $a_0$ results in better return, increase policy probability #pause
 
 $ 
-theta_(pi, i+1) = theta_(pi, i) + | A(s_0, a_0, theta_(pi, i)) | dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; theta_(pi, i))
+bold(theta)_(pi, i+1) = bold(theta)_(pi, i) + | A(s_0, a_0, bold(theta)_i) | dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i))
 $ #pause
 
-If action $a_0$ produces worse return than expected, reduce probability
+//If $a_0$ results in worse return, reduce probability
+$ Q(a_Q) < V(a tilde pi) => a_Q < a; quad pi(a_Q) arrow.b $ #pause
 
 $ 
-theta_(pi, i+1) = theta_(pi, i) - | A(s_0, a_0, theta_(pi, i)) | dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; theta_(pi, i))
+bold(theta)_(pi, i+1) = bold(theta)_(pi, i) - | A(s_0, a_0, bold(theta)_(i)) | dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i))
 $ #pause
 
-If action $a_0$ produced expected return, do nothing $theta_(pi, i+1) = theta_(pi, i) + 0$
+$Q(a_Q) = V(a tilde pi)$, do nothing $bold(theta)_(pi, i+1) = bold(theta)_(pi, i)$
+
+//If action $a_0$ produced expected return, do nothing $theta_(pi, i+1) = bold(theta)_(pi, i) + 0$
 
 ==
-The policy will not oscillate -- policy only changes if it improves return #pause
+The policy will not oscillate. Policy only changes if $Q - V$ has error #pause
 
 #side-by-side[
     #adv_left
@@ -523,23 +512,24 @@ Results in more stable training and faster convergence
 
 ==
 
-*Definition:* The advantage $A$ determines the relative advantage/disadvantage of taking an action $a_0$ in state $s_0$ for a policy $theta_pi$ #pause
+*Definition:* The advantage $A$ determines the relative advantage/disadvantage of taking an action $a_0$ in state $s_0$ for a policy $bold(theta)_pi$ #pause
 
-$ A(s_0, a_0, theta_pi) = Q(s_0, a_0, theta_pi) - V(s_0, theta_pi) $
+$ A(s_0, a_0, bold(theta)_Q, bold(theta)_V, bold(theta)_pi)  = Q(s_0, a_0, bold(theta)_Q, bold(theta)_pi) - V(s_0, bold(theta)_V, bold(theta)_pi) $ #pause
 
 ==
-$ A(s_0, a_0, theta_pi) = Q(s_0, a_0, theta_pi) - V(s_0, theta_pi) $ #pause
+$ A(s_0, a_0, bold(theta)_Q, bold(theta)_V, bold(theta)_pi)  = Q(s_0, a_0, bold(theta)_Q, bold(theta)_pi) - V(s_0, bold(theta)_V, bold(theta)_pi) $ #pause
 
-Advantage requires both $Q$ and $V$ #pause
-
-But earlier, we saw $Q=V$ in some circumstances #pause
+Advantage requires both $Q$ and $V$, but we can write $Q$ with $V$  #pause
 
 *Question:* Can we replace $Q$ with $V$? How? #pause
+- HINT 1: Write as $A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi)$ #pause
+- HINT 2: Think about TD error: $V(s_0) - (r_0 + gamma V(s_1))$ #pause
 
-HINT: Think about TD error, will write as $A(s_0, s_1, r_0, theta_pi)$ #pause
+$ A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) = bb(E)[underbrace(-V(s_0, bold(theta)_V, bold(theta)_pi), "Our prediction") + underbrace(r_0 + not d gamma V(s_1, bold(theta)_V, bold(theta)_pi), "What happened") | s_0; bold(theta)_pi] $
 
-$ A(s_0, s_1, r_0, theta_pi) = -underbrace(V(s_0, theta_pi), "What we expect") + underbrace((bb(E)[cal(R)(s_(1)) | s_0; theta_pi] + not d gamma V(s_1, theta_pi)), "What happens")
-$ #pause
+//$ A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) = -underbrace(V(s_0, bold(theta)_pi), "What we expect") + underbrace(bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi] + not d gamma V(s_1, bold(theta)_pi), "What happens") $ #pause
+
+//Equivalent to $-sqrt("TD error")$
 
 Better than expected: $|A| > 0$ #pause , worse than expected $|A| < 0$
 
@@ -547,16 +537,16 @@ Better than expected: $|A| > 0$ #pause , worse than expected $|A| < 0$
 // Written by same guy as DQN (Mnih)
 
 ==
-*Definition:* Advantage actor critic (A2C) updates the policy using the advantage, and repeats until convergence #pause
+*Definition:* Advantage Actor Critic (A2C) updates the policy using the advantage, and repeats until convergence #pause
 
-$ A(s_0, s_1, r_0, theta_pi, theta_V) = -V(s_0, theta_pi, theta_V) + underbrace(hat(bb(E))[cal(R)(s_(1)) | s_0; theta_pi], r_0) + not d gamma V(s_1, theta_pi, theta_V)
+$ A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) = -V(s_0, bold(theta)_V, bold(theta)_pi) + r_0 + not d gamma V(s_1, bold(theta)_V, bold(theta)_pi)
 $ #pause
 
 $ 
-theta_(pi, i+1) = theta_(pi, i) + alpha dot underbrace(A(s_0, theta_(pi, i), theta_(V, i)), "Advantage") dot underbrace(nabla_(theta_(pi, i)) log pi (a_0 | s_0; theta_(pi, i)), "Policy gradient")
+bold(theta)_(pi, i+1) = bold(theta)_(pi, i) + alpha dot underbrace(A(s_0, s_1, r_0, bold(theta)_(pi, i), bold(theta)_(V, i)), "Advantage") dot underbrace(nabla_(bold(theta)_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i)), "Policy gradient")
 $ #pause
 
-$ theta_(V, i+1) = \ argmin_theta_(V, i) underbrace((V(s_0, theta_(pi, i), theta_(V,i)) - (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_pi] + not d gamma V(s_0, theta_(pi, i), theta_(V,i) )))^2, "TD error") $
+$ bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) underbrace((V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i)) - (r_0 + not d gamma V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i) )))^2, "TD error") $ 
 
 = Off-Policy Gradient
 // Policy gradient is an on-policy method
@@ -566,7 +556,7 @@ $ theta_(V, i+1) = \ argmin_theta_(V, i) underbrace((V(s_0, theta_(pi, i), theta
 // Can we still somehow reuse this data
 // Introduce importance sampling
 ==
-$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; theta_pi) $ #pause
+$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[ cal(G)(bold(tau)) | s_0; bold(theta)_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; bold(theta)_pi) $ #pause
 
 *Question:* Is policy gradient off-policy or on-policy? #pause
 
@@ -610,16 +600,16 @@ $ bb(E)[f(x) | x tilde Pr (X)] = bb(E)[
     f(x) dot (Pr (X) ) /  (Pr (Y)) mid(|) x tilde Pr (Y) ] 
 $ #pause
 
-Consider our current policy is $theta_pi$, we want $bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$ #pause
+Consider our current policy is $theta_pi$, we want $bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi]$ #pause
 
-A *behavior policy* $theta_beta$ collected the data $bb(E)[cal(G)(bold(tau)) | s_0; theta_beta]$ #pause
+A *behavior policy* $theta_beta$ collected the data $bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_beta]$ #pause
 
 $theta_beta$ can be an old policy or some other policy #pause
 
 #v(1.5em)
 
 $ bb(E)[#pin(5)cal(R)(s_(1))#pin(6) | s_0; #pin(7)theta_pi#pin(8)] = bb(E)[
-    #pin(1)cal(R)(s_1)#pin(2) dot (pi (a | s_0 ; theta_pi) ) /  (pi (a | s_0 ; theta_beta)) mid(|) s_0; #pin(3)theta_beta#pin(4)] 
+    #pin(1)cal(R)(s_1)#pin(2) dot (pi (a | s_0 ; bold(theta)_pi) ) /  (pi (a | s_0 ; bold(theta)_beta)) mid(|) s_0; #pin(3)theta_beta#pin(4)] 
 $ #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 2em)[Reward following $theta_beta$] 
@@ -629,49 +619,49 @@ $ #pause
 #pinit-highlight(7, 8, fill: blue.transparentize(80%))
 
 ==
-$ bb(E)[cal(R)(s_(1)) | s_0; theta_pi] = bb(E)[
-    cal(R)(s_1) dot (pi (a | s_0 ; theta_pi) ) /  (pi (a | s_0 ; theta_beta)) mid(|) s_0; theta_beta] 
+$ bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi] = bb(E)[
+    cal(R)(s_1) dot (pi (a | s_0 ; bold(theta)_pi) ) /  (pi (a | s_0 ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta] 
 $ #pause
 
 Seems like magic, how does this actually work? #pause
 
 Let us find out, start with expected reward from behavior policy #pause
 
-$ bb(E)[cal(R)(s_(1)) | s_0; theta_beta] = 
-    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; theta_beta)
+$ bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_beta] = 
+    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; bold(theta)_beta)
     
-    //underbrace((pi (a_0 | s_0 ; theta_pi) ) /  (pi (a_0 | s_0 ; theta_beta)), "Correction") 
+    //underbrace((pi (a_0 | s_0 ; bold(theta)_pi) ) /  (pi (a_0 | s_0 ; bold(theta)_beta)), "Correction") 
 $
 
 ==
 
-$ bb(E)[cal(R)(s_(1)) | s_0; theta_beta] = 
-    underbrace(sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; theta_beta), "Expected reward") underbrace((pi (a_0 | s_0 ; theta_pi) ) /  (pi (a_0 | s_0 ; theta_beta)), "Correction") 
+$ bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_beta] = 
+    underbrace(sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; bold(theta)_beta), "Expected reward") underbrace((pi (a_0 | s_0 ; bold(theta)_pi) ) /  (pi (a_0 | s_0 ; bold(theta)_beta)), "Correction") 
 $ #pause
 
 
-$ //bb(E)[cal(R)(s_(1)) | s_0; theta_pi] = 
-    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) cancel(pi (a_0 | s_0; theta_beta)) (pi (a_0 | s_0 ; theta_pi) ) /  cancel(pi (a_0 | s_0 ; theta_beta)) 
+$ //bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi] = 
+    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) cancel(pi (a_0 | s_0; bold(theta)_beta)) (pi (a_0 | s_0 ; bold(theta)_pi) ) /  cancel(pi (a_0 | s_0 ; bold(theta)_beta)) 
 $
 $ 
-    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0 ; theta_pi) #pause = bb(E)[cal(R)(s_(1)) | s_0; theta_pi]
+    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0 ; bold(theta)_pi) #pause = bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi]
 $ #pause
 Left with expected reward following $theta_pi$
 
 ==
-$ bb(E)[cal(R)(s_(1)) | s_0; theta_pi] = bb(E)[
-    cal(R)(s_1) dot (pi (a | s_0 ; theta_pi) ) /  (pi (a | s_0 ; theta_beta)) mid(|) s_0; theta_beta] \
+$ bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi] = bb(E)[
+    cal(R)(s_1) dot (pi (a | s_0 ; bold(theta)_pi) ) /  (pi (a | s_0 ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta] \
 
-bb(E)[cal(R)(s_(1)) | s_0; theta_pi] = 
-    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; theta_beta)(pi (a_0 | s_0 ; theta_pi) ) /  (pi (a_0 | s_0 ; theta_beta)) 
+bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi] = 
+    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; bold(theta)_beta)(pi (a_0 | s_0 ; bold(theta)_pi) ) /  (pi (a_0 | s_0 ; bold(theta)_beta)) 
 $ #pause
 
 We found a way to estimate the off-policy reward #pause
 
 Apply the same approach to find the off-policy return (won't derive, trust me) #pause
 
-$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[
-#pin(1)cal(G)(bold(tau))#pin(2) product_(t=0)^oo (pi (a_t | s_t ; theta_pi) ) /  (pi (a_t | s_t ; theta_beta)) mid(|) s_0; #pin(3)theta_beta#pin(4)
+$ bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[
+#pin(1)cal(G)(bold(tau))#pin(2) product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_t | s_t ; bold(theta)_beta)) mid(|) s_0; #pin(3)theta_beta#pin(4)
 ] #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Return following $theta_beta$] 
@@ -683,24 +673,24 @@ $
 
 *Definition:* Off-policy gradient uses importance sampling to learn from off-policy data #pause
 
-$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[
-cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; theta_pi) ) /  (pi (a_t | s_t ; theta_beta)) mid(|) s_0; theta_beta
+$ bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[
+cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_t | s_t ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta
 ]
 $ #pause
 
 $ 
-theta_(pi, i+1) = theta_(pi, i) + alpha dot bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; theta_(pi, i))
+theta_(pi, i+1) = bold(theta)_(pi, i) + alpha dot bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i))
 $ #pause
 
 *Note:* Wrote MC version for clarity, but you can use $V$ too #pause
 
-$ V(s_0, theta_pi, theta_beta) = bb(E)[
-cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; theta_pi) ) /  (pi (a_t | s_t ; theta_beta)) mid(|) s_0; theta_beta
+$ V(s_0, bold(theta)_pi, bold(theta)_beta) = bb(E)[
+cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_t | s_t ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta
 ] $
 
 ==
-$ bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = bb(E)[
-cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; theta_pi) ) /  (pi (a_t | s_t ; theta_beta)) mid(|) s_0; theta_beta
+$ bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[
+cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_t | s_t ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta
 ]
 $ #pause
 
@@ -710,9 +700,9 @@ Off-policy gradient does not work in most cases #pause
 
 *Question:* Why? #pause HINT: What happens to $product$? #pause
 
-$ product_(t=0)^oo (pi (a_t | s_t ; theta_pi) ) /  (pi (a_t | s_t ; theta_beta)) -> 0, oo $ #pause
+$ product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_t | s_t ; bold(theta)_beta)) -> 0, oo $ #pause
 
-Only works if $pi (a_t | s_t ; theta_pi)  approx pi (a_t | s_t ; theta_beta) quad forall t$
+Only works if $pi (a_t | s_t ; bold(theta)_pi)  approx pi (a_t | s_t ; bold(theta)_beta) quad forall t$
 
 = Trust Regions
 // Catastrophic forgetting
@@ -754,7 +744,7 @@ We often see strange results during training #pause
 #side-by-side[
     #cimage("fig/09/collapse.png", height: 70%) #pause
 ][
-    Our policy provides the training data $a tilde pi (dot | s; theta_pi)$ #pause
+    Our policy provides the training data $a tilde pi (dot | s; bold(theta)_pi)$ #pause
 
     One bad update breaks the policy #pause
 
@@ -780,9 +770,9 @@ Lower learning rate? Can help a little #pause
 Small parameter change can cause large changes in deep networks #pause
 
 #side-by-side[
-    $ pi (a | s_A; theta_(pi, i)) = vec(#pin(1)0.4#pin(2), #pin(3)0.6#pin(4)) $ #pause
+    $ pi (a | s_A; bold(theta)_(pi, i)) = vec(#pin(1)0.4#pin(2), #pin(3)0.6#pin(4)) $ #pause
 ][
-    $ pi (a | s_A; theta_(pi, i + 1)) = vec(#pin(5)1.0#pin(6), #pin(7)0.0#pin(8)) $
+    $ pi (a | s_A; bold(theta)_(pi, i + 1)) = vec(#pin(5)1.0#pin(6), #pin(7)0.0#pin(8)) $
 ] #pause
 
 Parameter-space constraints (learning rate) does not work very well! #pause
@@ -800,17 +790,17 @@ $ KL [Pr(X), Pr(Y)] in [0, oo] $ #pause
 
 Policies are just action distributions #pause
 
-$ KL[pi (a | s; theta_(pi, i)), pi (a | s; theta_(pi, i + 1))] $ #pause
+$ KL[pi (a | s; bold(theta)_(pi, i)), pi (a | s; bold(theta)_(pi, i + 1))] $ #pause
 
 Introduce *trust region* $k$ to prevent large policy changes #pause
 
-$ theta_(pi, i + 1) = V(s_0, theta_(pi, i)) dot nabla_(theta_pi) log pi (a_0 | s_0; theta_(pi, i)) #pause \ s.t. space KL[pi (a | s; theta_(pi, i)), pi (a | s; theta_(pi, i + 1))] < k $ #pause
+$ bold(theta)_(pi, i + 1) = V(s_0, bold(theta)_(pi, i)) dot nabla_(theta_pi) log pi (a_0 | s_0; bold(theta)_(pi, i)) #pause \ s.t. space KL[pi (a | s; bold(theta)_(pi, i)), pi (a | s; bold(theta)_(pi, i + 1))] < k $ #pause
 
 See Trust Region Policy Optimization (TRPO), Natural Policy Gradient
 
 ==
 
-$ theta_(pi, i + 1) = V(s_0, theta_(pi, i)) dot nabla_(theta_pi) log pi (a_0 | s_0; theta_(pi, i)) \ s.t. space KL[pi (a | s; theta_(pi, i)), pi (a | s; theta_(pi, i + 1))] < k $ #pause
+$ bold(theta)_(pi, i + 1) = V(s_0, bold(theta)_(pi, i)) dot nabla_(theta_pi) log pi (a_0 | s_0; bold(theta)_(pi, i)) \ s.t. space KL[pi (a | s; bold(theta)_(pi, i)), pi (a | s; bold(theta)_(pi, i + 1))] < k $ #pause
 
 Constrained optimization can be expensive and tricky to implement #pause
 
@@ -818,7 +808,7 @@ Often requires inverting the gradient or computing Hessian #pause
 
 *Hack:* Add KL term to the objective (soft constraint) #pause
 
-$ theta_(pi, i + 1) = V(s_0, theta_(pi, i)) dot  nabla_(theta_(pi, i)) [ log pi (a_0 | s_0; theta_(pi, i))] \ - rho nabla_(theta_(pi, i + 1))[KL[pi (a | s; theta_(pi, i)), pi (a | s; theta_(pi, i + 1))] ] $ 
+$ bold(theta)_(pi, i + 1) = V(s_0, bold(theta)_(pi, i)) dot  nabla_(theta_(pi, i)) [ log pi (a_0 | s_0; bold(theta)_(pi, i))] \ - rho nabla_(theta_(pi, i + 1))[KL[pi (a | s; bold(theta)_(pi, i)), pi (a | s; bold(theta)_(pi, i + 1))] ] $ 
 
 = Proximal Policy Optimization
 
@@ -839,11 +829,11 @@ for epoch in range(epochs):
     # Minibatching learns much faster
     # but is very slightly off-policy!
     for minibatch in batch:
-        theta_pi = update_pi(
-            theta_pi, theta_beta, theta_V, batch
+        bold(theta)_pi = update_pi(
+            bold(theta)_pi, bold(theta)_beta, bold(theta)_V, batch
         ) 
-        theta_V = update_V(theta_V, batch)
-    theta_beta = theta_pi
+        bold(theta)_V = update_V(theta_V, batch)
+    bold(theta)_beta = bold(theta)_pi
 ```
 
 ==
@@ -860,15 +850,15 @@ We will focus on the simplest version (PPO KL penalty)
 #text(size: 24pt)[
 #v(2em)
 $ 
-theta_(pi, i+1) = #pause theta_(pi, i) + alpha dot 
+theta_(pi, i+1) = #pause bold(theta)_(pi, i) + alpha dot 
     underbrace((
-        (#pin(1)pi (a | s; theta_(pi, i) )#pin(2)) / 
-        (#pin(3)pi (a | s; theta_beta )#pin(4))
+        (#pin(1)pi (a | s; bold(theta)_(pi, i) )#pin(2)) / 
+        (#pin(3)pi (a | s; bold(theta)_beta )#pin(4))
 
-        #pin(5)A(s_0, s_1, r_0, theta_beta, theta_V)#pin(6)
+        #pin(5)A(s_0, s_1, r_0, bold(theta)_beta, bold(theta)_V)#pin(6)
     ), "Value") 
-    \ dot (#pin(9)nabla_(theta_(pi, i)) [ log pi (a_0 | s_0; theta_(pi, i))]#pin(10) 
-    - rho nabla_(theta_(pi, i + 1))[ #pin(7)KL[pi (a_0 | s_0; theta_(beta)), pi (a_0 | s_0; theta_(pi, i + 1))]#pin(8) ] )
+    \ dot (#pin(9)nabla_(theta_(pi, i)) [ log pi (a_0 | s_0; bold(theta)_(pi, i))]#pin(10) 
+    - rho nabla_(theta_(pi, i + 1))[ #pin(7)KL[pi (a_0 | s_0; bold(theta)_(beta)), pi (a_0 | s_0; bold(theta)_(pi, i + 1))]#pin(8) ] )
 $ #pause
 
 
@@ -882,30 +872,28 @@ $ #pause
 
 #v(1.2em)
 
-$ A(s_0, s_1, r_0, theta_beta, theta_V) = -V(s_0, theta_beta, theta_V) + (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_beta] + not d gamma V(s_1, theta_beta, theta_V)) $ #pause
+$ A(s_0, s_1, r_0, bold(theta)_beta, bold(theta)_V) = -V(s_0, bold(theta)_beta, bold(theta)_V) + (hat(bb(E))[cal(R)(s_(1)) | s_0; bold(theta)_beta] + not d gamma V(s_1, bold(theta)_beta, bold(theta)_V)) $ #pause
 
-$ theta_(V, i+1) = argmin_theta_(V, i) (V(s_0, theta_beta, theta_(V,i)) - (hat(bb(E))[cal(R)(s_(1)) | s_0; theta_beta]+ not d gamma V(s_0, theta_beta, theta_(V,i) )))^2 $
+$ bold(theta)_(V, i+1) = argmin_theta_(V, i) (V(s_0, bold(theta)_beta, bold(theta)_(V,i)) - (hat(bb(E))[cal(R)(s_(1)) | s_0; bold(theta)_beta]+ not d gamma V(s_0, bold(theta)_beta, bold(theta)_(V,i) )))^2 $
 ]
 
 ==
 *Personal opinion:* PPO is overrated, for some reason very popular #pause
-
-Many hyperparameters, hard to implement, computationally expensive #pause
-
-Cohere finds REINFORCE better than PPO for LLM training #pause
-
-https://arxiv.org/pdf/2402.14740v1 #pause
-
-Our experiments find that Q learning outperforms PPO #pause
+- Many hyperparameters, hard to implement, computationally expensive #pause
+- Cohere finds REINFORCE better than PPO for LLM training #pause
+    - https://arxiv.org/pdf/2402.14740v1 #pause
+- Our experiments find that Q learning outperforms PPO #pause
 
 *My suggestions:* #pause
 - Try A2C first, solid actor-critic method, easy to implement #pause
 - Large batches and regularization (weight decay, layer norm) helpful #pause
 - You can make any algorithm work with enough effort!
 
+/*
 ==
 PPO plays Pokemon! 
 
 Video describes the RL experiment process, helpful for your final project 
 
 https://youtu.be/DcYLT37ImBY?si=jJfZyYwFkPYMJYMy
+*/

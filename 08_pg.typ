@@ -184,7 +184,8 @@
 ==
 Exam next week #pause
 - I still need to write it #pause
-- Will post exam topics on Moodle tomorrow
+- Will post exam question information on Moodle tomorrow #pause
+    - Most likely 3-4 questions on V/Q/policy gradient
 
 ==
 If you want full participation marks, you must participate in lecture #pause
@@ -204,7 +205,7 @@ Last year, two authors of the RL textbook won the Turing Awards #pause
 #cimage("fig/08/turing.jpg", height: 80%)
 
 ==
-Richard Sutton was the first to combine neural networks with RL #pause
+Richard Sutton was the first to combine neural networks with RL#footnote[Sutton, Richard S., et al. "Policy gradient methods for reinforcement learning with function approximation." Advances in neural information processing systems 12 (1999).]#pause
 - He is widely considered the father of modern RL #pause
 - He also was also responsible for the algorithm we will review today #pause
 
@@ -765,7 +766,7 @@ $ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] approx sum_(t=
 ]
 
 ==
-$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] approx sum_(t=0)^oo cal(G)(bold(tau)_t) dot pi (a_t | s_t; bold(theta)) $
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] approx sum_(t=0)^oo cal(G)(bold(tau)_t) dot pi (a_t | s_t; bold(theta)) $ #pause
 
 $ = &cal(G)(mat(s_0, s_1, s_2, dots; a_0, a_1, a_2, dots)^top) && dot pi (a_0 | s_0; bold(theta)) \
 +  &cal(G)(mat(s_1, s_2, dots; a_1, a_2, dots)^top) && dot pi (a_1 | s_1; bold(theta)) \ 
@@ -788,9 +789,9 @@ $ bold(theta)_(i+1) = bold(theta)_(i) + alpha dot gradient_(bold(theta)_(i)) bb(
 
 ==
 $ 
-nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s; bold(theta)] approx sum_(t=0)^oo hat(bb(E))[ cal(G)(bold(tau))  mid(|) s_t;#pin(1)bold(theta)#pin(2)] dot nabla_(bold(theta)) log pi (a_t | s_t; bold(theta)) \ #pause
+nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] approx sum_(t=0)^oo cal(G)(bold(tau)_t) dot nabla_(bold(theta)) log pi (a_t | s_t; bold(theta)) \ #pause
 
-theta_(pi, i+1) = theta_(pi, i) + alpha dot gradient_(theta_(pi, i)) bb(E)[cal(G)(bold(tau)) | s; theta_(pi, i)] $ #pause
+bold(theta)_(i+1) = bold(theta)_(i) + alpha dot gradient_(bold(theta)_(i)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_(i)] $ #pause
 
 *Question:* Any other ways to express $bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)]$? #pause 
 
