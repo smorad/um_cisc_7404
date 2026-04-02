@@ -366,12 +366,16 @@ $ #pause
 
 *Definition:* Actor-critic algorithms jointly train a policy network $pi (a | s; bold(theta)_pi)$ and value function $V(s, bold(theta)_V, bold(theta)_pi)$ #pause
 
+//$ bold(theta)_(V, i+1) = \ argmin_bold(theta)_(V, i) underbrace((V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i)) - (bb(E)[cal(R)(s_(1)) + not d gamma V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i) ) | s_0 ; bold(theta)_pi]))^2, "TD error") $ #pause
+
+$ eta = underbrace(V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i)) - (r_0 + not d gamma V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i))), "TD Error") $
+
+$ bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) eta^2 $ #pause
+
 $ 
-bold(theta)_(pi, i+1) = bold(theta)_(pi, i) + alpha dot underbrace(V(s_0, bold(theta)_(V, i), bold(theta)_(pi, i)), "Expected return") dot nabla_(bold(theta)_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i))
+bold(theta)_(pi, i+1) = argmax_bold(theta)_(pi, i) underbrace(V(s_0, bold(theta)_(V, i), bold(theta)_(pi, i)), "Expected return") dot nabla_(bold(theta)_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i))
 $ #pause
 
-//$ bold(theta)_(V, i+1) = \ argmin_bold(theta)_(V, i) underbrace((V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i)) - (bb(E)[cal(R)(s_(1)) + not d gamma V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i) ) | s_0 ; bold(theta)_pi]))^2, "TD error") $ #pause
-$ bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) underbrace((V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i)) - (r_0 + not d gamma V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i) )))^2, "TD error") $ #pause
 
 Repeat process until convergence #pause
 - Can update $pi$ and $V$ with single transition $(s_0, a_0, s_1, r_0, d_0)$
@@ -482,13 +486,11 @@ We call this the *advantage*, tells us if we should change policy #pause
 
 $ Q(a_Q) > V(a tilde pi) => a_Q > a; quad pi(a_Q) arrow.t $ #pause
 
-//If $a_0$ results in better return, increase policy probability #pause
 
 $ 
 bold(theta)_(pi, i+1) = bold(theta)_(pi, i) + | A(s_0, a_0, bold(theta)_i) | dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i))
 $ #pause
 
-//If $a_0$ results in worse return, reduce probability
 $ Q(a_Q) < V(a tilde pi) => a_Q < a; quad pi(a_Q) arrow.b $ #pause
 
 $ 
@@ -497,7 +499,6 @@ $ #pause
 
 $Q(a_Q) = V(a tilde pi)$, do nothing $bold(theta)_(pi, i+1) = bold(theta)_(pi, i)$
 
-//If action $a_0$ produced expected return, do nothing $theta_(pi, i+1) = bold(theta)_(pi, i) + 0$
 
 ==
 The policy will not oscillate. Policy only changes if $Q - V$ has error #pause
@@ -522,31 +523,30 @@ $ A(s_0, a_0, bold(theta)_Q, bold(theta)_V, bold(theta)_pi)  = Q(s_0, a_0, bold(
 Advantage requires both $Q$ and $V$, but we can write $Q$ with $V$  #pause
 
 *Question:* Can we replace $Q$ with $V$? How? #pause
-- HINT 1: Write as $A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi)$ #pause
-- HINT 2: Think about TD error: $V(s_0) - (r_0 + gamma V(s_1))$ #pause
+- HINT 1: Write $A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi)$ #pause 
+- HINT 2: TD error: $V(s_0) - (r_0 + gamma V(s_1))$ #pause
 
-$ A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) = bb(E)[underbrace(-V(s_0, bold(theta)_V, bold(theta)_pi), "Our prediction") + underbrace(r_0 + not d gamma V(s_1, bold(theta)_V, bold(theta)_pi), "What happened") | s_0; bold(theta)_pi] $
-
-//$ A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) = -underbrace(V(s_0, bold(theta)_pi), "What we expect") + underbrace(bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi] + not d gamma V(s_1, bold(theta)_pi), "What happens") $ #pause
-
-//Equivalent to $-sqrt("TD error")$
-
-Better than expected: $|A| > 0$ #pause , worse than expected $|A| < 0$
-
-// When we use advantage with policy gradient, call it A2C
-// Written by same guy as DQN (Mnih)
+$ A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) =  \ -bb(E)[underbrace(V(s_0, bold(theta)_V, bold(theta)_pi), "Our prediction") -(underbrace(r_0 + not d gamma V(s_1, bold(theta)_V, bold(theta)_pi), "What happened")) mid(|) s_0; bold(theta)_pi] $
 
 ==
 *Definition:* Advantage Actor Critic (A2C) updates the policy using the advantage, and repeats until convergence #pause
 
-$ A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) = -V(s_0, bold(theta)_V, bold(theta)_pi) + r_0 + not d gamma V(s_1, bold(theta)_V, bold(theta)_pi)
-$ #pause
+$ underbrace(eta = V(s_0, bold(theta)_V, bold(theta)_pi) -(r_0 + not d gamma V(s_1, bold(theta)_V, bold(theta)_pi)), "TD Error") #pause quad A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) = -eta $ #pause
+
+$ bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) eta^2 $ #pause
 
 $ 
-bold(theta)_(pi, i+1) = bold(theta)_(pi, i) + alpha dot underbrace(A(s_0, s_1, r_0, bold(theta)_(pi, i), bold(theta)_(V, i)), "Advantage") dot underbrace(nabla_(bold(theta)_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i)), "Policy gradient")
+bold(theta)_(pi, i+1) = argmax_bold(theta)_(pi, i) underbrace(A(s_0, s_1, r_0, bold(theta)_(pi, i), bold(theta)_(V, i)), "Advantage") dot underbrace(nabla_(bold(theta)_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i)), "Policy gradient")
 $ #pause
 
-$ bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) underbrace((V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i)) - (r_0 + not d gamma V(s_0, bold(theta)_(pi, i), bold(theta)_(V,i) )))^2, "TD error") $ 
+//$ bold(theta)_(pi, i+1) = bold(theta)_(pi, i) - alpha dot A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) nabla_(bold(theta)_pi) log pi (a_0 | s_0; bold(theta)_pi) $
+
+
+//$ A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) = -eta $ #pause
+
+//$ cal(L)(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) = underbrace(underbrace(A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi), "Replaces" V) log pi (a_0 | s_0; bold(theta)_(pi)), "Policy Gradient") + overbrace(eta^2, "Value Update") $
+
+
 
 = Off-Policy Gradient
 // Policy gradient is an on-policy method
@@ -556,137 +556,80 @@ $ bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) underbrace((V(s_0, bold(theta
 // Can we still somehow reuse this data
 // Introduce importance sampling
 ==
-$ nabla_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[ cal(G)(bold(tau)) | s_0; bold(theta)_pi] dot nabla_(theta_pi) log pi (a_0 | s_0; bold(theta)_pi) $ #pause
+$ nabla_(bold(theta)_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)_pi) log pi (a_0 | s_0; bold(theta)_pi) | s_0; bold(theta)_pi] $ #pause
 
 *Question:* Is policy gradient off-policy or on-policy? #pause
-
-*Answer:* On-policy, expected return depends on $theta_pi$ #pause
+- *Answer:* On-policy, expected return depends on $bold(theta)_pi$ #pause
 
 *Question:* Why do we care about being off-policy? #pause
-
-*Answer:* Algorithm can reuse data, much more efficient #pause
+- *Answer:* Algorithm can reuse data, much more efficient #pause
 
 *Question:* What do we need to make policy gradient off-policy? #pause
 
-Must approximate $bb(E)[cal(G)(bold(tau)) | s_0; #pin(1)theta_pi#pin(2)]$ using $bb(E)[cal(G)(bold(tau)) | s_0; #pin(3)theta_beta#pin(4)]$ #pause
+Must approximate $bb(E)[cal(G)(bold(tau)) | s_0; #pin(1)bold(theta)_pi#pin(2)]$ using $bb(E)[cal(G)(bold(tau)) | s_0; #pin(3)bold(theta)_beta#pin(4)]$ #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 1.2em)[Training policy] 
 #pinit-highlight-equation-from((3,4), (3,4), fill: blue, pos: bottom, height: 1.2em)[Behavior policy] #pause
 
 #v(1.2em)
 
-*Question:* Any statistics students know how to do this?
-
-==
-In *importance sampling*, we want to estimate #pause
-
-$ bb(E)[f(x) | x tilde Pr (X)] $ #pause
-
-Unfortunately, we only have data from #pause
-
-$ bb(E)[f(x) | x tilde Pr (Y)] $ #pause
-
-We can use their ratio to approximate the expectation #pause
-
-$ bb(E)[f(x) | x tilde Pr (X)] = bb(E)[
-    f(x) dot (Pr (X) ) /  (Pr (Y)) mid(|) x tilde Pr (Y) ] 
-$ #pause
-
-*Question:* How can we use this to make policy gradient off-policy?
+*Question:* How to do this? #pause *Answer:* Importance sampling
 
 ==
 
-$ bb(E)[f(x) | x tilde Pr (X)] = bb(E)[
-    f(x) dot (Pr (X) ) /  (Pr (Y)) mid(|) x tilde Pr (Y) ] 
-$ #pause
-
-Consider our current policy is $theta_pi$, we want $bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi]$ #pause
-
-A *behavior policy* $theta_beta$ collected the data $bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_beta]$ #pause
-
-$theta_beta$ can be an old policy or some other policy #pause
-
-#v(1.5em)
-
-$ bb(E)[#pin(5)cal(R)(s_(1))#pin(6) | s_0; #pin(7)theta_pi#pin(8)] = bb(E)[
-    #pin(1)cal(R)(s_1)#pin(2) dot (pi (a | s_0 ; bold(theta)_pi) ) /  (pi (a | s_0 ; bold(theta)_beta)) mid(|) s_0; #pin(3)theta_beta#pin(4)] 
-$ #pause
-
-#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 2em)[Reward following $theta_beta$] 
-#pinit-highlight(3, 4) #pause
-
-#pinit-highlight-equation-from((5,6), (5,6), fill: blue, pos: top, height: 2em)[Reward following $theta_pi$] 
-#pinit-highlight(7, 8, fill: blue.transparentize(80%))
-
-==
-$ bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi] = bb(E)[
-    cal(R)(s_1) dot (pi (a | s_0 ; bold(theta)_pi) ) /  (pi (a | s_0 ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta] 
-$ #pause
-
-Seems like magic, how does this actually work? #pause
-
-Let us find out, start with expected reward from behavior policy #pause
-
-$ bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_beta] = 
-    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; bold(theta)_beta)
+$ bb(E)[cal(R)(s_1) | s_0; bold(theta)_pi] 
+    &= sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; bold(theta)_pi) #pause
+$
+$
     
-    //underbrace((pi (a_0 | s_0 ; bold(theta)_pi) ) /  (pi (a_0 | s_0 ; bold(theta)_beta)), "Correction") 
+    &= sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; bold(theta)_pi) underbrace( (pi (a_0 | s_0 ; bold(theta)_beta)) / (pi (a_0 | s_0 ; bold(theta)_beta)), "= 1") \
+    #pause
+    &= sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A)  Tr(s_1 | s_0, a_0) pi (a_0 | s_0 ; bold(theta)_beta) (pi (a_0 | s_0; bold(theta)_pi)) / (pi (a_0 | s_0 ; bold(theta)_beta)) 
 $
 
 ==
-
-$ bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_beta] = 
-    underbrace(sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; bold(theta)_beta), "Expected reward") underbrace((pi (a_0 | s_0 ; bold(theta)_pi) ) /  (pi (a_0 | s_0 ; bold(theta)_beta)), "Correction") 
-$ #pause
-
-
-$ //bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi] = 
-    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) cancel(pi (a_0 | s_0; bold(theta)_beta)) (pi (a_0 | s_0 ; bold(theta)_pi) ) /  cancel(pi (a_0 | s_0 ; bold(theta)_beta)) 
-$
+$ &= underbrace(sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A)  Tr(s_1 | s_0, a_0) pi (a_0 | s_0 ; bold(theta)_beta), bb(E)[cal(R)(s_1) | s_0; bold(theta)_beta]) (pi (a_0 | s_0; bold(theta)_pi)) / (pi (a_0 | s_0 ; bold(theta)_beta)) \ #pause
+&= bb(E)[cal(R)(s_1) (pi (a_0 | s_0; bold(theta)_pi)) / (pi (a_0 | s_0 ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta] 
 $ 
-    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0 ; bold(theta)_pi) #pause = bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi]
-$ #pause
-Left with expected reward following $theta_pi$
 
 ==
-$ bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi] = bb(E)[
-    cal(R)(s_1) dot (pi (a | s_0 ; bold(theta)_pi) ) /  (pi (a | s_0 ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta] \
-
-bb(E)[cal(R)(s_(1)) | s_0; bold(theta)_pi] = 
-    sum_(s_1 in S) cal(R)(s_1) sum_(a_0 in A) Tr(s_1 | s_0, a_0) pi (a_0 | s_0; bold(theta)_beta)(pi (a_0 | s_0 ; bold(theta)_pi) ) /  (pi (a_0 | s_0 ; bold(theta)_beta)) 
-$ #pause
+$ bb(E)[cal(R)(s_1) | s_0; bold(theta)_pi] &= bb(E)[cal(R)(s_1) (pi (a_0 | s_0; bold(theta)_pi)) / (pi (a_0 | s_0 ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta] $
 
 We found a way to estimate the off-policy reward #pause
-
-Apply the same approach to find the off-policy return (won't derive, trust me) #pause
+- Apply the same approach to find the off-policy return (won't derive) #pause
 
 $ bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[
-#pin(1)cal(G)(bold(tau))#pin(2) product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_t | s_t ; bold(theta)_beta)) mid(|) s_0; #pin(3)theta_beta#pin(4)
-] #pause
+cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_t | s_t ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta
+] $ #pause
 
-#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Return following $theta_beta$] 
-#pinit-highlight(3, 4) #pause
-$
+*Question:* Is this Monte Carlo or Temporal Difference? #pause
+
+*Answer:* Monte Carlo
+
+==
+
+$ bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[
+cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_t | s_t ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta
+] \ #pause
+
+V(s_0, bold(theta)_V, bold(theta)_beta, bold(theta)_pi) = bb(E)[
+cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_t | s_t ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta
+] \ #pause
+
+underbrace(V(s_0, bold(theta)_V, bold(theta)_beta, bold(theta)_pi), V "For" bold(theta)_pi) = bb(E)[(cal(R)(s_0) + gamma V(s_1, bold(theta)_V, bold(theta)_beta, bold(theta)_pi)) (pi (a_0 | s_0 ; bold(theta)_pi) ) / (pi (a_0 | s_0 ; bold(theta)_beta))mid(|) s_0; bold(theta)_beta] $ 
 
 ==
 // TODO: Should I use hat/approx here?
 
-*Definition:* Off-policy gradient uses importance sampling to learn from off-policy data #pause
+*Definition:* Off-policy gradient uses importance sampling to learn a policy $pi (a | s; bold(theta)_pi)$ from training data collected by $pi (a | s; bold(theta)_beta)$ #pause
 
-$ bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[
-cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_t | s_t ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta
-]
-$ #pause
+$ eta = V(s_0, bold(theta)_V, bold(theta)_beta, bold(theta)_pi) - (r_0 + gamma V(s_1, bold(theta)_V, bold(theta)_beta, bold(theta)_pi)) $ #pause
+
+$ bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) (eta dot (pi (a_0 | s_0 ; bold(theta)_pi) ) / (pi (a_0 | s_0 ; bold(theta)_beta)))^2 $ #pause
 
 $ 
-theta_(pi, i+1) = bold(theta)_(pi, i) + alpha dot bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] dot nabla_(theta_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i))
-$ #pause
-
-*Note:* Wrote MC version for clarity, but you can use $V$ too #pause
-
-$ V(s_0, bold(theta)_pi, bold(theta)_beta) = bb(E)[
-cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_t | s_t ; bold(theta)_beta)) mid(|) s_0; bold(theta)_beta
-] $
+bold(theta)_(pi, i+1) = argmax_bold(theta)_(pi, i) V(s_0, bold(theta)_(pi, i), bold(theta)_(V, i)) dot underbrace(nabla_(bold(theta)_(pi, i)) log pi (a_0 | s_0; bold(theta)_(pi, i)), "Policy gradient")
+$ 
 
 ==
 $ bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = bb(E)[
@@ -695,8 +638,7 @@ cal(G)(bold(tau)) product_(t=0)^oo (pi (a_t | s_t ; bold(theta)_pi) ) /  (pi (a_
 $ #pause
 
 Why did I tell you policy gradient is on policy? #pause
-
-Off-policy gradient does not work in most cases #pause
+- Off-policy gradient does not work in most cases #pause
 
 *Question:* Why? #pause HINT: What happens to $product$? #pause
 
@@ -715,8 +657,7 @@ Only works if $pi (a_t | s_t ; bold(theta)_pi)  approx pi (a_t | s_t ; bold(thet
 
 ==
 Training policies in RL is difficult #pause
-
-We often see strange results during training #pause
+- We often see strange results during training #pause
 
 #side-by-side[
     #cimage("fig/09/collapse.png", height: 70%) #pause][
@@ -786,15 +727,13 @@ Parameter-space constraints (learning rate) does not work very well! #pause
 ==
 Can measure the difference in distributions using KL divergence #pause
 
-$ KL [Pr(X), Pr(Y)] in [0, oo] $ #pause
+$ KL [Pr(X), Pr(Y)] in [0, oo) $ #pause
 
-Policies are just action distributions #pause
-
-$ KL[pi (a | s; bold(theta)_(pi, i)), pi (a | s; bold(theta)_(pi, i + 1))] $ #pause
+Policies are just action distributions #pause $KL[pi (a | s; bold(theta)_(pi, i)), pi (a | s; bold(theta)_(pi, i + 1))]$ #pause
 
 Introduce *trust region* $k$ to prevent large policy changes #pause
 
-$ bold(theta)_(pi, i + 1) = V(s_0, bold(theta)_(pi, i)) dot nabla_(theta_pi) log pi (a_0 | s_0; bold(theta)_(pi, i)) #pause \ s.t. space KL[pi (a | s; bold(theta)_(pi, i)), pi (a | s; bold(theta)_(pi, i + 1))] < k $ #pause
+$ bold(theta)_(pi, i + 1) = argmax_bold(theta)_(pi, i) V(s_0, bold(theta)_(pi, i)) dot nabla_(theta_pi) log pi (a_0 | s_0; bold(theta)_(pi, i)) #pause \ s.t. space KL[pi (a | s; bold(theta)_(pi, i)), pi (a | s; bold(theta)_(pi, i + 1))] < k $ #pause
 
 See Trust Region Policy Optimization (TRPO), Natural Policy Gradient
 
@@ -803,8 +742,7 @@ See Trust Region Policy Optimization (TRPO), Natural Policy Gradient
 $ bold(theta)_(pi, i + 1) = V(s_0, bold(theta)_(pi, i)) dot nabla_(theta_pi) log pi (a_0 | s_0; bold(theta)_(pi, i)) \ s.t. space KL[pi (a | s; bold(theta)_(pi, i)), pi (a | s; bold(theta)_(pi, i + 1))] < k $ #pause
 
 Constrained optimization can be expensive and tricky to implement #pause
-
-Often requires inverting the gradient or computing Hessian #pause
+- Requires matrix inverse of gradient or computing Hessian #pause
 
 *Hack:* Add KL term to the objective (soft constraint) #pause
 
@@ -830,7 +768,10 @@ for epoch in range(epochs):
     # but is very slightly off-policy!
     for minibatch in batch:
         bold(theta)_pi = update_pi(
-            bold(theta)_pi, bold(theta)_beta, bold(theta)_V, batch
+            bold(theta)_pi, 
+            bold(theta)_beta, 
+            bold(theta)_V, 
+            batch
         ) 
         bold(theta)_V = update_V(theta_V, batch)
     bold(theta)_beta = bold(theta)_pi
@@ -846,40 +787,32 @@ There are different variations of PPO #pause
 We will focus on the simplest version (PPO KL penalty)
 
 ==
+$ eta = V(s_0, bold(theta)_V, bold(theta)_beta, bold(theta)_pi) - (r_0 + gamma V(s_1, bold(theta)_V, bold(theta)_beta, bold(theta)_pi))  $ #pause
 
-#text(size: 24pt)[
-#v(2em)
-$ 
-theta_(pi, i+1) = #pause bold(theta)_(pi, i) + alpha dot 
-    underbrace((
-        (#pin(1)pi (a | s; bold(theta)_(pi, i) )#pin(2)) / 
-        (#pin(3)pi (a | s; bold(theta)_beta )#pin(4))
+$ bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) eta^2  $ #pause
 
-        #pin(5)A(s_0, s_1, r_0, bold(theta)_beta, bold(theta)_V)#pin(6)
-    ), "Value") 
-    \ dot (#pin(9)nabla_(theta_(pi, i)) [ log pi (a_0 | s_0; bold(theta)_(pi, i))]#pin(10) 
-    - rho nabla_(theta_(pi, i + 1))[ #pin(7)KL[pi (a_0 | s_0; bold(theta)_(beta)), pi (a_0 | s_0; bold(theta)_(pi, i + 1))]#pin(8) ] )
-$ #pause
+$ A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) = -eta $
 
-
-#pinit-highlight-equation-from((1,4), (1,2), fill: red, pos: top, height: 2em)[Off-policy correction for minibatch] #pause
-
-#pinit-highlight-equation-from((5,6), (5,6), fill: blue, pos: top, height: 1.2em)[Advantage] #pause
-
-#pinit-highlight-equation-from((9,10), (9,10), fill: green, pos: bottom, height: 1.2em)[Policy gradient] #pause
-
-#pinit-highlight-equation-from((7,8), (7,8), fill: orange, pos: bottom, height: 1.2em)[Trust region] #pause
-
-#v(1.2em)
-
-$ A(s_0, s_1, r_0, bold(theta)_beta, bold(theta)_V) = -V(s_0, bold(theta)_beta, bold(theta)_V) + (hat(bb(E))[cal(R)(s_(1)) | s_0; bold(theta)_beta] + not d gamma V(s_1, bold(theta)_beta, bold(theta)_V)) $ #pause
-
-$ bold(theta)_(V, i+1) = argmin_theta_(V, i) (V(s_0, bold(theta)_beta, bold(theta)_(V,i)) - (hat(bb(E))[cal(R)(s_(1)) | s_0; bold(theta)_beta]+ not d gamma V(s_0, bold(theta)_beta, bold(theta)_(V,i) )))^2 $
-]
+$ bold(theta)_(pi, i+1) &= argmax_bold(theta)_(pi, i) A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) (pi (a_0 | s_0 ; bold(theta)_pi) ) / (pi (a_0 | s_0 ; bold(theta)_beta)) nabla_bold(theta)_(pi, i) log pi (a_0 | s_0; bold(theta)_(pi, i)) \
+&+ nabla_bold(theta)_(pi, i + 1)[ KL[pi (a_0 | s_0; bold(theta)_(beta)), pi (a_0 | s_0; bold(theta)_(pi, i + 1))] ] $
 
 ==
-*Personal opinion:* PPO is overrated, for some reason very popular #pause
-- Many hyperparameters, hard to implement, computationally expensive #pause
+
+#align(center)[*PPO*]
+    $ bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) eta^2  $ #pause
+
+    $ A(s_0, s_1, r_0, bold(theta)_V, bold(theta)_pi) (pi (a_0 | s_0 ; bold(theta)_pi) ) / (pi (a_0 | s_0 ; bold(theta)_beta)) nabla_bold(theta)_(pi, i) log pi (a_0 | s_0; bold(theta)_(pi, i)) $ #pause
+
+#align(center)[*Off-Policy Gradient*]
+    
+
+$ bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) (eta dot (pi (a_0 | s_0 ; bold(theta)_pi) ) / (pi (a_0 | s_0 ; bold(theta)_beta)))^2 $ #pause
+
+*Question:* Why ratio not in the TD error? #pause *Answer:* PPO is wrong!
+
+==
+*Personal opinion:* PPO is overrated, but it is very popular #pause
+- Many hyperparameters, hard to implement, data inefficient #pause
 - Cohere finds REINFORCE better than PPO for LLM training #pause
     - https://arxiv.org/pdf/2402.14740v1 #pause
 - Our experiments find that Q learning outperforms PPO #pause
