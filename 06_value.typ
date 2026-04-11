@@ -7,6 +7,8 @@
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
+// TODO 2026: Introduce error as eta, as we use it in future lectures
+
 // TODO 2026: Simply define V(s, pi) as V_pi(s) to make things more clear
 // then, we also can write Q_pi and Q_greedy, etc
 // Also saves a ton of space for actor critic lectures

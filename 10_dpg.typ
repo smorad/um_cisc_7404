@@ -86,61 +86,16 @@
     outline(title: none, indent: 1em, depth: 1)
 )
 
-= Quiz
-==
-- After all students put away their computer/notes/phone I will hand out exams #pause
-- If you have computer/notes/phone out after this point, it counts as cheating #pause
-- I will hand out exams face down, do not turn them over until I say so #pause
-- After turning them over, I will briefly explain each question #pause
-- After my explanation, you will have 75 minutes to complete the exam #pause
-- After you are done, give me your exam and go relax outside, we resume class at 8:30
-
-==
-
-- There may or may not be different versions of the exam #pause
-- If your exam has the answer for another version, it is cheating #pause
-- Instructions are in both english and chinese, english instructions take precedence #pause
-- Good luck!
-
-==
-- 在所有学生收起电脑/笔记/手机后,我会分发试卷。
-- 如果在此之后仍有电脑/笔记/手机未收,将视为作弊。
-- 试卷会背面朝下发下,在我宣布开始前请勿翻面。
-- 试卷翻面后,我会简要说明每道题的注意事项。
-- 说明结束后,你们有75分钟完成考试。
-- 交卷后请到教室外休息,8:30恢复上课。
-- 试卷可能存在不同版本,细节略有差异。
-- 若你的试卷上出现其他版本的答案,将被判定为作弊。
-- 试卷说明为中英双语,若内容冲突以英文为准。
-- 祝各位考试顺利!
-
 = Admin
 ==
-After today, you will know all the foundations of decision making #pause
+We are nearing the end of the course! #pause
 
 You should be able to understand research papers on:
 - MDPs, bandits, RL algorithms, even some control problems! #pause
 
-Next week, we begin to investigate interesting topics of decision making #pause
-
-Right now, my plan is:
-- Imitation Learning
+Next week we will investigate active research topics
 - Offline RL
-- Memory and POMDPs
-- Large Language Models #pause
-
-*Question:* Should we replace a topic with something else?
-
-==
-
-- Imitation learning
-    - Sometimes, designing a reward function is hard
-    - It is easier to demonstrate desired behavior to agents
-        - Instead of reward for surgery, do what human does
-        - Instead of reward for self driving, do what human does
-    - With imitation learning, can learn behaviors without rewards
-    - Closer to supervised learning, easier to train
-    - Policies are not better than dataset/humans
+- Large language models
 
 ==
 
@@ -149,24 +104,8 @@ Right now, my plan is:
     - How can we learn policies from a fixed dataset?
         - Learn surgery from surgical videos (no need to kill patients)
         - Learn driving from Xiaomi driving dataset (no need to crash cars)
-    - Unlike imitation learning, can do *better* than dataset
     - Very new topic (2-3 years old)
         - Does not work very well (yet)
-
-==
-
-- Memory and POMDPs (my research focus)
-    - So far, we focused on video games
-        - MDP
-    - Many interesting problems are not Markov
-        - Think of robot with camera, not Markov
-        - Almost every task has sensor noise, not Markov
-    - Can we extend RL to work for virtually any problem?
-        - Yes, requires long-term memory
-        - LSTM, transformer, etc
-    - May also have time to introduce world models
-        - Dreamer, TD-MPC, etc
-
 
 ==
 
@@ -179,39 +118,21 @@ Right now, my plan is:
         - RL-adjacent methods (DPO)
 
 ==
-Also a possibility to split lecture:
-- E.g., 1 hour imitation learning, 1 hour something new #pause
-
-*Question:* Any topic sound boring? #pause
-
-*Question:* Any suggestions for other topics? #pause
-- Maybe just focus on a specific paper? #pause
-
-Alternative topics:
-- Multi-agent RL
-- Model-based RL and world-models
-- Evolutionary algorithms
-==
-Homework 2 progress #pause
-
-If you did not already start, you might be in trouble #pause
-
-Experiments take a long time, start as soon as possible #pause
-
-Harder and requires more debugging than `FrozenLake` assignment
+We will have the last exam in two weeks: #pause
+- Actor critic #pause
+- Offline RL #pause
+- More information next week
 
 ==
-Those using Tencent AI Arena (Honor of Kings): #pause
-- Backup project should not rely on Honor of Kings #pause
-- *Make sure to save your code regularly* #pause
-    - Everything stored on Tencent VMs, not sure how safe code is #pause
-- There is already a PPO baseline, cannot use PPO #pause
-    - Instead, consider DDPG, SAC, TRPO, DQN variant, etc #pause
-- Cannot install new python libraries (Tencent security issue) #pause
-    - No `jax`, must use `torch` 
-    - You must learn Tencent's strange callback system 
-        - Prevents copy/pasting, so `torch` is ok
+Homeworks 2 and 3 due next week #pause
+- If you did not start, you are in trouble #pause
+    - 15/53 submitted homework 2 #pause
+    - 12/52 submitted homework 3
 
+==
+Also think about final projects #pause
+- You still have more than 1 month #pause
+    - But remember RL takes longer than supervised learning!
 
 = Review
 
@@ -229,8 +150,7 @@ Those using Tencent AI Arena (Honor of Kings): #pause
 // In this case, we will learn a neural network that approximates the argmax policy
 ==
 Alternative descriptions of actor critic algorithms
-
-https://lilianweng.github.io/posts/2018-04-08-policy-gradient/
+- https://lilianweng.github.io/posts/2018-04-08-policy-gradient/
 
 ==
 #cimage("fig/09/algos.png")
@@ -280,8 +200,8 @@ Learn $Q$ for a specific policy #pause
     $ A = [0, 2 pi]^12 $ #pause
 
 ]
-$ pi (a_t | s_t; theta_pi) =  cases( 
-  1 "if" a_t = argmax_(a_t in A) Q(s_t, a_t, theta_pi), 
+$ pi (a_t | s_t; bold(theta)_pi) =  cases( 
+  1 "if" a_t = argmax_(a_t in A) Q(s_t, a_t, bold(theta)_pi), 
   0 "otherwise"
 ) $  #pause
 
@@ -289,57 +209,55 @@ Infinitely many $a_t$ -- compute $Q$ for each and take $argmax$ over all
 
 ==
 
-$ pi (a_t | s_t; theta_pi) =  cases( 
-  1 "if" a_t = argmax_(a_t in A) Q(s_t, a_t, theta_pi), 
+$ pi (a_t | s_t; bold(theta)_pi) =  cases( 
+  1 "if" a_t = argmax_(a_t in A) Q(s_t, a_t, bold(theta)_pi), 
   0 "otherwise"
 ) $ #pause
 
 The greedy policy cannot work with continuous action spaces #pause
-
-Can we replace $argmax$ with a different deterministic function? #pause
+- Can we replace $argmax$ with a different deterministic function? #pause
 
 Remember that the Q function and greedy policy are different #pause
-
-We can learn Q for *any* policy, does not need to be greedy policy #pause
+- We can learn Q for *any* policy, does not need to be greedy policy #pause
 
 Let us quickly review the Q function and value function
 
 ==
 Start with general form of Temporal Difference Q function  #pause
 
-$ Q(s_0, a_0, theta_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(V(s_1, theta_pi), cal(G) "following" theta_pi) $ #pause
+$ Q(s_0, a_0, bold(theta)_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(V(s_1, bold(theta)_pi), cal(G) "following" bold(theta)_pi) $ #pause
 
 #v(-0.5em)
-We can replace $V$ with $Q$ if $#redm[$a$] tilde pi (dot | s_1; theta_pi)$ #pause
+We can replace $V$ with $Q$ if $#redm[$a$] tilde pi (dot | s_1; bold(theta)_pi)$ #pause
 
-$ Q(s_0, a_0, theta_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(Q(s_1, #redm[$a$], theta_pi), cal(G) "following" theta_pi) $ #pause
+$ Q(s_0, a_0, bold(theta)_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(Q(s_1, #redm[$a$], bold(theta)_pi), cal(G) "following" bold(theta)_pi) $ #pause
 
 For the greedy policy, we can reduce $Q$ further #pause
 
-$ Q(s_0, a_0, theta_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + underbrace(max_(a in A) gamma Q(s_1, a, theta_pi), cal(G) "following" theta_pi) $
+$ Q(s_0, a_0, bold(theta)_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + underbrace(max_(a in A) gamma Q(s_1, a, bold(theta)_pi), cal(G) "following" bold(theta)_pi) $
 
 ==
-$ cancel(Q(s_0, a_0, theta_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + max_(a in A) gamma Q(s_1, a, theta_pi))  $ #pause
+$ cancel(Q(s_0, a_0, bold(theta)_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + max_(a in A) gamma Q(s_1, a, bold(theta)_pi))  $ #pause
 
 Cannot use the max Q function with BenBen #pause
 
 $
-Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_pi) \
-Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, a, theta_pi); quad a tilde pi (dot | s_1; theta_pi) 
+Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, bold(theta)_pi) \
+Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, a, bold(theta)_pi); quad a tilde pi (dot | s_1; bold(theta)_pi) 
 $ #pause
 
 *Question:* Can we use continuous $a$ with $Q$? #pause *Answer:* Yes  #pause
 
-Q function $=>$ no problem, policy $=>$ problem $quad #redm[$argmax_(a in A)$] Q(s, a, theta_pi)$ #pause
+Q function $=>$ no problem, policy $=>$ problem $quad #redm[$argmax_(a in A)$] Q(s, a, bold(theta)_pi)$ #pause
 
 Greedy deterministic policy worked well for discrete actions #pause
 
 Can we learn a different deterministic policy for continuous actions?
 
 ==
-$ Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, a, theta_pi); quad a tilde pi (dot | s_1; theta_pi) $
+$ Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma underbrace(bb(E)[Q(s_1, a_1, bold(theta)_pi) | s_0, a_0; bold(theta)_pi], a_1 tilde pi (dot | s_1; bold(theta)_pi)) $ #pause
 
-*Question:* What method can we use to learn $theta_pi$? #pause
+*Question:* What method can we use to learn $bold(theta)_pi$? #pause
 
 *Answer:* Policy gradient #pause
 
@@ -350,31 +268,29 @@ Perhaps our solution will combine $Q$ with policy gradient #pause
 The trick is to consider a *deterministic* policy #pause
 
 #side-by-side[
-    $ cancel(a tilde pi (dot | s; theta_pi)) $ #pause
+    $ cancel(a tilde pi (dot | s; bold(theta)_pi)) $ #pause
 ][
-    $ a = mu(s, theta_mu) $ #pause
+    $ a = mu(s, bold(theta)_mu) $ #pause
 ][
     $ mu: S times Theta |-> A $ #pause
 ]
 
-$ Q(s_0, a_0, theta_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, #redm[$mu$] (s_1, theta_mu), theta_pi) $
+$ Q(s_0, a_0, bold(theta)_mu) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, #redm[$mu$] (s_1, bold(theta)_mu), bold(theta)_mu) | s_0, a_0; bold(theta)_mu] $
 
 
 
 ==
-So let us learn parameters $theta_mu$ for this deterministic function #pause
+So let us learn parameters $bold(theta)_mu$ for this deterministic function #pause
 
-Recall policy gradient, we find $theta_pi$ using gradient ascent #pause
+Recall policy gradient, we find $bold(theta)_pi$ using gradient ascent #pause
 
-$ theta_(pi, i + 1) = theta_(pi, i) + alpha dot nabla_theta_(pi, i) bb(E)[cal(G)(bold(tau)) | s_0; theta_(pi, i)] $ #pause
+$ bold(theta)_(pi, i + 1) = bold(theta)_(pi, i) + alpha dot nabla_bold(theta)_(pi, i) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_(pi, i)] $ #pause
 
-We need to know $nabla_theta_pi bb(E)[cal(G)(bold(tau)) | s_0; theta_pi]$ #pause
+We need to know $nabla_bold(theta)_pi bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi]$ #pause
+- We found this for the stochastic policy #pause
+- Can we also find this for a deterministic policy? #pause
 
-We found this for the stochastic policy #pause
-
-Can we also find this for a deterministic policy? #pause
-
-$ nabla_(#pin(1)theta_pi#pin(2)) bb(E)[cal(G)(bold(tau)) | s_0; #pin(3)theta_pi#pin(4)] => nabla_(#pin(5)theta_mu#pin(6)) bb(E)[cal(G)(bold(tau)) | s_0; #pin(7)theta_mu#pin(8)] $ #pause
+$ nabla_(#pin(1)bold(theta)_pi#pin(2)) bb(E)[cal(G)(bold(tau)) | s_0; #pin(3)bold(theta)_pi#pin(4)] => nabla_(#pin(5)bold(theta)_mu#pin(6)) bb(E)[cal(G)(bold(tau)) | s_0; #pin(7)bold(theta)_mu#pin(8)] $ #pause
 
 #pinit-highlight(1,2)
 #pinit-highlight(3,4)
@@ -386,11 +302,11 @@ $ nabla_(#pin(1)theta_pi#pin(2)) bb(E)[cal(G)(bold(tau)) | s_0; #pin(3)theta_pi#
 The expected return with a *stochastic* policy #pause
 
 $ 
-bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; #pin(1)theta_pi#pin(2)) \ #pause
+bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; #pin(1)bold(theta)_pi#pin(2)) \ #pause
 
 #pinit-highlight(1,2) #pause
 
-Pr (s_(n+1) | s_0; #pin(3)theta_pi#pin(4)) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( #pin(7)sum_(a_t in A)#pin(8) Tr(s_(t+1) | s_t, a_t) dot #pin(5)pi (a_t | s_t; theta_pi)#pin(6) ) $ #pause
+Pr (s_(n+1) | s_0; #pin(3)bold(theta)_pi#pin(4)) = sum_(s_1, dots, s_n in S) product_(t=0)^n ( #pin(7)sum_(a_t in A)#pin(8) Tr(s_(t+1) | s_t, a_t) dot #pin(5)pi (a_t | s_t; bold(theta)_pi)#pin(6) ) $ #pause
 
 #pinit-highlight(3,4) #pause
 #pinit-highlight(5,6) 
@@ -398,49 +314,49 @@ Pr (s_(n+1) | s_0; #pin(3)theta_pi#pin(4)) = sum_(s_1, dots, s_n in S) product_(
 
 The state distribution with a *deterministic* policy #pause
 
-$ Pr (s_(n+1) | s_0; theta_mu) = sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) $ 
+$ Pr (s_(n+1) | s_0; bold(theta)_mu) = sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) $ 
 
 ==
 
 Let us continue to derive policy gradient with a *deterministic* policy $mu$ #pause
 
 $ 
-bb(E)[cal(G)(bold(tau)) | s_0; theta_mu] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; theta_mu) \
+bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot Pr (s_(n + 1) | s_0; bold(theta)_mu) \
  
-Pr (s_(n+1) | s_0; theta_mu) = sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) $ #pause
+Pr (s_(n+1) | s_0; bold(theta)_mu) = sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) $ #pause
 
 Plug state distribution into expected return #pause
 
 $
-bb(E)[cal(G)(bold(tau)) | s_0; theta_mu] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) 
+bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) 
 $
 
 ==
 $
-bb(E)[cal(G)(bold(tau)) | s_0; theta_mu] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) 
+bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu] = sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) 
 $ #pause
 
 Take gradient of both sides #pause
 
 $
-nabla_theta_mu bb(E)[cal(G)(bold(tau)) | s_0; theta_mu] \ = nabla_theta_mu [ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) ]
+nabla_bold(theta)_mu bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu] \ = nabla_bold(theta)_mu [ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) ]
 $
 
 ==
 $
-nabla_theta_mu bb(E)[cal(G)(bold(tau)) | s_0; theta_mu] \ = nabla_theta_mu [ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) ]
+nabla_bold(theta)_mu bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu] \ = nabla_bold(theta)_mu [ sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) ]
 $ #pause
 
 Gradient of sum is sum of gradient, move the gradient inside the sums #pause
 
 $
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) nabla_theta_mu [ product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) nabla_bold(theta)_mu [ product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) ]
 $
 
 ==
 
 $
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) nabla_theta_mu [ product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) nabla_bold(theta)_mu [ product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) ]
 $ #pause
 
 #side-by-side[Recall the log trick #pause][
@@ -450,156 +366,151 @@ $ nabla_x f(x)  = f(x) nabla_x log f(x) $
 Apply log trick to product terms #pause
 
 $
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) \ product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) nabla_theta_mu [ log(product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, theta_mu))) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) \ product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) nabla_bold(theta)_mu [ log(product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu))) ]
 $
 
 == 
 #text(size: 24pt)[
 $
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) \ nabla_theta_mu [ log(product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, theta_mu))) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) \ nabla_bold(theta)_mu [ log(product_(t=0)^n  Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu))) ]
 $ #pause
 
 Log of products is sum of logs #pause
 
 $
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) \ nabla_theta_mu [ sum_(t=0)^n log Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) \ nabla_bold(theta)_mu [ sum_(t=0)^n log Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) ]
 $
 ]
 
 ==
 
 $
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) \ nabla_theta_mu [ sum_(t=0)^n log Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) ]
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) \ nabla_bold(theta)_mu [ sum_(t=0)^n log Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) ]
 $ #pause
 
 Move the gradient inside sum #pause
 
 $
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) \ sum_(t=0)^n nabla_theta_mu log Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) 
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) \ sum_(t=0)^n nabla_bold(theta)_mu log Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) 
 $
 
 ==
 
 $
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) \ sum_(t=0)^n nabla_theta_mu log Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) 
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) \ sum_(t=0)^n nabla_bold(theta)_mu log Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) 
 $ #pause
 
 #side-by-side[Use the chain rule][$ nabla_x f(g(x)) = nabla_(g) [f(g(x))] nabla_x g(x)$] #pause
 
 $
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) \ sum_(t=0)^n nabla_(mu)[ log Tr(s_(t+1) | s_t, mu(s_t, theta_mu))] dot nabla_theta_mu mu(s_t, theta_mu)
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) \ sum_(t=0)^n nabla_(mu)[ log Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu))] dot nabla_bold(theta)_mu mu(s_t, bold(theta)_mu)
 $
 
 ==
 $
-= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) \ sum_(t=0)^n nabla_(mu)[ log Tr(s_(t+1) | s_t, mu(s_t, theta_mu))] dot nabla_theta_mu mu(s_t, theta_mu)
+= sum_(n=0)^oo gamma^n sum_(s_(n + 1) in S) cal(R)(s_(n+1)) dot sum_(s_1, dots, s_n in S) product_(t=0)^n Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) \ sum_(t=0)^n nabla_(mu)[ log Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu))] dot nabla_bold(theta)_mu mu(s_t, bold(theta)_mu)
 $ #pause
 
 *Question:* Any problems? #pause
 
 We must know $gradient Tr$ to find the deterministic policy gradient #pause
-
-In model-free RL, we do not know $gradient Tr$ -- it might not be differentiable! #pause
-
-Stochastic policy gradient is very special -- we do not need $nabla Tr$ #pause
-
-Let me explain what I mean
+- In model-free RL, we do not know $gradient Tr$ 
+    - $Tr$ might not be differentiable (e.g. Mario)! #pause
+- Stochastic policy gradient is very special -- we do not need $nabla Tr$ #pause
+    - Let me explain what I mean
 
 ==
 With deterministic policy, $mu$ inside $Tr$ means chain rule #pause
 
-$ sum_(t=0)^n nabla_theta_mu log Tr(s_(t+1) | s_t, mu(s_t, theta_mu)) 
+$ sum_(t=0)^n nabla_bold(theta)_mu log Tr(s_(t+1) | s_t, mu(s_t, bold(theta)_mu)) 
 $ #pause
 
 With stochastic policy, $pi$ *not inside* $Tr$ (product rule) #pause
 
-$ sum_(t=0)^n sum_(a_t in A) nabla_theta_pi [ Tr(s_(t+1) | s_t, a_t) dot log pi (a_t | s_t; theta_pi)] 
+$ sum_(t=0)^n sum_(a_t in A) nabla_bold(theta)_pi [ Tr(s_(t+1) | s_t, a_t) dot log pi (a_t | s_t; bold(theta)_pi)] 
 $ #pause
 
-We use stochastic policies in RL because of this
+This is why we often use stochastic policies in RL #pause
+- Approximate expectation instead of gradient (tractable)
 
 = Deep Deterministic Policy Gradient
 ==
 #side-by-side[
     $ 
-    nabla_(theta_mu) bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]
+    nabla_(bold(theta)_mu) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu]
     $  #pause
 ][
     $
-    theta_(pi, i + 1) = theta_(pi, i) + alpha dot nabla_(theta_mu) bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]
+    bold(theta)_(pi, i + 1) = bold(theta)_(pi, i) + alpha dot nabla_(bold(theta)_mu) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu]
     $ #pause
 ]
 
 We failed -- a deterministic policy gradient does not seem to work #pause
+- Can we try and optimize something else? #pause
 
-Can we try and optimize something else? #pause
-
-*Question:* Could we replace $nabla_theta_mu bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]$ with something else? #pause
+*Question:* Could we replace $nabla_bold(theta)_mu bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu]$ with something else? #pause
 
 #side-by-side[
-$ nabla_(theta_mu) V(s_0, theta_mu) 
+$ nabla_(bold(theta)_mu) V(s_0, bold(theta)_mu) 
 $ #pause
 
 ][
-$ nabla_(theta_mu) Q(s_0, a_0, theta_mu) $ #pause
+$ nabla_(bold(theta)_mu) Q(s_0, a_0, bold(theta)_mu) $ #pause
 ]
 
 Let us try to derive deterministic policy gradient again #pause
-
-This time, take gradient of $V$ instead of gradient of $bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]$
+- This time, take gradient of $V$ instead of gradient of $bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu]$
 
 ==
-$ V(s_0, theta_mu) = bb(E)[cal(R)(s_1) | s_0; theta_mu] + gamma V(s_0, theta_mu) $ #pause
+$ V(s_0, bold(theta)_mu) = bb(E)[cal(R)(s_1) | s_0; bold(theta)_mu] + gamma bb(E)[V(s_0, bold(theta)_mu) | s_0; bold(theta)_mu] $ #pause
 
 Rewrite $V$ in terms of $Q$ #pause
 
-$ V(s_0, theta_mu) = Q(s_0, a, theta_mu); quad a = mu(s_1, theta_mu) $ #pause
+$ V(s_0, bold(theta)_mu) = Q(s_0, a, bold(theta)_mu); quad a = mu(s_1, bold(theta)_mu) $ #pause
 
 Plug in $mu$ for $a$ #pause
 
-$ V(s_0, theta_mu) = Q(s_0, mu(s_0, theta_mu), theta_mu) $ #pause
+$ V(s_0, bold(theta)_mu) = Q(s_0, mu(s_0, bold(theta)_mu), bold(theta)_mu) $ #pause
 
 Take the gradient of both sides #pause
 
-$ nabla_theta_mu V(s_0, a_0, theta_mu) = nabla_theta_mu  Q(s_0, mu(s_0, theta_mu), theta_mu) $
+$ nabla_bold(theta)_mu V(s_0, a_0, bold(theta)_mu) = nabla_bold(theta)_mu  Q(s_0, mu(s_0, bold(theta)_mu), bold(theta)_mu) $
 
 ==
-$ nabla_theta_mu V(s_0, theta_mu) = nabla_theta_mu Q(s_0, mu(s_0, theta_mu), theta_mu) $ 
+$ nabla_bold(theta)_mu V(s_0, bold(theta)_mu) = nabla_bold(theta)_mu Q(s_0, mu(s_0, bold(theta)_mu), bold(theta)_mu) $ 
 
 #side-by-side[Use the chain rule][$ nabla_x f(g(x)) = nabla_(g) [f(g(x))] nabla_x g(x)$] #pause
 
-$ nabla_theta_mu V(s_0, theta_mu) = nabla_mu Q(s_0, mu(s_0, theta_mu), theta_mu) dot nabla_theta_mu mu(s_0, theta_mu) $ 
+$ nabla_bold(theta)_mu V(s_0, bold(theta)_mu) = nabla_mu Q(s_0, mu(s_0, bold(theta)_mu), bold(theta)_mu) dot nabla_bold(theta)_mu mu(s_0, bold(theta)_mu) $ 
 
 ==
 
 #v(1em)
 
-$ nabla_theta_mu V(s_0, theta_mu) = #pin(1)nabla_mu Q(s_1, mu(s_1, theta_mu), theta_mu)#pin(2) dot #pin(3)nabla_theta_mu mu(s_1, theta_mu)#pin(4) $ #pause
+$ nabla_bold(theta)_mu V(s_0, bold(theta)_mu) = #pin(1)nabla_mu Q(s_1, mu(s_1, bold(theta)_mu), bold(theta)_mu)#pin(2) dot #pin(3)nabla_bold(theta)_mu mu(s_1, bold(theta)_mu)#pin(4) $ #pause
 
 #v(1em)
 
 Let us inspect these terms more closely #pause
 
-#pinit-highlight-equation-from((3,4), (3,3), fill: red, pos: top, height: 1.2em)[How $theta_mu$ changes $a$] #pause
+#pinit-highlight-equation-from((3,4), (3,3), fill: red, pos: top, height: 1.2em)[How $bold(theta)_mu$ changes $a$] #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 1.2em)[How $a$ changes $Q$] #pause
 
-The second term is easy to compute, gradient of deterministic policy #pause
-
-Analytical solution for the first term is difficult (recursive definition) #pause
+- The second term is easy to compute, gradient of deterministic policy #pause
+- Analytical solution for the first term is difficult (recursive definition) #pause
 
 But what if $Q$ is a neural network? #pause
-
-We can backpropagate through $Q$ without worrying about recursion
+- We can backpropagate through $Q$ without worrying about recursion
 
 ==
 #v(1em)
 
-$ nabla_theta_mu V(s_0, theta_mu) = #pin(1)nabla_mu Q(s_1, mu(s_1, theta_mu), theta_mu)#pin(2) dot #pin(3)nabla_theta_mu mu(s_1, theta_mu)#pin(4) $
+$ nabla_bold(theta)_mu V(s_0, bold(theta)_mu) = #pin(1)nabla_mu Q(s_1, mu(s_1, bold(theta)_mu), bold(theta)_mu)#pin(2) dot #pin(3)nabla_bold(theta)_mu mu(s_1, bold(theta)_mu)#pin(4) $
 
 #v(1em)
 
-#pinit-highlight-equation-from((3,4), (3,3), fill: red, pos: top, height: 1.2em)[How $theta_mu$ changes $a$] 
+#pinit-highlight-equation-from((3,4), (3,3), fill: red, pos: top, height: 1.2em)[How $bold(theta)_mu$ changes $a$] 
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 1.2em)[How $a$ changes $Q$] #pause
 
@@ -616,11 +527,11 @@ J = grad(V, argnums=2)(states, Q_nn, mu_nn)
 mu_nn = optimizer.update(mu_nn, J) # Grad ascent
 ```
 ==
-This assumes we know the $Q$ function for $theta_mu$ #pause
+//This assumes we know the $Q$ function for $bold(theta)_mu$ #pause
 
 We can learn $Q$ for any policy (before we focused on greedy) #pause
 
-$ Q(s_0, a_0, theta_mu, theta_Q) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, mu(s_1, theta_mu), theta_mu, theta_Q) $ #pause
+$ Q(s_0, a_0, bold(theta)_mu, bold(theta)_Q) = \ bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, mu(s_1, bold(theta)_mu), bold(theta)_mu, bold(theta)_Q) | s_0, a_0; bold(theta)_mu] $ #pause
 
 ```python 
 def V(s, Q_nn, mu_nn):
@@ -635,84 +546,78 @@ Q_nn = optimizer.update(Q_nn, J) # Grad descent
 ==
 *Definition:* Deep Deterministic Policy Gradient (DDPG) decomposes $V$ into a deterministic policy $mu$ and $Q$, learning them jointly #pause
 
-*Step 1:* Learn a $Q$ function for $theta_mu$ #pause
+*Step 1:* Learn the $Q$ function for $mu$ #pause
 
-$ theta_(Q, i+1) = argmin_(theta_(Q, i)) \ (Q(s_0, a_0, theta_(mu, i), theta_(Q, i)) - (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, mu(s_1, theta_(mu, i)), theta_(mu, i), theta_(Q, i)))) $ #pause
+$ eta = Q(s_0, a_0, bold(theta)_(mu), bold(theta)_(Q)) - (r_0 + gamma Q(s_1, mu(s_1, bold(theta)_mu), bold(theta)_mu, bold(theta)_Q)) \ #pause
 
-*Step 2:* Learn  $theta_mu$ that maximizes $Q$ #pause
+theta_(Q, i + 1) = argmin_(theta_(Q, i)) eta^2
+$ #pause
 
-$ theta_(mu, i+1) = theta_(mu, i) + alpha dot Q(s_0, mu(s_0, theta_mu), theta_(mu, i), theta_(Q, i+1)) $ #pause
+*Step 2:* Learn $mu$ that maximizes $Q$ #pause
 
-Repeat until convergence, $theta_(mu, i+1)=theta_(mu, i), quad theta_(Q, i+1)=theta_(Q, i)$
+$ bold(theta)_(mu, i+1) = argmax_(bold(theta)_(mu, i)) Q(s_0, mu(s_0, bold(theta)_mu), bold(theta)_(mu, i), bold(theta)_(Q, i+1)) $ 
+
+//Repeat until convergence, $theta_(mu, i+1)=theta_(mu, i), quad theta_(Q, i+1)=theta_(Q, i)$
 
 ==
-$ theta_(Q, i+1) = argmin_(theta_(Q, i)) \ (Q(s_0, a_0, theta_(mu, i), theta_(Q, i)) - (hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, mu(s_1, theta_(mu, i)), theta_(mu, i), theta_(Q, i)))) \
-
-theta_(mu, i+1) = theta_(mu, i) + alpha dot Q(s_0, mu(s_0, theta_mu), theta_(mu, i), theta_(Q, i+1)) $ #pause
-
 *Question:* Is DDPG on-policy or off-policy? #pause
 
 *Answer:* Depends on how we train $Q$: #pause
 - TD $Q$ is off-policy #pause
 - MC $Q$ is on-policy #pause
 
-Almost *all* good off-policy actor-critic algorithms are based on DDPG
+Almost *all* off-policy actor-critic algorithms are based on DDPG
 
 ==
 
 *Summary:* #pause
 - Wanted to extend Q learning to continuous action spaces #pause
     - Simple greedy policy does not work! #pause
-- Introduced learned deterministic policy $a = mu(s, theta_mu)$ #pause
-- Failed to find deterministic policy gradient $nabla_theta_mu bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]$ #pause
+- Introduced learned deterministic policy $a = mu(s, bold(theta)_mu)$ #pause
+- Failed to find deterministic policy gradient $nabla_bold(theta)_mu bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu]$ #pause
     - Must know $nabla Tr$ #pause
-- Try gradient ascent on $nabla_theta_mu V$ instead of $nabla_theta_mu bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]$
+- Try gradient ascent on $nabla_bold(theta)_mu V$ instead of $nabla_bold(theta)_mu bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu]$
     - Trick: Factor $V$ in terms of $Q, mu$
-    - Iterative optimization of $theta_Q$ and $theta_mu$ #pause
+    - Iterative optimization of $bold(theta)_Q$ and $bold(theta)_mu$ 
 
 ==
 
 Another way to think of DDPG: #pause
 
-$ max_(theta_mu) Q(s, mu(s, theta_mu), theta_mu) approx max_(a in A) Q(s, a, theta_mu) $ #pause
+$ max_(bold(theta)_mu) Q(s, mu(s, bold(theta)_mu), bold(theta)_mu) approx max_(a in A) Q(s, a, bold(theta)_mu) $ #pause
 
-$mu$ is a continuous relaxation of the greedy policy #pause
-
-Because $mu$ is a neural network, it can generalize to continuous $s, a$
+$mu$ is a continuous approximation of the greedy policy #pause
+- Because $mu$ is a neural network, it can generalize to continuous $s, a$
 
 
 ==
 One small problem: deterministic policy means no exploration! #pause
-
-We must visit other states/actions to find optimal $theta_Q, theta_mu$ #pause
+- We must visit other states/actions to find optimal $theta_Q, bold(theta)_mu$ #pause
 
 With Q learning, we had epsilon greedy policy #pause
 
-$ pi (a | s; theta_pi) =  cases( 
-  1 - epsilon & : a = argmax_(a in A) Q(s, a, theta_pi), 
+$ pi (a | s; bold(theta)_pi) =  cases( 
+  1 - epsilon & : a = argmax_(a in A) Q(s, a, bold(theta)_pi), 
   epsilon & : a = "uniform"(A)
 ) $ #pause
 
 *Question:* What about DDPG exploration (continuous actions)? #pause
 
-$ pi (a | s; theta_mu) =  cases( 
-  1 - epsilon & : a = mu(s, theta_mu), 
+$ pi (a | s; bold(theta)_mu) =  cases( 
+  1 - epsilon & : a = mu(s, bold(theta)_mu), 
   epsilon & : a = "uniform"(A)
 ) $ 
 
 ==
 
-In practice, we can do something a little smarter #pause
+We continuous actions, we can do something smarter #pause
+- Uniform actions cover the action space, but can take a while to learn #pause
+- Add noise to a good action instead of pick random actions #pause
 
-Uniform actions cover the full action space, but can take a while to learn #pause
-
-Can add noise to a good action instead of completely random actions #pause
-
-$ pi (a | s; theta_mu) = mu(s, theta_mu) + "Normal"(0, sigma) $ #pause
+$ pi (a | s; bold(theta)_mu) = mu(s, bold(theta)_mu) + "Normal"(0, sigma) $ #pause
 
 This tends to learn more quickly #pause
-
-Normal noise (infinite support) guarantees full action space coverage #pause
+- Normal noise (infinite support) guarantees full action space coverage #pause
 
 *Note:* Original paper uses Ornstein–Uhlenbeck noise #pause 
 - More recent papers find using normal noise produces similar results
@@ -726,7 +631,7 @@ Like policy gradient, the math and code is different #pause
 - Sample actions #pause
     - Be careful that random actions are in action space! #pause
     - $A = [0, 2 pi]$, then $a = 2.1 pi$ not ok #pause
-- Iteratively train $theta_Q, theta_mu$
+- Iteratively train $bold(theta)_Q, bold(theta)_mu$
 
 ==
 First, construct deterministic policy #pause
@@ -746,9 +651,9 @@ BenBen: $A = [0, 2 pi]^12$, so `action_dims=12`
 Now, we need to make sure actions do not leave action space! #pause
 - BenBen: $A in [0, 2 pi]^12$, `lower=[0, 0, ...]`, `upper=[2pi, 2pi, ...]` #pause
 
-Squash actions to limits using $tanh$ #pause
+Squash actions within limits using $tanh$ #pause
 - Can also use `clip(action, lower, upper)`, but this zeros gradients #pause
-- Agent can get stuck taking limiting actions (e.g., -0.01 or $2.1 pi$) #pause
+    - Agent can get stuck taking limiting actions (e.g., -0.01 or $2.1 pi$) #pause
 
 ```python
 def bound_action(action, lower, upper): 
@@ -800,7 +705,7 @@ while not terminated:
 
 ==
 ```python
-def Q_loss(theta_Q, theta_T, theta_pi, data):
+def Q_loss(theta_Q, theta_T, bold(theta)_pi, data):
     Qnet = combine(Q, theta_Q)
     Tnet = combine(Q, theta_T) # Target network
     # Predict Q values for action we took
@@ -829,13 +734,12 @@ def mu_loss(mu, theta_Q, data):
 
 ==
 You can also read about Twin Delayed DDPG (TD3) #pause
-
-Adds some improvements to DDPG to improve performance #pause
-- Add noise to target 
-$ Q(s, mu(s, theta_mu) + eta, theta_mu, theta_T) $
-- Learns two Q functions, use the minimum as target
-$ min_(i in 1, 2) Q(s, mu(s, theta_mu) + eta, theta_mu, theta_(T, i)) $
-- Update Q functions more often than policy
+- Adds some improvements to DDPG to improve performance #pause
+    - Add noise to target 
+    $ Q(s, mu(s, bold(theta)_mu) + epsilon, bold(theta)_mu, theta_T) $ #pause
+    - Learns two Q functions, use the minimum as target
+    $ min_(i in 1, 2) Q(s, mu(s, bold(theta)_mu) + epsilon, bold(theta)_mu, theta_(T, i)) $ #pause
+    - Update Q functions more often than policy
 
 
 = Max Entropy RL
@@ -853,19 +757,16 @@ $ min_(i in 1, 2) Q(s, mu(s, theta_mu) + eta, theta_mu, theta_(T, i)) $
 Many algorithms add improvements to DDPG #pause
 
 The most popular DDPG-based algorithm is *Soft Actor Critic* (SAC) #pause
-
-SAC is arguably the "best" model-free algorithm #pause
-
-The motivation for SAC comes from *max-entropy RL* #pause
-
-We will very briefly cover max-entropy RL #pause
+- SAC is arguably the "best" model-free algorithm #pause
+- The motivation for SAC comes from *max-entropy RL* #pause
+- We will very briefly cover max-entropy RL #pause
 
 First, let us introduce entropy
 
 ==
-Entropy measures the uncertainty of a distribution #pause
+Entropy $H$ measures the uncertainty of a distribution #pause
 
-$ H(pi (a | s; theta_pi)) $ #pause
+$ H(pi (a | s; bold(theta)_pi)) $ #pause
 
 #side-by-side[
     #high_ent #pause
@@ -878,132 +779,115 @@ $ H(pi (a | s; theta_pi)) $ #pause
 Left policy, more uncertain/random
 
 ==
-Consider our RL objective #pause
+$ argmax_(bold(theta)_pi) bb(E)[ cal(G)(bold(tau)) | s_0; bold(theta)_pi] = argmax_(bold(theta)_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; bold(theta)_pi] $ #pause
 
-$ argmax_(theta_pi) bb(E)[ cal(G)(bold(tau)) | s_0; theta_pi] = argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] $ #pause
+In max-entropy RL, we maximize both return and policy entropy #pause 
 
-In max-entropy RL, we consider the entropy in the return #pause
+$ argmax_(bold(theta)_pi) bb(E)[ cal(G)(bold(tau)) + cal(H)(bold(tau)) | s_0; bold(theta)_pi] = \ argmax_(bold(theta)_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) + lambda H(pi (a | s_t; bold(theta)_pi)) | s_0; bold(theta)_pi]  $ #pause
 
-$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + lambda gamma^t H(pi (a | s_t; theta_pi)) $ #pause
+Hyperparameter $lambda$ balances entropy and reward #pause
 
-Here, $lambda$ is a hyperparameter that balances entropy and reward #pause
-
-We learn a policy that maximizes the return and *behaves randomly*
+We learn a policy that maximizes the return and behaves randomly
 
 ==
-$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t (bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + lambda H(pi (dot | s_t; theta_pi))) $ #pause
+$ argmax_(bold(theta)_pi) bb(E)[ cal(G)(bold(tau)) + cal(H)(bold(tau)) | s_0; bold(theta)_pi] = \ argmax_(bold(theta)_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) + lambda H(pi (dot | s_t; bold(theta)_pi)) | s_0; bold(theta)_pi] $ #pause
 
 *Question:* Why do want policy entropy? Lowers the return #pause
 
 *Answer:* No good theoretical reason, helpful in practice #pause
-- There are theoretical reasons, but they are not very good #pause
+- There are theoretical reasons, but they are good reasons #pause
 - Better exploration during training #pause
 - More stable training (harder for policy to exploit Q function) #pause
     - Further discussion in offline RL lecture
 
 ==
-We are talking about the policy like it is random $ pi (a | s; theta_pi)$ #pause
-
-DDPG is based on a deterministic policy $a = mu(s, theta_mu)$ #pause
-
-A deterministic policy $mu$ has no entropy (it is not random) #pause
+We are talking about the policy like it is random $ pi (a | s; bold(theta)_pi)$ #pause
+- DDPG is based on a deterministic policy $a = mu(s, bold(theta)_mu)$ #pause
+    - A deterministic policy $mu$ has no entropy (it is not random) #pause
 
 What is going on? How is this possible? #pause
 
 Consider a function $f: S times Theta times bb(R) |-> A$ #pause
 
-$ a = f(s, theta_mu, eta) = mu(s, theta_mu) + eta
+$ a = f(s, bold(theta)_mu, epsilon) = mu(s, bold(theta)_mu) + epsilon
 $ 
 
 ==
-$ a = f(s, theta_mu, eta) = mu(s, theta_mu) + eta
+$ a = f(s, bold(theta)_mu, epsilon) = mu(s, bold(theta)_mu) + epsilon 
 $ #pause
 
-If $eta tilde "Normal"(0, 1)$ our function $f$ is still deterministic #pause
+If $epsilon tilde "Normal"(0, 1)$ our function $f$ is still deterministic #pause
+- Called *reparameterization trick* #pause
+    - Used in variational autoencoders (VAE) #pause
 
-We call this the *reparameterization trick*, used in variational autoencoders (VAE) #pause
+Note we can condition the return on the provided $epsilon$ #pause
 
-Mathematically, this is a "deterministic" policy #pause
-
-$ bb(E)[cal(G)(bold(tau)) | s_0, #pin(1)eta_0, eta_1, dots#pin(2); theta_mu] $  #pause
+$ bb(E)[cal(G)(bold(tau)) | s_0, #pin(1)epsilon_0, epsilon_1, dots#pin(2) ; bold(theta)_mu] $  #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 1.2em)[Noise terms] 
 
 ==
-$ a = f(s, theta_mu, eta) = mu(s, theta_mu) + eta \
-bb(E)[cal(G)(bold(tau)) | s_0, eta_0, eta_1, dots; theta_mu] $ #pause
+$ a = f(s, bold(theta)_mu, epsilon) = mu(s, bold(theta)_mu) + epsilon \
+bb(E)[cal(G)(bold(tau)) | s_0, epsilon_0, epsilon_1, dots; bold(theta)_mu] $ #pause
 
-$f$ is technically deterministic function if we know $eta_0, eta_1, dots$ #pause
-
-In practice, $f$ behaves just like a stochastic policy $pi$ #pause
-
-Gradient descent will learn $theta_mu$ that generalize over $eta$ #pause
+$f$ is technically deterministic function if we condition on $epsilon_0, epsilon_1, dots$ #pause
+- In practice, $f$ behaves just like a stochastic policy $pi$ #pause
+- Gradient descent will learn $bold(theta)_mu$ that generalize over $epsilon$ #pause
 
 We abuse notation and write $f$ as a random policy #pause
 
-$ f(s, theta_mu, cancel(eta)) =  pi (a | s; theta_pi) $ #pause
+$ f(s, bold(theta)_mu, cancel(epsilon)) =  pi (a | s; bold(theta)_pi) $ #pause
 
-But $f$ is deterministic when we know $eta$
+I think this is ugly, but technically it is correct 
+//But $f$ is deterministic when we know $epsilon$
 
 ==
 What happens when we combine DDPG #pause
 
 With the max entropy objective #pause
 
-$ argmax_(theta_pi) bb(E)[ cal(H)(bold(tau)) | s_0; theta_pi] = \ argmax_(theta_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) | s_0; theta_pi] + lambda gamma^t H(pi (a | s_t; theta_pi)) $ #pause
+$ argmax_(bold(theta)_pi) bb(E)[ cal(G)(bold(tau)) + cal(H)(bold(tau)) | s_0; bold(theta)_pi] = \ argmax_(bold(theta)_pi) sum_(t=0)^oo gamma^t bb(E)[cal(R)(s_(t+1)) + lambda H(pi (a | s_t; bold(theta)_pi)) | s_0; bold(theta)_pi]  $ #pause
 
 
 And the reparameterization trick? #pause
 
-$ f(s, theta_mu, eta) = pi (a | s; theta_mu) $ #pause
+$ f(s, bold(theta)_mu, epsilon) = pi (a | s; bold(theta)_mu) $ #pause
 
-/*
-$ a = mu(s, theta_mu) + eta tilde.equiv 
-a tilde pi (dot | s; theta_pi)
-$ #pause
-*/
-
-We get SAC!
+We get Soft Actor Critic (SAC)!
 
 ==
 *Definition:* Soft Actor Critic (SAC) adds a max entropy objective and "stochastic" policy to DDPG #pause
 
-#side-by-side[$ pi (a | s_0; theta_mu) = mu(s_0, theta_mu) + eta $ #pause][
-$ eta tilde "Normal"(0, sigma) $
+#side-by-side[$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + epsilon $ #pause][
+$ epsilon tilde "Normal"(0, sigma) $
 ] #pause
 
-Learn $sigma$ to balance reward $cal(R)$ and entropy $H$ #pause
+Learn $sigma$ to balance reward $cal(R)$ and entropy $H$ 
+
+==
+#side-by-side[$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + epsilon $][
+$ epsilon tilde "Normal"(0, sigma) $
+] #pause
 
 *Step 1:* Learn a $Q$ function for max entropy policy (Q learning) #pause
 
-$ theta_(Q, i+1) = argmin_(theta_(Q, i)) (Q(s_0, a_0, theta_(pi, i), theta_(Q, i)) - y)^2  #pause
-\
-y = overbrace(#pin(5)hat(bb(E))[cal(R)(s_1) | s_0, a_0]#pin(6) + lambda #pin(3)H(pi (a | s_0; theta_mu))#pin(4) + gamma Q(s_1, #pin(1)mu(s_1, theta_mu) + eta#pin(2), theta_(pi, i), theta_(Q, i)), "TD error" + "entropy") #pause $ #pause
+$ 
+eta = Q(s_0, a_0, bold(theta)_mu, bold(theta)_Q) \ - (r_0 + lambda underbrace(H(pi (a | s_0; bold(theta)_mu)), "Entropy bonus") + gamma Q(s_1, underbrace(mu(s_1, bold(theta)_mu) + epsilon, "Noisy action"), bold(theta)_(mu), bold(theta)_(Q))) #pause \ 
 
-#pinit-highlight-equation-from((5,6), (5,6), fill: orange, pos: bottom, height: 0.9em)[Reward] #pause
-
-#pinit-highlight-equation-from((3,4), (3,4), fill: red, pos: bottom, height: 0.9em)[Entropy bonus] #pause
-
-#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: bottom, height: 0.9em)[Deterministic $a$] #pause
-
+bold(theta)_(Q, i+1) = argmin_(bold(theta)_(Q, i)) eta^2
+$ 
 ==
 
-#side-by-side[$ pi (a | s_0; theta_mu) = mu(s_0, theta_mu) + eta $][
-$ eta tilde "Normal"(0, sigma) $
+#side-by-side[$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + epsilon $][
+$ epsilon tilde "Normal"(0, sigma) $
 ] #pause
 
 *Step 2:* Learn a $pi$ that maximizes $Q$ (policy gradient) #pause
 
 #v(1.5em)
-$ theta_(pi, i+1) = theta_(pi, i) + alpha dot underbrace(Q(s_0, #pin(1)mu(s_0, theta_mu) + eta#pin(2), theta_pi, theta_Q), "Replaces" bb(E)[cal(G)(bold(tau)) | s_0; theta_mu]) $  #pause
+$ bold(theta)_(mu, i+1) = argmax_bold(theta)_(mu, i) Q(s_0, mu(s_0, bold(theta)_mu) + epsilon, bold(theta)_mu, bold(theta)_Q) $  #pause
 
-#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: top, height: 1.2em)[Deterministic $a$] #pause
-
-$ pi (a | s_0; theta_mu) = mu(s_0, theta_mu) + eta $ #pause
-
-where $eta tilde N(0, sigma)$ and we learn $sigma$ to balance reward $cal(R)$ and entropy $H$
-
-Repeat until convergence, $theta_(mu, i+1)=theta_(mu, i), quad theta_(Q, i+1)=theta_(Q, i)$
+$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + epsilon $
 
 = Thoughts on Model-Free RL
 ==
@@ -1044,16 +928,14 @@ I suggest you try DDPG or TD3 before SAC #pause
 
 ==
 What algorithm is best in 2025? #pause
-
-For discrete actions (Atari), DQN variants still perform best #pause
-
-For continuous actions (MuJoCo), SAC performs best #pause
+- For discrete actions (Atari), DQN variants still perform best (PQN) #pause
+- For continuous actions (MuJoCo), SAC/TD3 perform best #pause
 
 PPO is less sensitive to hyperparameters than SAC/DQN #pause
 - Noobs like PPO, they cannot tune hyperparameters #pause
-- Often performs worse than tuned DQN/SAC #pause
+- Often performs worse than tuned DQN/TD3/SAC #pause
 
-Tuned DDPG/A2C perform 95% as good as tuned SAC/PPO #pause
+Tuned DDPG/A2C 95% as good as tuned SAC/PPO #pause
 - Much easier to debug
 
 = Final Project Tips
@@ -1079,23 +961,19 @@ Why does Steven spend so much time on theory instead of coding? #pause
     - *Question:* What is the problem? #pause
     - Need to try at least $2^32$ actions per state! #pause
     - Output layer of network is too large ($2^32$ neurons)! #pause
-- Episode is 1000 timestep long with reward at last timestep #pause
-    - $gamma = 0.5$ #pause
+- Episode is 5000 timestep long with reward at last timestep #pause
+    - $gamma = 0.99$ (default) #pause
     - *Question:* What is the problem? #pause
-    - $gamma^1000 cal(R)(s_1000) = 0.5^1000 cal(R)(s_1000) approx 1e^(-300) cal(R)(s_1000)$
+    - $gamma^5000 cal(R)(s_5000) = 0.99^5000 cal(R)(s_1000) approx 10^(-22) cal(R)(s_5000)$
 
 
 ==
 
 In supervised learning, follow MNIST tutorial and everything works #pause
-
-This is *NOT* the case in RL #pause
-
-You must use your brain to be successful! #pause
-
-In RL, your code never works on the first try #pause
-
-Even if it is correct, you need to play with hyperparameters #pause
+- This is *NOT* the case in RL #pause
+- You must use your brain to be successful! #pause
+- In RL, your code never works on the first try #pause
+- Even if it is correct, you need to play with hyperparameters #pause
 
 Theory is absolutely necessary to understand: #pause 
 - *Why* your policy fails #pause
@@ -1162,7 +1040,7 @@ while not terminated:
 
 ==
 ```python
-def Q_TD_loss(theta_Q, theta_T, theta_pi, data):
+def Q_TD_loss(theta_Q, theta_T, bold(theta)_pi, data):
     Qnet = combine(Q, theta_Q)
     Tnet = combine(Q, theta_T) # Target network
     # Predict Q values for action we took

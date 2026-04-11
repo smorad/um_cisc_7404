@@ -212,7 +212,7 @@
     institution: [University of Macau],
     logo: image("fig/common/bolt-logo.png", width: 4cm)
   ),
-  //config-common(handout: true),
+  config-common(handout: true),
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
 )
@@ -248,6 +248,14 @@
 // SAC
 
 = Admin
+
+==
+Exam scores quite low #pause
+- Some students got full marks #pause
+    - Mean score around 65% #pause
+- Do not worry #pause
+    - If final grades are low I will raise them #pause
+    - Final course grade mean will be 85%
 
 ==
 Some people finished all assignments! #pause
@@ -286,7 +294,7 @@ Today, we will investigate modern forms of policy gradient #pause
 ==
 Recall the policy gradient #pause
 
-$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = bb(E)[ cal(G)(bold(tau)) dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) | s_0; bold(theta)] $ #pause
+$ nabla_(bold(theta)) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)] = bb(E)[cal(G)(bold(tau)) dot nabla_(bold(theta)) log pi (a_0 | s_0; bold(theta)) | s_0; bold(theta)] $ #pause
 
 We previously computed the Monte Carlo policy gradient (REINFORCE) #pause
 
@@ -377,8 +385,8 @@ bold(theta)_(pi, i+1) = argmax_bold(theta)_(pi, i) underbrace(V(s_0, bold(theta)
 $ #pause
 
 
-Repeat process until convergence #pause
-- Can update $pi$ and $V$ with single transition $(s_0, a_0, s_1, r_0, d_0)$
+Repeat process until convergence
+//- Can update $pi$ and $V$ with single transition $(s_0, a_0, s_1, r_0, d_0)$
 
 
 = Advantage Actor Critic
