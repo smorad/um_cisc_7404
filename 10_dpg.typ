@@ -11,6 +11,8 @@
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
+// TODO 2026: Add TD3
+
 #let low_ent = { 
     set text(size: 25pt)
     canvas(length: 1cm, 
@@ -90,44 +92,46 @@
 ==
 We are nearing the end of the course! #pause
 
-You should be able to understand research papers on:
+You should be able to understand research papers on: #pause
 - MDPs, bandits, RL algorithms, even some control problems! #pause
 
-Next week we will investigate active research topics
-- Offline RL
+Next week we will investigate active research topics #pause
+- Offline RL #pause
 - Large language models
 
 ==
 
-- Offline RL
-    - RL without exploration
-    - How can we learn policies from a fixed dataset?
-        - Learn surgery from surgical videos (no need to kill patients)
-        - Learn driving from Xiaomi driving dataset (no need to crash cars)
-    - Very new topic (2-3 years old)
+- Offline RL #pause
+    - RL without exploration #pause
+    - How can we learn policies from a fixed dataset? #pause
+        - Learn surgery from surgical videos (no need to kill patients) #pause
+        - Learn driving from Xiaomi driving dataset (no need to crash cars) #pause
+    - Very new topic (2-3 years old) #pause
         - Does not work very well (yet)
 
 ==
 
-- Large Language Models
-    - Can train LLMs using unsupervised learning
-        - They only learn to predict next word
-    - We use RL to teach them to interact with humans
-        - Apply policy gradient to textual MDP
-        - DeepSeek math/GRPO
+- Large Language Models #pause
+    - Can train LLMs using unsupervised learning #pause
+        - They only learn to predict next word #pause
+    - We use RL to teach them to interact with humans #pause
+        - Apply policy gradient to textual MDP #pause
+        - DeepSeek math/GRPO #pause
         - RL-adjacent methods (DPO)
 
 ==
 We will have the last exam in two weeks: #pause
 - Actor critic #pause
 - Offline RL #pause
+- Maybe V/Q functions again? #pause
 - More information next week
 
 ==
 Homeworks 2 and 3 due next week #pause
 - If you did not start, you are in trouble #pause
-    - 15/53 submitted homework 2 #pause
-    - 12/52 submitted homework 3
+    - 20/53 submitted homework 2 #pause
+    - 16/52 submitted homework 3 #pause
+    - You need to start immediately!
 
 ==
 Also think about final projects #pause
@@ -157,7 +161,7 @@ Alternative descriptions of actor critic algorithms
 ==
 There are two approaches to actor critic #pause
 #side-by-side[
-1. *Policy gradient based:* #pause
+1. *Value focus:* #pause
 PG with $V$ instead of MC #pause
     - A2C #pause
     - TRPO #pause
@@ -168,8 +172,8 @@ PG with $V$ instead of MC #pause
     - PPG #pause
 
 ][
-2. *Q learning based:* #pause
-Learn $Q$ for a specific policy #pause
+2. *Q focus:* #pause
+PG as argmax for greedy $Q$ #pause
     - DDPG #pause
     - TD3 #pause
     - SAC #pause
@@ -242,20 +246,19 @@ $ cancel(Q(s_0, a_0, bold(theta)_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + max_(a in
 Cannot use the max Q function with BenBen #pause
 
 $
-Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, bold(theta)_pi) \
-Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma Q(s_1, a, bold(theta)_pi); quad a tilde pi (dot | s_1; bold(theta)_pi) 
+Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[V(s_1, bold(theta)_pi) | s_0, a_0; bold(theta)_pi] \
+Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma underbrace(bb(E)[Q(s_1, a, bold(theta)_pi) | s_0, a_0; bold(theta)_pi], a tilde pi (dot | s_1; bold(theta)_pi))
 $ #pause
 
 *Question:* Can we use continuous $a$ with $Q$? #pause *Answer:* Yes  #pause
+- #grid(columns: (0.3fr, 0.7fr), [$Q=>$ ok],[$pi =>$ problem: $#redm[$argmax_(a in A)$] Q(s, a, bold(theta)_pi)$]) #pause
+- Greedy policy only works for discrete actions #pause
+    - Can we approximate a greedy policy for continuous actions?
 
-Q function $=>$ no problem, policy $=>$ problem $quad #redm[$argmax_(a in A)$] Q(s, a, bold(theta)_pi)$ #pause
-
-Greedy deterministic policy worked well for discrete actions #pause
-
-Can we learn a different deterministic policy for continuous actions?
+//Can we learn a different deterministic policy for continuous actions?
 
 ==
-$ Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma underbrace(bb(E)[Q(s_1, a_1, bold(theta)_pi) | s_0, a_0; bold(theta)_pi], a_1 tilde pi (dot | s_1; bold(theta)_pi)) $ #pause
+$ Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma underbrace(bb(E)[Q(s_1, a, bold(theta)_pi) | s_0, a_0; bold(theta)_pi], a tilde pi (dot | s_1; bold(theta)_pi)) $ #pause
 
 *Question:* What method can we use to learn $bold(theta)_pi$? #pause
 
@@ -263,9 +266,7 @@ $ Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma underbrac
 
 Perhaps our solution will combine $Q$ with policy gradient #pause
 
-// We will derive the solution like David Silver likely did #pause
-
-The trick is to consider a *deterministic* policy #pause
+We will explicitly consider a *deterministic* policy (like greedy $Q$) #pause
 
 #side-by-side[
     $ cancel(a tilde pi (dot | s; bold(theta)_pi)) $ #pause
@@ -278,7 +279,6 @@ The trick is to consider a *deterministic* policy #pause
 $ Q(s_0, a_0, bold(theta)_mu) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[Q(s_1, #redm[$mu$] (s_1, bold(theta)_mu), bold(theta)_mu) | s_0, a_0; bold(theta)_mu] $
 
 
-
 ==
 So let us learn parameters $bold(theta)_mu$ for this deterministic function #pause
 
@@ -287,8 +287,8 @@ Recall policy gradient, we find $bold(theta)_pi$ using gradient ascent #pause
 $ bold(theta)_(pi, i + 1) = bold(theta)_(pi, i) + alpha dot nabla_bold(theta)_(pi, i) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_(pi, i)] $ #pause
 
 We need to know $nabla_bold(theta)_pi bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi]$ #pause
-- We found this for the stochastic policy #pause
-- Can we also find this for a deterministic policy? #pause
+- We found this for the stochastic policy $pi$ #pause
+- Can we also find this for a deterministic policy $mu$? #pause
 
 $ nabla_(#pin(1)bold(theta)_pi#pin(2)) bb(E)[cal(G)(bold(tau)) | s_0; #pin(3)bold(theta)_pi#pin(4)] => nabla_(#pin(5)bold(theta)_mu#pin(6)) bb(E)[cal(G)(bold(tau)) | s_0; #pin(7)bold(theta)_mu#pin(8)] $ #pause
 
@@ -296,6 +296,7 @@ $ nabla_(#pin(1)bold(theta)_pi#pin(2)) bb(E)[cal(G)(bold(tau)) | s_0; #pin(3)bol
 #pinit-highlight(3,4)
 #pinit-highlight(5,6, fill: blue.transparentize(85%))
 #pinit-highlight(7,8, fill: blue.transparentize(85%))
+
 
 ==
 
@@ -414,7 +415,7 @@ $ #pause
 *Question:* Any problems? #pause
 
 We must know $gradient Tr$ to find the deterministic policy gradient #pause
-- In model-free RL, we do not know $gradient Tr$ 
+- In model-free RL, we do not know $gradient Tr$ #pause
     - $Tr$ might not be differentiable (e.g. Mario)! #pause
 - Stochastic policy gradient is very special -- we do not need $nabla Tr$ #pause
     - Let me explain what I mean
@@ -431,7 +432,8 @@ $ sum_(t=0)^n sum_(a_t in A) nabla_bold(theta)_pi [ Tr(s_(t+1) | s_t, a_t) dot l
 $ #pause
 
 This is why we often use stochastic policies in RL #pause
-- Approximate expectation instead of gradient (tractable)
+- Approximate expectation instead of gradient (tractable) #pause
+- Called "zeroth-order gradient" or "score function" (diffusion)
 
 = Deep Deterministic Policy Gradient
 ==
@@ -546,14 +548,14 @@ Q_nn = optimizer.update(Q_nn, J) # Grad descent
 ==
 *Definition:* Deep Deterministic Policy Gradient (DDPG) decomposes $V$ into a deterministic policy $mu$ and $Q$, learning them jointly #pause
 
-*Step 1:* Learn the $Q$ function for $mu$ #pause
+*Step 1:* Find the $Q$ function for $mu$ #pause
 
 $ eta = Q(s_0, a_0, bold(theta)_(mu), bold(theta)_(Q)) - (r_0 + gamma Q(s_1, mu(s_1, bold(theta)_mu), bold(theta)_mu, bold(theta)_Q)) \ #pause
 
-theta_(Q, i + 1) = argmin_(theta_(Q, i)) eta^2
+bold(theta)_(Q, i + 1) = argmin_(bold(theta)_(Q, i)) eta^2
 $ #pause
 
-*Step 2:* Learn $mu$ that maximizes $Q$ #pause
+*Step 2:* Find $mu$ that maximizes $Q$ #pause
 
 $ bold(theta)_(mu, i+1) = argmax_(bold(theta)_(mu, i)) Q(s_0, mu(s_0, bold(theta)_mu), bold(theta)_(mu, i), bold(theta)_(Q, i+1)) $ 
 
@@ -576,8 +578,8 @@ Almost *all* off-policy actor-critic algorithms are based on DDPG
 - Introduced learned deterministic policy $a = mu(s, bold(theta)_mu)$ #pause
 - Failed to find deterministic policy gradient $nabla_bold(theta)_mu bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu]$ #pause
     - Must know $nabla Tr$ #pause
-- Try gradient ascent on $nabla_bold(theta)_mu V$ instead of $nabla_bold(theta)_mu bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu]$
-    - Trick: Factor $V$ in terms of $Q, mu$
+- Try gradient ascent on $nabla_bold(theta)_mu V$ instead of $nabla_bold(theta)_mu bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_mu]$ #pause
+    - Trick: Factor $V$ in terms of $Q, mu$ #pause
     - Iterative optimization of $bold(theta)_Q$ and $bold(theta)_mu$ 
 
 ==
@@ -587,12 +589,13 @@ Another way to think of DDPG: #pause
 $ max_(bold(theta)_mu) Q(s, mu(s, bold(theta)_mu), bold(theta)_mu) approx max_(a in A) Q(s, a, bold(theta)_mu) $ #pause
 
 $mu$ is a continuous approximation of the greedy policy #pause
-- Because $mu$ is a neural network, it can generalize to continuous $s, a$
+- $argmax_(a in A) Q approx mu(s, bold(theta)_mu)$
+    - $mu$ is a neural network, it can generalize to continuous $s, a$
 
 
 ==
 One small problem: deterministic policy means no exploration! #pause
-- We must visit other states/actions to find optimal $theta_Q, bold(theta)_mu$ #pause
+- We must visit other states/actions to find optimal $bold(theta)_Q, bold(theta)_mu$ #pause
 
 With Q learning, we had epsilon greedy policy #pause
 
@@ -614,7 +617,7 @@ We continuous actions, we can do something smarter #pause
 - Uniform actions cover the action space, but can take a while to learn #pause
 - Add noise to a good action instead of pick random actions #pause
 
-$ pi (a | s; bold(theta)_mu) = mu(s, bold(theta)_mu) + "Normal"(0, sigma) $ #pause
+$ pi (a | s; bold(theta)_mu) = mu(s, bold(theta)_mu) + nu; quad nu tilde "Normal"(0, sigma) $ #pause
 
 This tends to learn more quickly #pause
 - Normal noise (infinite support) guarantees full action space coverage #pause
@@ -631,7 +634,7 @@ Like policy gradient, the math and code is different #pause
 - Sample actions #pause
     - Be careful that random actions are in action space! #pause
     - $A = [0, 2 pi]$, then $a = 2.1 pi$ not ok #pause
-- Iteratively train $bold(theta)_Q, bold(theta)_mu$
+- Iteratively update $bold(theta)_Q, bold(theta)_mu$
 
 ==
 First, construct deterministic policy #pause
@@ -736,11 +739,10 @@ def mu_loss(mu, theta_Q, data):
 You can also read about Twin Delayed DDPG (TD3) #pause
 - Adds some improvements to DDPG to improve performance #pause
     - Add noise to target 
-    $ Q(s, mu(s, bold(theta)_mu) + epsilon, bold(theta)_mu, theta_T) $ #pause
+    $ Q(s, mu(s, bold(theta)_mu) + nu, bold(theta)_mu, theta_T) $ #pause
     - Learns two Q functions, use the minimum as target
-    $ min_(i in 1, 2) Q(s, mu(s, bold(theta)_mu) + epsilon, bold(theta)_mu, theta_(T, i)) $ #pause
+    $ min_(i in 1, 2) Q(s, mu(s, bold(theta)_mu) + nu, bold(theta)_mu, theta_(T, i)) $ #pause
     - Update Q functions more often than policy
-
 
 = Max Entropy RL
 // SAC is arguably the best algorithm we have today
@@ -809,37 +811,37 @@ What is going on? How is this possible? #pause
 
 Consider a function $f: S times Theta times bb(R) |-> A$ #pause
 
-$ a = f(s, bold(theta)_mu, epsilon) = mu(s, bold(theta)_mu) + epsilon
+$ a = f(s, bold(theta)_mu, nu) = mu(s, bold(theta)_mu) + nu
 $ 
 
 ==
-$ a = f(s, bold(theta)_mu, epsilon) = mu(s, bold(theta)_mu) + epsilon 
+$ a = f(s, bold(theta)_mu, nu) = mu(s, bold(theta)_mu) + nu 
 $ #pause
 
-If $epsilon tilde "Normal"(0, 1)$ our function $f$ is still deterministic #pause
+If $nu tilde "Normal"(0, 1)$ our function $f$ is still deterministic #pause
 - Called *reparameterization trick* #pause
     - Used in variational autoencoders (VAE) #pause
 
-Note we can condition the return on the provided $epsilon$ #pause
+Note we can condition the return on the provided $nu$ #pause
 
-$ bb(E)[cal(G)(bold(tau)) | s_0, #pin(1)epsilon_0, epsilon_1, dots#pin(2) ; bold(theta)_mu] $  #pause
+$ bb(E)[cal(G)(bold(tau)) | s_0, #pin(1)nu_0, nu_1, dots#pin(2) ; bold(theta)_mu] $  #pause
 
 #pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: bottom, height: 1.2em)[Noise terms] 
 
 ==
-$ a = f(s, bold(theta)_mu, epsilon) = mu(s, bold(theta)_mu) + epsilon \
-bb(E)[cal(G)(bold(tau)) | s_0, epsilon_0, epsilon_1, dots; bold(theta)_mu] $ #pause
+$ a = f(s, bold(theta)_mu, nu) = mu(s, bold(theta)_mu) + nu \
+bb(E)[cal(G)(bold(tau)) | s_0, nu_0, nu_1, dots; bold(theta)_mu] $ #pause
 
-$f$ is technically deterministic function if we condition on $epsilon_0, epsilon_1, dots$ #pause
+$f$ is technically deterministic function if we condition on $nu_0, nu_1, dots$ #pause
 - In practice, $f$ behaves just like a stochastic policy $pi$ #pause
-- Gradient descent will learn $bold(theta)_mu$ that generalize over $epsilon$ #pause
+- Gradient descent will learn $bold(theta)_mu$ that generalize over $nu$ #pause
 
 We abuse notation and write $f$ as a random policy #pause
 
-$ f(s, bold(theta)_mu, cancel(epsilon)) =  pi (a | s; bold(theta)_pi) $ #pause
+$ f(s, bold(theta)_mu, cancel(nu)) =  pi (a | s; bold(theta)_pi) $ #pause
 
 I think this is ugly, but technically it is correct 
-//But $f$ is deterministic when we know $epsilon$
+//But $f$ is deterministic when we know $nu$
 
 ==
 What happens when we combine DDPG #pause
@@ -851,43 +853,43 @@ $ argmax_(bold(theta)_pi) bb(E)[ cal(G)(bold(tau)) + cal(H)(bold(tau)) | s_0; bo
 
 And the reparameterization trick? #pause
 
-$ f(s, bold(theta)_mu, epsilon) = pi (a | s; bold(theta)_mu) $ #pause
+$ f(s, bold(theta)_mu, nu) = pi (a | s; bold(theta)_mu) $ #pause
 
 We get Soft Actor Critic (SAC)!
 
 ==
 *Definition:* Soft Actor Critic (SAC) adds a max entropy objective and "stochastic" policy to DDPG #pause
 
-#side-by-side[$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + epsilon $ #pause][
-$ epsilon tilde "Normal"(0, sigma) $
+#side-by-side[$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + nu $ #pause][
+$ nu tilde "Normal"(0, sigma) $
 ] #pause
 
 Learn $sigma$ to balance reward $cal(R)$ and entropy $H$ 
 
 ==
-#side-by-side[$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + epsilon $][
-$ epsilon tilde "Normal"(0, sigma) $
+#side-by-side[$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + nu $][
+$ nu tilde "Normal"(0, sigma) $
 ] #pause
 
 *Step 1:* Learn a $Q$ function for max entropy policy (Q learning) #pause
 
 $ 
-eta = Q(s_0, a_0, bold(theta)_mu, bold(theta)_Q) \ - (r_0 + lambda underbrace(H(pi (a | s_0; bold(theta)_mu)), "Entropy bonus") + gamma Q(s_1, underbrace(mu(s_1, bold(theta)_mu) + epsilon, "Noisy action"), bold(theta)_(mu), bold(theta)_(Q))) #pause \ 
+eta = Q(s_0, a_0, bold(theta)_mu, bold(theta)_Q) \ - (r_0 + lambda underbrace(H(pi (a | s_0; bold(theta)_mu)), "Entropy bonus") + gamma Q(s_1, underbrace(mu(s_1, bold(theta)_mu) + nu, "Noisy action"), bold(theta)_(mu), bold(theta)_(Q))) #pause \ 
 
 bold(theta)_(Q, i+1) = argmin_(bold(theta)_(Q, i)) eta^2
 $ 
 ==
 
-#side-by-side[$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + epsilon $][
-$ epsilon tilde "Normal"(0, sigma) $
+#side-by-side[$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + nu $][
+$ nu tilde "Normal"(0, sigma) $
 ] #pause
 
 *Step 2:* Learn a $pi$ that maximizes $Q$ (policy gradient) #pause
 
 #v(1.5em)
-$ bold(theta)_(mu, i+1) = argmax_bold(theta)_(mu, i) Q(s_0, mu(s_0, bold(theta)_mu) + epsilon, bold(theta)_mu, bold(theta)_Q) $  #pause
+$ bold(theta)_(mu, i+1) = argmax_bold(theta)_(mu, i) Q(s_0, mu(s_0, bold(theta)_mu) + nu, bold(theta)_mu, bold(theta)_Q) $  #pause
 
-$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + epsilon $
+$ pi (a | s_0; bold(theta)_mu) = mu(s_0, bold(theta)_mu) + nu $
 
 = Thoughts on Model-Free RL
 ==
