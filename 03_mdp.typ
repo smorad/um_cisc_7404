@@ -12,6 +12,8 @@
 // TODO: Mario should have zero reward for in-between states
 // TODO: Terminal states should have zero reward
 // TODO: Add terminated to episode
+// TODO 2026: Mix done/terminated into gamma as it saves a lot of room
+// and confusion on slides (students on exam confused about dones)
 
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")

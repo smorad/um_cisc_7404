@@ -3,8 +3,8 @@
 #import "@preview/touying:0.6.1": *
 #import themes.university: *
 #import "common.typ": *
-#import "@preview/cetz:0.3.4": canvas
-#import "@preview/cetz-plot:0.1.1": plot
+#import "@preview/cetz:0.4.2": canvas
+#import "@preview/cetz-plot:0.1.3": plot
 #import "@preview/fletcher:0.5.7" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
@@ -16,7 +16,7 @@
 #show: university-theme.with(
   aspect-ratio: "16-9",
   config-info(
-    title: [Offline RL],
+    title: [Offline Learning],
     subtitle: [CISC 7404 - Decision Making],
     author: [Steven Morad],
     institution: [University of Macau],
@@ -27,75 +27,6 @@
   header: self => utils.display-current-heading(level: 1)
 )
 
-#let pathology_left = { 
-    set text(size: 25pt)
-    canvas(length: 1cm, 
-    {
-        plot.plot(
-            size: (6, 4),
-            name: "plot",
-            x-tick-step: 2,
-            y-tick-step: none,
-            y-ticks: (0, 1),
-            y-min: 0,
-            y-max: 4,
-            x-label: $ a $,
-            y-label: $ Pr (a | s) $,
-            {
-            plot.add(
-                domain: (-2, 2), 
-                style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_(pi)) $,
-                x => normal_fn(1, 0.4, x),
-            ) 
-
-            })
-
-            draw.line((1,0), (1,4), stroke: orange)
-            draw.content((1,5), text(fill: orange)[$ a $])
-
-            draw.line((2,0), (2,4), stroke: orange)
-            draw.content((2,5), text(fill: orange)[$ a $])
-
-            draw.line((3,0), (3,4), stroke: orange)
-            draw.content((3,5), text(fill: orange)[$ a $])
-    }
-)}
-
-#let pathology_right = { 
-    set text(size: 25pt)
-    canvas(length: 1cm, 
-    {
-        plot.plot(
-            size: (6, 4),
-            name: "plot",
-            x-tick-step: 2,
-            y-tick-step: none,
-            y-ticks: (0, 1),
-            y-min: 0,
-            y-max: 4,
-            x-label: $ a $,
-            y-label: $ Pr (a | s) $,
-            {
-            plot.add(
-                domain: (-2, 2), 
-                style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_(pi)) $,
-                x => normal_fn(-0.3, 0.4, x),
-            ) 
-
-            })
-
-            draw.line((1,0), (1,4), stroke: orange)
-            draw.content((1,5), text(fill: orange)[$ a $])
-
-            draw.line((4,0), (4,4), stroke: orange)
-            draw.content((4,5), text(fill: orange)[$ a $])
-
-            draw.line((5,0), (5,4), stroke: orange)
-            draw.content((5,5), text(fill: orange)[$ a $])
-    }
-)}
 
 #let exp_plot = { 
     set text(size: 25pt)
@@ -133,6 +64,8 @@
     set text(size: 25pt)
     canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (6, 4),
             name: "plot",
@@ -147,16 +80,18 @@
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s_0; theta_(beta)) $,
+                label: $ pi (a | s_0; bold(theta)_(beta)) $,
                 x => 0.5 * normal_fn(-1, 0.3, x) + 0.5 * normal_fn(1, 0.3, x),
             ) 
 
-            })
-            draw.line((1.5,0), (1.5,4), stroke: orange)
-            draw.content((1.5,5), text(fill: orange)[$ a_+ $])
+            plot.annotate({
+                line((-1,0), (-1,1.1), stroke: (paint: orange, thickness: 1mm))
+                content((-1,1.2), text(fill: orange)[$ a_+ $])
 
-            draw.line((4.5,0), (4.5,4), stroke: orange)
-            draw.content((4.5,5), text(fill: orange)[$ a_- $])
+                line((1,0), (1,1.1), stroke: (paint: orange, thickness: 1mm))
+                content((1,1.2), text(fill: orange)[$ a_- $])
+            }) 
+        })
     }
 )}
 
@@ -164,6 +99,8 @@
     set text(size: 25pt)
     canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (6, 4),
             name: "plot",
@@ -178,16 +115,18 @@
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s_0; theta_(pi)) $,
+                label: $ pi (a | s_0; bold(theta)_(pi)) $,
                 x => 0.5 * normal_fn(-1, 0.3, x) + 0.5 * normal_fn(1, 0.3, x),
             ) 
 
-            })
-            draw.line((1.5,0), (1.5,4), stroke: orange)
-            draw.content((1.5,5), text(fill: orange)[$ a_+ $])
+            plot.annotate({
+                line((-1,0), (-1,1.1), stroke: (paint: orange, thickness: 1mm))
+                content((-1,1.2), text(fill: orange)[$ a_+ $])
 
-            draw.line((4.5,0), (4.5,4), stroke: orange)
-            draw.content((4.5,5), text(fill: orange)[$ a_- $])
+                line((1,0), (1,1.1), stroke: (paint: orange, thickness: 1mm))
+                content((1,1.2), text(fill: orange)[$ a_- $])
+            }) 
+        })
     }
 )}
 
@@ -195,6 +134,8 @@
     set text(size: 25pt)
     canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (6, 4),
             name: "plot",
@@ -205,21 +146,25 @@
             y-max: 1,
             x-label: $ a $,
             // y-label: $ Pr (a | s) $,
-            // y-label: $ pi (a | s; theta_(beta)) $,
+            // y-label: $ pi (a | s; bold(theta)_(beta)) $,
             {
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_(beta)) $,
+                label: $ pi (a | s; bold(theta)_(beta)) $,
                 x => 0.5 * normal_fn(-1, 0.3, x) + 0.5 * normal_fn(1, 0.3, x),
             ) 
 
-            })
-            draw.line((1.5,0), (1.5,4), stroke: orange)
-            draw.content((1.5,5), text(fill: orange)[$ cal(G)(bold(E)_1) $])
+            /*
+            plot.annotate({
+                line((1.5,0), (1.5,4), stroke: orange)
+                content((1.5,5), text(fill: orange)[$ cal(G)(bold(E)_1) $])
 
-            draw.line((4.5,0), (4.5,4), stroke: orange)
-            draw.content((4.5,5), text(fill: orange)[$ cal(G)(bold(E)_2) $])
+                line((4.5,0), (4.5,4), stroke: orange)
+                content((4.5,5), text(fill: orange)[$ cal(G)(bold(E)_2) $])
+            })
+            */
+        })
     }
 )}
 
@@ -227,6 +172,8 @@
     set text(size: 25pt)
     canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (6, 4),
             name: "plot",
@@ -237,21 +184,23 @@
             y-max: 1,
             x-label: $ a $,
             // y-label: $ Pr (a | s) $,
-            // y-label: $ pi (a | s; theta_(pi)) $,
+            // y-label: $ pi (a | s; bold(theta)_(pi)) $,
             {
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s_0; theta_(pi)) $,
-                x => 0.75 * normal_fn(-1, 0.3, x) + 0.25 * normal_fn(1, 0.3, x),
+                label: $ pi (a | s_0; bold(theta)_(pi)) $,
+                x => 0.75 * normal_fn(-1, 0.3, x) + 0.1 * normal_fn(1, 0.3, x),
             ) 
 
-            })
-            draw.line((1.5,0), (1.5,4), stroke: orange)
-            draw.content((1.5,5), text(fill: orange)[$ a_+ $])
+            plot.annotate({
+                line((-1,0), (-1,1.1), stroke: (paint: orange, thickness: 1mm))
+                content((-1,1.2), text(fill: orange)[$ a_+ $])
 
-            draw.line((4.5,0), (4.5,4), stroke: orange)
-            draw.content((4.5,5), text(fill: orange)[$ a_- $])
+                line((1,0), (1,1.1), stroke: (paint: orange, thickness: 1mm))
+                content((1,1.2), text(fill: orange)[$ a_- $])
+            }) 
+        })
     }
 )}
 
@@ -259,6 +208,8 @@
     set text(size: 25pt)
     canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (6, 4),
             name: "plot",
@@ -269,21 +220,23 @@
             y-max: 1,
             x-label: $ a $,
             // y-label: $ Pr (a | s) $,
-            // y-label: $ pi (a | s; theta_(beta)) $,
+            // y-label: $ pi (a | s; bold(theta)_(beta)) $,
             {
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_(beta)) $,
+                label: $ pi (a | s; bold(theta)_(beta)) $,
                 x => 0.5 * normal_fn(-1, 0.3, x) + 0.5 * normal_fn(1, 0.3, x),
             ) 
 
-            })
-            draw.line((1.5,0), (1.5,4), stroke: orange)
-            draw.content((0.5,5), text(fill: orange)[$ A(s, a=a_"good", theta_beta) $])
+            plot.annotate({
+                line((1.5,0), (1.5,4), stroke: orange)
+                content((0.5,5), text(fill: orange)[$ A(s, a=a_"good", bold(theta)_beta) $])
 
-            draw.line((4.5,0), (4.5,4), stroke: blue)
-            draw.content((6.0,-2), text(fill: blue)[$ A(s, a=a_"bad", theta_beta) $])
+                line((4.5,0), (4.5,4), stroke: blue)
+                content((6.0,-2), text(fill: blue)[$ A(s, a=a_"bad", bold(theta)_beta) $])
+            })
+        })
     }
 )}
 
@@ -291,6 +244,8 @@
     set text(size: 25pt)
     canvas(length: 1cm, 
     {
+        import cetz.draw: *
+        import cetz-plot: *
         plot.plot(
             size: (6, 4),
             name: "plot",
@@ -301,21 +256,23 @@
             y-max: 1,
             x-label: $ a $,
             // y-label: $ Pr (a | s) $,
-            // y-label: $ pi (a | s; theta_(beta)) $,
+            // y-label: $ pi (a | s; bold(theta)_(beta)) $,
             {
             plot.add(
                 domain: (-2, 2), 
                 style: (stroke: (thickness: 5pt, paint: red)),
-                label: $ pi (a | s; theta_(beta)) $,
-                x => 0.75 * normal_fn(-1, 0.3, x) + 0.25 * normal_fn(1, 0.3, x),
+                label: $ pi (a | s; bold(theta)_(beta)) $,
+                x => 0.75 * normal_fn(-1, 0.3, x) + 0.25 * normal_fn(1, 0.3, x), 
             ) 
 
-            })
-            draw.line((1.5,0), (1.5,4), stroke: orange)
-            draw.content((0.5,5), text(fill: orange)[$ A(s, a=a_"good", theta_beta) $])
+            plot.annotate({
+                line((1.5,0), (1.5,4), stroke: orange)
+                content((0.5,5), text(fill: orange)[$ A(s, a=a_"good", bold(theta)_beta) $])
 
-            draw.line((4.5,0), (4.5,4), stroke: blue)
-            draw.content((6.0,-2), text(fill: blue)[$ A(s, a=a_"bad", theta_beta) $])
+                line((4.5,0), (4.5,4), stroke: blue)
+                content((6.0,-2), text(fill: blue)[$ A(s, a=a_"bad", bold(theta)_beta) $])
+            })
+        })
     }
 )}
 
@@ -330,31 +287,351 @@
 = Admin
 
 ==
-Two more lectures after today #pause
-- Make sure you start on final projects! #pause
+Last exam next lecture! #pause
+- 4 questions #pause
+    + Advantages #pause
+    + Off-policy gradient #pause
+    + DDPG (learning $mu$) #pause
+    + Behavior cloning
 
-Homework 1 grading is done #pause
-- Results on moodle #pause
 
-Homework 2 grading deadline next Wednesday
+= Learning from Offline Data
 
 ==
 
-Quiz 1 scores uploaded #pause
-- Mean grade 57/100, modes at 25 and 85 #pause
-- Someone forget their name #pause
-    - If you have no score, come see me #pause
-- 2 students with 100% on quiz 1 and quiz 2 can skip final quiz #pause
+#side-by-side[
+#cimage("fig/11/flip.jpg") #pause
+][
+*Example:* You are a scientist at Boston Dynamics/Tencent Robotics/etc #pause
+- Must do demos to get funding #pause
+- Teach a robot to backflip #pause
 
-Mean course grade is 92%
-- Lower mean grade after final quiz (second quiz dropped for most)
+]
+*Problem:* Your robot weighs 100 kg #pause
+- If it fails to backflip, it will break #pause
+- Must break 10M robots to learn with RL 
 
-Final quiz on 17 April (next week), format subject to change #pause
-- Question fundamental RL (V/Q/PG) #pause
-- Question actor-critic #pause
-- Question on new material (imitation/offline RL/etc)
+==
+RL only works in simulators #pause
 
-= Review
+In real scenarios, it is dangerous to explore #pause
+- Robot backflip (random action breaks robot) #pause
+- Self driving (random action kills pedestrian) #pause
+- Surgery (random action stabs nurse) #pause
+
+*Question:* How can we learn a policy *without* exploration? #pause
+
+*Answer:* Not really #pause
+
+*Question:* So what can we do? #pause
+
+*Answer:* Let expert (human) safely collect training data (explore)
+
+==
+*Definition:* In offline policy learning, we cannot access the MDP. Instead, we have a dataset $bold(X)$ collected by unknown policy $pi (a | s; bold(theta)_beta)$.
+
+$ bold(X) = mat(bold(tau)_1, bold(tau)_2, dots) = mat(
+    vec((s_0, a_0, r_0, s_1), (s_1, a_1, r_1, s_2), dots.v),
+    vec((s_0, a_0, r_0, s_1), (s_1, a_1, r_1, s_2), dots.v),
+    dots
+)
+$ #pause
+
+$ a_t tilde pi(dot | s_t, bold(theta)_beta) $ #pause
+
+$ bold(theta)_beta = ? $
+
+//==
+// https://www.youtube.com/watch?v=4N4czAm61Fc
+
+
+= Imitation Learning
+==
+The easiest way to learn from offline data is *imitation learning* #pause
+- We should imitate an expert policy $pi (a | s; bold(theta)_beta)$ #pause
+- Does not even use rewards! #pause
+
+$ pi (a | s; bold(theta)_pi) = pi (a | s; bold(theta)_beta) #pause =>
+
+argmin_(bold(theta)_pi) (pi (a | s; bold(theta)_beta) - pi (a | s; bold(theta)_pi))^2 $ #pause
+
+*Question:* Does this work? #pause
+
+*Answer:* Not exactly, $pi(a | s)$ is a distribution not a scalar #pause
+
+*Question:* How can we measure the difference of two distributions? #pause
+
+*Answer:* KL divergence measures difference in distributions
+
+==
+$ KL(Pr(X), Pr(Y)) = sum_(omega in Omega_X) Pr(X=omega) log Pr(X=omega) / Pr(Y=omega) $ #pause
+
+Minimize difference between $underbrace(pi (a | s; bold(theta)_beta), Pr(X))$ and $underbrace(pi (a | s; bold(theta)_pi), Pr(Y))$ #pause
+
+$ argmin_(bold(theta)_pi) space KL(pi (a | s; bold(theta)_beta), pi (a | s; bold(theta)_pi)) $ #pause
+
+Plug policies into KL equation #pause
+
+$ argmin_(bold(theta)_pi) sum_(a in A) pi (a | s; bold(theta)_beta) log (pi (a | s; bold(theta)_beta)) / (pi (a | s; bold(theta)_pi)) $
+
+==
+
+$ argmin_(bold(theta)_pi) sum_(a in A) pi (a | s; bold(theta)_beta) log (pi (a | s; bold(theta)_beta)) / (pi (a | s; bold(theta)_pi)) $ #pause
+
+Log of divisors is difference of logs #pause
+
+$ argmin_(bold(theta)_pi) sum_(a in A) pi (a | s; bold(theta)_beta) [ log(pi (a | s; bold(theta)_beta)) - log (pi (a | s; bold(theta)_pi)) ] $ #pause
+
+Distribute behavior policy into difference #pause
+
+$ argmin_(bold(theta)_pi) sum_(a in A) pi (a | s; bold(theta)_beta)  log pi (a | s; bold(theta)_beta) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi)  $
+
+==
+
+$ argmin_(bold(theta)_pi) sum_(a in A) pi (a | s; bold(theta)_beta)  log pi (a | s; bold(theta)_beta) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $ #pause
+
+First term is constant with respect to $bold(theta)_pi$ (only depends on $bold(theta)_beta$) #pause
+- Can ignore the first term for optimization purposes #pause
+
+$ argmin_(bold(theta)_pi) sum_(a in A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $ #pause
+
+This is the *cross-entropy* objective #pause
+
+*Question:* Have we seen this objective in deep learning? #pause
+
+*Answer:* Loss for classification tasks
+
+==
+$ argmin_(bold(theta)_pi) sum_(a in A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $ #pause
+
+*Question:* Where does $s$ come from? #pause *Answer:* Dataset $bold(X)$ #pause
+
+$ argmin_(bold(theta)_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $ #pause
+
+This is equivalent to an expectation over the dataset or behavior policy #pause
+
+$ argmin_(bold(theta)_pi) bb(E)[sum_(a in A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) mid(|) underbrace(bold(X), bold(theta)_beta)] $ 
+
+
+==
+
+*Definition:* Behavioral cloning learns the parameters $bold(theta)_pi$ to match an expert policy $bold(theta)_beta$ that collected the dataset $bold(X)$ #pause
+
+$ argmin_(bold(theta)_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $ #pause
+
+Behavioral cloning is a simple supervised learning algorithm!
+
+==
+
+$ argmin_(bold(theta)_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $ #pause
+
+*Question:* How do we evaluate this? #pause
+
+If $A$ is discrete, we can sum over possible actions $a in A$ #pause
+- Our expert policy will often be one-hot #pause
+- $pi (a = a_* | s; bold(theta)_beta) = 1$ (action the expert took) #pause
+- $pi (a != a_* | s; bold(theta)_beta) = 0$ (all other actions) #pause
+
+What if $A$ is continuous (infinite)? 
+
+==
+$ argmin_(bold(theta)_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $ #pause
+
+If $A$ is continuous, we have an infinite sum #pause
+
+$ argmin_(bold(theta)_pi) sum_(s in bold(X)) integral_(A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) dif a $ #pause
+
+Not all integrals are solvable #pause
+
+Need to be careful how we model $pi$, to make sure we can solve this
+
+==
+
+$ argmin_(bold(theta)_pi) sum_(s in bold(X)) integral_(A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) dif a $ #pause
+
+To ensure we have an analytical solution to this integral: #pause
+- Use Dirac delta expert policy $pi (a | s; bold(theta)_beta) = delta(a - a_*)$ #pause
+- Use Gaussian learned policy $pi (a | s; bold(theta)_pi) = "Normal"(mu, sigma)$
+
+==
+
+*Definition:* Behavioral cloning uses *supervised learning* for decision making, minimizing the cross-entropy between expert $bold(theta)_beta$ and our $bold(theta)_pi$
+
+$ argmin_(bold(theta)_pi) sum_(s, a in bold(X)) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $
+
+For continuous actions, we pick special distributions so the cross entropy loss is tractable (Dirac delta $bold(theta)_beta$, Gaussian $bold(theta)_pi$) #pause
+
+#v(1.5em)
+
+//$ argmin_(bold(theta)_pi) sum_(s in bold(X)) 1/2 log(2 pi #pin(7)sigma#pin(8)^2) + (#pin(1)a_*#pin(2) - #pin(3)mu#pin(4))^2 / (2 #pin(5)sigma#pin(6)^2) $ #pause
+
+$ argmin_(bold(theta)_pi) sum_(s in bold(X)) 1/2 (log#pin(5)sigma#pin(6)^2 + (#pin(1)a_*#pin(2) - #pin(3)mu#pin(4))^2 / (#pin(7)sigma#pin(8)^2)) $ #pause
+
+#pinit-highlight-equation-from((1,2), (1,2), fill: red, pos: top, height: 1.2em)[Expert action] 
+#pinit-highlight-equation-from((7,8), (7,8), fill: blue, pos: bottom, height: 1.2em)[Policy outputs] 
+#pinit-highlight(3,4, fill: blue.transparentize(80%))
+#pinit-highlight(5,6, fill: blue.transparentize(80%))
+
+= Coding
+
+==
+Similar to policy gradient, just with different loss function #pause
+
+The policies and methods change depending on action space #pause
+- Discrete actions use a categorical distribution #pause
+- Continuous actions usually use normal distribution #pause
+
+Start with discrete actions, then do continous
+
+==
+Implement a model for a categorical policy #pause
+
+```python
+model = Sequential([
+    Linear(state_size, hidden_size),
+    Lambda(leaky_relu),
+    Linear(hidden_size, hidden_size),
+    Lambda(leaky_relu),
+    # Output logits (real numbers)
+    Linear(hidden_size, action_size),
+])
+``` #pause
+
+Identical to policy gradient
+
+
+
+==
+Next, implement discrete loss function #pause
+
+```python
+    def bc_loss(model, states, actions):
+        # Often, we can't know the expert action distribution
+        # We only have the taken expert action
+        # Taken action has p=1, all other actions p=0
+        # Represent as a one-hot vector
+        expert_probs = actions
+        log_policy_probs = log_softmax(vmap(model)(states))
+        # Log loss, can reduce over batch using mean or sum
+        bce_loss = -sum(
+            expert_probs * log_policy_probs, axis=1).mean()
+        return bce_loss
+```
+==
+Finally, to run our policy we sample actions from our policy #pause
+
+```python
+def sample_action(model, state, key):
+    z = model(state)
+    # BE VERY CAREFUL, always read documentation
+    # Sometimes takes UNNORMALIZED logits, sometimes probs
+    action_probs = softmax(model, state)
+    a = categorical(key, action_probs)
+    a = categorical(key, z) # Does not even use pi
+    return a
+``` #pause
+Identical to policy gradient
+==
+
+Now, consider Gaussian policy (continuous actions) #pause 
+
+```python
+model = Sequential([
+    Linear(state_size, hidden_size),
+    Lambda(leaky_relu),
+    Linear(hidden_size, hidden_size),
+    Lambda(leaky_relu),
+    # Output mu and log_sigma 
+    Linear(hidden_size, 2 * action_size),
+    Lambda(x: split(x, 2))
+])
+``` #pause
+
+Same as policy gradient
+
+==
+Implement continuous loss function #pause
+- Use simplified cross entropy (Dirac-Gaussian) #pause
+
+```python
+def bc_loss(model, states, actions):
+    expert_probs = actions # Dirac delta
+    mu, log_std = vmap(model)(states)
+    # Gaussian CE, also called Gaus. Neg. Log Likelihood
+    # gnll_loss = log_std + 0.5 * ( 
+    #     (mu - action)**2 / exp(log_std)**2
+    # ) 
+    gnll_loss = jax.scipy.stats.norm.logpdf(
+        x=action, loc=mu, scale=exp(log_std))
+
+    return gnll_loss
+```
+
+==
+Next, we need to sample actions from our policy network
+```python
+def sample_action(model, state, key):
+    mu, log_sigma = model(state)
+    # a ~ N(mu, sigma)
+    noise = random.normal(key, (action_size,))
+    a = mu + exp(log_sigma) * noise
+    return a
+```
+
+==
+The training loop is much simpler than RL #pause
+
+```python
+model = Sequential(...)
+opt_state = ...
+# Just supervised learning
+for batch in dataset:
+    states, actions = batch
+    J = grad(bc_loss)(model, states, actions)
+    update = optim.update(J, opt_state)
+    model = apply_updates(update, model)
+``` #pause
+
+Then deploy the policy #pause
+
+```python
+a_t = sample_action(model, s_t, key)
+```
+
+= Applications
+==
+
+Behavioral cloning seems very powerful! #pause
+- No need for reward function #pause
+- No need for exploration, learn from fixed dataset #pause
+- Simpler to implement than RL #pause
+- More stable to train than RL #pause
+
+Sounds very promising, why do we care about RL? #pause
+
+*Question:* What are some disadvantages of BC?
+
+==
+#side-by-side[
+    #cimage("fig/11/texting.jpg", height: 80%)
+
+][
+    *Limitation:* Imperfect expert #pause
+
+    Dataset is following an "expert" $bold(theta)_beta$ #pause
+    - Most humans are not experts #pause
+        - You will learn a policy that drives like it is texting
+]
+
+
+==
+Even where all the data is from a reliable "expert", we have problems #pause
+
+Consider a human surgeon #pause
+- Machines can be faster and more precise than human surgeons #pause
+- We only learn to imitation a suboptimal human #pause
+
+$ pi (a | s; bold(theta)_pi ) approx underbrace(pi (a | s; bold(theta)_beta), "Human policy") $ #pause
 
 = Offline RL
 // Refresher of on-policy and off-policy RL
@@ -394,12 +671,6 @@ But imitation learning (IL) also has disadvantages #pause
 *Question:* Can we learn policies from fixed datasets that do better than the experts?
 
 ==
-In *offline RL* or *batch RL*, we learn without exploration #pause
-
-Like imitation learning, learn from a fixed dataset #pause
-- Simpler implementation #pause
-- Can learn from large existing datasets without collecting it youurself #pause
-
 Unlike imitation learning, offline RL can do *better* than the expert #pause
 - Can learn an optimal policy from a random "expert"! #pause
 - How is this possible without exploration? #pause
@@ -419,28 +690,13 @@ If we can make offline RL work reliably, it can be very powerful #pause
 - Learn superhuman surgery from existing surgery videos #pause
 - Learn language model finetuning from existing internet text #pause
 
-I will also present my work on offline RL at ICRA next month #pause
-
-https://sites.google.com/view/llm-marl/home
-
-==
-*Definition:* An *offline MDP* consists of: #pause
-- MDP with unknown $cal(R), Tr$ #pause
-- Dataset $bold(X)$ of episodes #pause
-    - Following a policy $pi (a | s; theta_beta)$ #pause
-
-$ (S, A, cal(R), Tr, gamma, bold(X)) $ #pause
-
-#side-by-side[$ cal(R)(s_(t+1)) = ? $ #pause][$ Tr(s_(t+1) | s_t, a_t) = ? $ #pause] 
-
-$ bold(X) = mat(bold(E)_[1], bold(E)_[2], dots) #pause = mat(
-    mat(s_0, a_0, d_0, r_1; s_1, a_1, d_1, r_2; dots.v, dots.v, dots.v), mat(s_0, a_0, d_0, r_1; s_1, a_1, d_1, r_2; dots.v, dots.v, dots.v), dots
-) $
+We can learn nice policies from completely random data! 
+- https://youtu.be/gU1UEZVlUk0
 
 ==
 *Goal:* learn a policy that maximizes the return #pause
 
-$ argmax_(theta_pi) bb(E)[cal(G)(bold(tau)) | s_0; theta_pi] $ #pause
+$ argmax_(bold(theta)_pi) bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_pi] $ #pause
 
 There are two ways to approach offline RL #pause
 - Improve behavior cloning with rewards #pause
@@ -466,15 +722,15 @@ Recall the behavior cloning objective #pause
 
 Want to minimize difference between learned and expert policy #pause
 
-$ argmin_(theta_pi) sum_(s in bold(X)) space KL(pi (a | s; theta_beta), pi (a | s; theta_pi)) $ #pause
+$ argmin_(bold(theta)_pi) sum_(s in bold(X)) space KL(pi (a | s; bold(theta)_beta), pi (a | s; bold(theta)_pi)) $ #pause
 
 From this, we derive the cross entropy loss #pause
 
-$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $ 
+$ argmin_(bold(theta)_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $ 
 
 ==
 
-$ argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $ #pause
+$ argmin_(bold(theta)_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $ #pause
 
 Consider the following situation: #pause
 - Two possible actions $A = {a_+, a_-}$ #pause
@@ -484,17 +740,17 @@ Consider the following situation: #pause
 
 Expert must behave better in one state than the other! #pause
 
-$ argmin_(theta_pi) sum_(a in {a_+, a_-}) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) $
+$ argmin_(bold(theta)_pi) sum_(a in {a_+, a_-}) - pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi) $
 
 
 ==
-// $ argmin_(theta_pi) sum_(a in {a_+, a_-}) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $ 
+// $ argmin_(bold(theta)_pi) sum_(a in {a_+, a_-}) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $ 
 
 #side-by-side[
-    $ pi (a_+ | s_0; theta_beta) = 0.5 $
+    $ pi (a_+ | s_0; bold(theta)_beta) = 0.5 $
     #cimage("fig/12/good-driver.png", height: 60%)
 ][
-    $ pi (a_- | s_0; theta_beta) = 0.5 $
+    $ pi (a_- | s_0; bold(theta)_beta) = 0.5 $
     #cimage("fig/11/texting.jpg", height: 60%)
 ] #pause
 
@@ -502,14 +758,14 @@ $ argmin_(theta_pi) sum_(a in {a_+, a_-}) - pi (a | s_0; theta_beta) log pi (a |
 
 ==
 #side-by-side[
-    $ pi (a_+ | s_0; theta_beta) = 0.5 $
+    $ pi (a_+ | s_0; bold(theta)_beta) = 0.5 $
     #cimage("fig/12/good-driver.png", height: 40%)
 ][
-    $ pi (a_- | s_0; theta_beta) = 0.5 $
+    $ pi (a_- | s_0; bold(theta)_beta) = 0.5 $
     #cimage("fig/11/texting.jpg", height: 40%)
 ] #pause
 
-*Question:* Two actions in same state, what policy $theta_pi$ does BC learn? #pause
+*Question:* Two actions in same state, what policy $bold(theta)_pi$ does BC learn? #pause
 
 *Answer:* Randomly choose $a in {a_+, a_-}$ #pause
 
@@ -517,10 +773,10 @@ $ argmin_(theta_pi) sum_(a in {a_+, a_-}) - pi (a | s_0; theta_beta) log pi (a |
 
 ==
 #side-by-side[
-    $ pi (a_+ | s_0; theta_beta) = 0.5 $
+    $ pi (a_+ | s_0; bold(theta)_beta) = 0.5 $
     #cimage("fig/12/good-driver.png", height: 60%)
 ][
-    $ pi (a_- | s_0; theta_beta) = 0.5 $
+    $ pi (a_- | s_0; bold(theta)_beta) = 0.5 $
     #cimage("fig/11/texting.jpg", height: 60%)
 ] #pause
 *Question:* We know which action is better, how can we measure this? #pause
@@ -538,16 +794,8 @@ Expert has equal probability for both good and bad actions #pause
 ]
 
 With IL, we can only imitate the expert #pause
+- With offline RL, we have empirical rewards, we can do better!
 
-With offline RL, we have empirical rewards/returns, we can do better!
-
-#side-by-side[
-
-$ hat(bb(E))[cal(R)(s_1) | s_0, a_0] $
-
-][
-$ hat(bb(E))[cal(G)(bold(tau)) | s_0; theta_beta] $
-]
 
 ==
 #side-by-side[
@@ -556,82 +804,63 @@ $ hat(bb(E))[cal(G)(bold(tau)) | s_0; theta_beta] $
     #bimodal_pi
 ]
 
-#side-by-side[
-
-$ hat(bb(E))[cal(R)(s_1) | s_0; theta_beta] $
-
-][
-$ hat(bb(E))[cal(G)(bold(tau)) | s_0; theta_beta] $
-] #pause
-
-*Question:* How should we change $pi (a_+ | s_0; theta_pi)$ and $pi (a_- | s_0; theta_pi)$? #pause
+*Question:* What should we do with $pi (a_+ | s_0; bold(theta)_pi)$ and $pi (a_- | s_0; bold(theta)_pi)$? #pause
 
 *Answer:* Increase probability of $a_+$, decrease probability of $a_-$
 
 ==
 #side-by-side[
-    #bimodal #pause
+    #bimodal 
 ][
-    #bimodal_reweight #pause
-]
+    #bimodal_reweight 
+] #pause
 
-We want to reweight action probabilities based on reward or return
+We want to reweight action probabilities #pause
+
+*Question:* How do we determine good and bad actions? #pause
+
+*Answer:* Reward!
 
 ==
-$ argmin_(theta_pi) sum_(a in {a_+, a_-}) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) $ 
+// TODO: Return and fix
+$ argmin_(bold(theta)_pi) sum_(a in {a_+, a_-}) - pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi) $ 
 
 Increase probability of $a_+$ and decrease probability of $a_-$ using reward #pause
 
 *Question:* How? #pause Hint:
 
-$ argmin_(theta_pi) - pi (a_+ | s_0; theta_beta) log pi (a_+ | s_0; theta_pi) - pi (a_- | s_0; theta_beta) log pi (a_- | s_0; theta_pi) $ #pause
+$ argmin_(bold(theta)_pi) - pi (a_+ | s_0; bold(theta)_beta) log pi (a_+ | s_0; bold(theta)_pi) - pi (a_- | s_0; bold(theta)_beta) log pi (a_- | s_0; bold(theta)_pi) $ #pause
 
 *Answer:* Reweight each action in the objective using the reward #pause
 
-#text(size: 24pt)[$ argmin_(theta_pi) - #redm[$0.9$] pi (a_+ | s_0; theta_beta) log pi (a_+ | s_0; theta_pi) - #redm[$0.1$] pi (a_- | s_0; theta_beta) log pi (a_- | s_0; theta_pi) $]
-
-==
-#text(size: 24pt)[$ argmin_(theta_pi) - #redm[$0.9$] pi (a_+ | s_0; theta_beta) log pi (a_+ | s_0; theta_pi) - #redm[$0.1$] pi (a_- | s_0; theta_beta) log pi (a_- | s_0; theta_pi) $] #pause
-
-More generally, use weights $w$ #pause
-
-#text(size: 24pt)[$ argmin_(theta_pi) - #redm[$w_+$] pi (a_+ | s_0; theta_beta) log pi (a_+ | s_0; theta_pi) - #redm[$w_-$] pi (a_- | s_0; theta_beta) log pi (a_- | s_0; theta_pi) $]
-
-*Question:* What can we use for $w_+, w_-$? #pause
-
-$ hat(bb(E))[cal(R)(s_1) | s_0; theta_beta] $
+#text(size: 24pt)[$ argmin_(bold(theta)_pi) - #redm[$r_+$] pi (a_+ | s_0; bold(theta)_beta) log pi (a_+ | s_0; bold(theta)_pi) - #redm[$r_-$] pi (a_- | s_0; bold(theta)_beta) log pi (a_- | s_0; bold(theta)_pi) $]
 
 ==
 
 *Definition:* In *Expectation Maximization Reinforcement Learning* (EMRL, Hinton), we reweight the behavior cloning objective using the reward #pause
 
-$ theta_pi = argmin_(theta_pi) [ underbrace(sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi), "BC objective") dot underbrace(hat(bb(E))[cal(R)(s_1) | s_0, a], "Weighting") ]  $ 
+$ bold(theta)_pi = argmin_(bold(theta)_pi) underbrace(sum_(s_0, r_0 in bold(X)) sum_(a in A) - pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi), "BC objective") dot r_0  $ 
 
 ==
 
-$ theta_pi = argmin_(theta_pi) [ sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot hat(bb(E))[cal(R)(s_1) | s_0, a] ] $ #pause
+$ bold(theta)_pi = argmin_(bold(theta)_pi) sum_(s_0, r_0 in bold(X)) sum_(a in A) - pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi) dot r_0  $ 
 
-Consider the simplified example, now with rewards $r$ #pause
+Consider the simplified example, with rewards $r_+, r_-$ #pause
 
-#text(size: 24pt)[$ argmin_(theta_pi) - #redm[$r_+$] pi (a_+ | s_0; theta_beta) log pi (a_+ | s_0; theta_pi) - #redm[$r_-$] pi (a_- | s_0; theta_beta) log pi (a_- | s_0; theta_pi) $] #pause
+#text(size: 24pt)[$ argmin_(bold(theta)_pi) \ - #redm[$r_+$] pi (a_+ | s_0; bold(theta)_beta) log pi (a_+ | s_0; bold(theta)_pi) - #redm[$r_-$] pi (a_- | s_0; bold(theta)_beta) log pi (a_- | s_0; bold(theta)_pi) $] #pause
 
 *Question:* Are there any problems with EMRL? #pause
-
-Hint: What if the reward is negative? #pause
-
-Reweighting only makes sense with positive weights #pause
- 
-EMRL only works with positive rewards!
+- Hint: What if $r_+, r_-$ are negative? #pause
+- EMRL only works with positive rewards!
 
 ==
 
-#text(size: 24pt)[$ argmin_(theta_pi) - #redm[$r_+$] pi (a_+ | s_0; theta_beta) log pi (a_+ | s_0; theta_pi) - #redm[$r_-$] pi (a_- | s_0; theta_beta) log pi (a_- | s_0; theta_pi) $] #pause
+#text(size: 24pt)[$ argmin_(bold(theta)_pi) - #redm[$r_+$] pi (a_+ | s_0; bold(theta)_beta) log pi (a_+ | s_0; bold(theta)_pi) - #redm[$r_-$] pi (a_- | s_0; bold(theta)_beta) log pi (a_- | s_0; bold(theta)_pi) $] #pause
 
-$ bb(E)[cal(R)(s_1) | s_0, a_0] in [-oo, oo] $ #pause
+$ r in bb(R) $ #pause
 
 We want our algorithm to work with positive and negative rewards #pause
-
-Need a mapping between rewards and weights $f: [-oo, oo] |-> [0, oo]$ #pause
+- Need a mapping between rewards and weights $f: bb(R) |-> bb(R)_+$ #pause
 
 *Question:* Any other properties for $f$? #pause Hint: Does $f(r) = |r|$ work? #pause
 
@@ -645,38 +874,32 @@ $ r_+ > r_- => f(r_+) > f(r_-) $
 
 #align(center, exp_plot) #pause
 
-$ f(r) = e^r $
+$ f(r) = exp(r) $
 
 ==
 *Definition:* Reward Weighted Regression (RWR) reweights the behavior cloning objective using the exponentiated reward #pause
 
-$ theta_pi = argmin_(theta_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot exp(hat(bb(E))[cal(R)(s_1) | s_0, a]) $ #pause
+$ bold(theta)_pi = argmin_(bold(theta)_pi) sum_(s_0, r_0 in bold(X)) sum_(a in A) - pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi) dot exp(r_0) $ #pause
 
 Consider an infinitely large and diverse dataset containing all $s, a$ #pause
+- Then, weights are proportional to Boltzmann distribution (softmax) #pause
 
-Then, weights are proportional to Boltzmann distribution (softmax) #pause
-
-$ sum_(a_0 in A) exp(hat(bb(E))[cal(R)(s_1) | s_0, a_0]) prop sum_(a_i in A) ( exp(hat(bb(E))[cal(R)(s_1) | s_0, a_i]) ) / ( sum_(a_0 in A) exp(hat(bb(E))[cal(R)(s_1) | s_0, a_0]) ) $
+$ sum_(a_0 in A) exp(bb(E)[cal(R)(s_1) | s_0, a_0]) prop sum_(a_i in A) ( exp(bb(E)[cal(R)(s_1) | s_0, a_i]) ) / ( sum_(a_0 in A) exp(bb(E)[cal(R)(s_1) | s_0, a_0]) ) $
 
 ==
-$ theta_pi = argmin_(theta_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot exp(hat(bb(E))[cal(R)(s_1) | s_0, a]) $ #pause
-
-RWR find $theta_pi$ that maximizes the reward #pause
+$ bold(theta)_pi = argmin_(bold(theta)_pi) sum_(s_0, r_0 in bold(X)) sum_(a in A) - pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi) dot exp(r_0) $ #pause
+RWR finds $bold(theta)_pi$ that maximizes the reward #pause
 
 *Question:* Do we maximize the reward in RL? #pause
 
 *Answer:* No, we maximize the return! #pause
 
-$ theta_pi = argmin_(theta_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot underbrace(exp(hat(bb(E))[cal(G)(bold(tau)) | s_0; theta_beta]), "Replace reward with return") $ 
+$ bold(theta)_pi = argmin_(bold(theta)_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi) dot underbrace(exp(bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_beta]), "Replace reward with return") $ 
 
 ==
-$ theta_pi = argmin_(theta_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot exp(hat(bb(E))[cal(G)(bold(tau)) | s_0; theta_beta]) $ 
+$ bold(theta)_pi = argmin_(bold(theta)_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi) dot exp(bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_beta]) $ 
 
-This works in theory, but does not work well in practice #pause
-
-*Question:* Why does this fail in practice? #pause
-
-*Answer:* #pause
+We can approximate the expectation using the return from the dataset #pause
 - Need infinite rewards to approximate Monte Carlo return #pause
 - Returns can be big or small, causing overflows $exp(cal(G)(bold(tau))) -> 0, oo$ #pause
 
@@ -685,30 +908,35 @@ This works in theory, but does not work well in practice #pause
 - Introduce advantage (normalize return)
 
 ==
-$ theta_pi = argmin_(theta_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot exp(hat(bb(E))[cal(G)(bold(tau)) | s_0; theta_beta]) $ #pause
+$ bold(theta)_pi = argmin_(bold(theta)_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi) dot exp(bb(E)[cal(G)(bold(tau)) | s_0; bold(theta)_beta]) $ 
 
-$ theta_pi = argmin_(theta_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; theta_beta) log pi (a | s_0; theta_pi) dot underbrace(exp(A(s, a, theta_beta) ), "Use advantage instead") $ #pause
+$ bold(theta)_pi = argmin_(bold(theta)_pi) sum_(s_0 in bold(X)) sum_(a in A) - pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi) dot underbrace(exp(A(s, a, bold(theta)_beta) ), "Use advantage instead") $ #pause
 
-$ A(s, a, theta_beta) = Q(s, a, theta_beta) - V(s, theta_beta) $ #pause
+$ A(s, a, bold(theta)_beta) &= Q(s, a, bold(theta)_beta) - V(s, bold(theta)_beta) \  #pause
 
-$ A(s_t, s_(t+1), theta_beta) = - V(s_t, theta_beta) + r_t + gamma V(s_(t+1), theta_beta) $
+A(s_t, s_(t+1), bold(theta)_beta) &= - underbrace([V(s_t, bold(theta)_beta) - (r_t + gamma V(s_(t+1), bold(theta)_beta))], "TD error") $ 
 
-==
-
-*Definition:* Monotonic Advantage Re-Weighted Imitation Learning (MARWIL) reweights the behavior cloning objective based on the advantage #pause
-
-*Step 1:* Learn a value function for $theta_beta$ #pause
-
-$ theta_V &= argmin_(theta_V) (V(s_0, theta_beta, theta_V) - y)^2 #pause \ 
-y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, theta_beta, theta_V) $ 
 
 ==
 
-*Step 2:* Learn policy using weighted behavioral cloning #pause
+*Definition:* Monotonic Advantage Re-Weighted Imitation Learning (MARWIL) is advantage weighted behavior cloning #pause
 
-$ A(s_t, s_(t+1), theta_beta, theta_V) = - V(s_t, theta_beta, theta_V) + hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma V(s_(t+1), theta_beta, theta_V) $ #pause
+//*Step 1:* Learn a value function for $bold(theta)_beta$ #pause
 
-$ theta_pi = argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) underbrace(- pi (a | s; theta_beta) log pi (a | s; theta_pi), "BC objective") dot underbrace(exp(A(s_t, s_(t+1), theta_beta, theta_V)), "Advantage reweighting") $ 
+$ &#text[Step 1:] cases(
+    eta = underbrace(V(s_0, bold(theta)_(beta), bold(theta)_(V,i)) - (r_0 + not d gamma V(s_0, bold(theta)_(beta), bold(theta)_(V,i))), "TD Error"), 
+
+    display(bold(theta)_(V, i+1) = argmin_bold(theta)_(V, i) eta^2))  \ #pause
+
+//$ bold(theta)_V &= argmin_(bold(theta)_V) (V(s_0, bold(theta)_beta, bold(theta)_V) - y)^2 #pause \ 
+//y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma V(s_1, bold(theta)_beta, bold(theta)_V)  \ #pause
+
+&#text[Step 2:] cases(
+A(s_0, r_0, s_(1), bold(theta)_beta, bold(theta)_V) = - eta,
+ display(bold(theta)_pi = argmin_(bold(theta)_pi) sum_(s, s_(1), r_0 in bold(X)) sum_(a in A) underbrace(- pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi), "BC objective") dot exp(A))
+) $ 
+
+*Note:* Sometimes called Advantage Weighted Regression (AWR)
 
 ==
 
@@ -718,26 +946,14 @@ $ theta_pi = argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) underbrace(- pi (
 - Learn policy using supervised learning (SL) #pause
 - But weights require learning value function (RL) #pause
 
-*Question:* We used TD objective, can we also use MC objective? #pause
-
-$
-V(s_0, theta_beta, theta_V) &= hat(bb(E))[cal(R)(s_1) | s_0; theta_beta] + gamma V(s_1, theta_beta, theta_V) #pause \
-
-V(s_0, #pin(1)theta_beta#pin(2), theta_V) &= sum_(t=0)^oo gamma^t hat(bb(E))[cal(R)(s_(t+1)) | s_0; #pin(3)theta_beta#pin(4)] $ #pause
-
-#pinit-highlight(1,2)
-#pinit-highlight(3,4)
-
-*Answer:* Yes, because we learn $V$ for $theta_beta$ not $theta_pi$
-
 ==
 Add improvements to MARWIL to derive other offline RL algorithms #pause
-- Advantage Weighted Regression (AWR) #pause
 - Advantage Weighted Actor Critic (AWAC) #pause
 - Critic Regularized Regression (CRR) #pause
 - Implicit Q learning (IQL) #pause
 - Maximum a Posteriori Optimization (MPO)
 
+/*
 = The Deadly Triad
 // Difference between off policy and offline RL
 // What off-policy methods could we use for offline RL?
@@ -765,13 +981,13 @@ Finished first, now let us visit the second
 
 *Question:* Why off-policy instead of on-policy algorithm? #pause
 
-On-policy requires collecting data with $theta_pi$ #pause
-- But we cannot do this! Dataset is collected with $theta_beta$ 
-- $theta_beta != theta_pi$, cannot use on-policy method #pause
+On-policy requires collecting data with $bold(theta)_pi$ #pause
+- But we cannot do this! Dataset is collected with $bold(theta)_beta$ 
+- $bold(theta)_beta != bold(theta)_pi$, cannot use on-policy method #pause
 
 Off-policy can learn from any trajectories #pause
-- Trajectory collected following $theta_beta$
-- Can use $theta_beta$ trajectory to update $theta_pi$ 
+- Trajectory collected following $bold(theta)_beta$
+- Can use $bold(theta)_beta$ trajectory to update $bold(theta)_pi$ 
 
 ==
 Ok, let us choose an off-policy algorithm to use #pause
@@ -782,7 +998,7 @@ Ok, let us choose an off-policy algorithm to use #pause
 - Off-policy gradient (does not work well, ignore for now) #pause
 
 *Question:* Temporal Difference or Monte Carlo Q learning? #pause
-- MC is on-policy
+- MC is on-policy #pause
 - Only TD Q learning is off-policy
 
 ==
@@ -793,8 +1009,8 @@ while not terminated:
     transition = env.step(action)
     buffer.append(transition)
     train_data = buffer.sample()
-    J = grad(td_loss)(theta_Q, theta_T, Q, train_data)
-    theta_Q = opt.update(theta_Q, J)
+    J = grad(td_loss)(bold(theta)_Q, bold(theta)_T, Q, train_data)
+    bold(theta)_Q = opt.update(bold(theta)_Q, J)
 ``` #pause
 
 *Question:* What can we do to make this offline? Without exploration? #pause
@@ -814,8 +1030,8 @@ for x in X:
     # buffer.append(transition)
 for epoch in num_epochs:
     train_data = buffer.sample()
-    J = grad(td_loss)(theta_Q, theta_T, Q, train_data)
-    theta_Q = opt.update(theta_Q, J)
+    J = grad(td_loss)(bold(theta)_Q, bold(theta)_T, Q, train_data)
+    bold(theta)_Q = opt.update(bold(theta)_Q, J)
 ``` 
 
 ==
@@ -825,17 +1041,15 @@ for x in X:
 
 for epoch in num_epochs:
     train_data = buffer.sample()
-    J = grad(td_loss)(theta_Q, theta_T, Q, train_data)
-    theta_Q = opt.update(theta_Q, J)
+    J = grad(td_loss)(bold(theta)_Q, bold(theta)_T, Q, train_data)
+    bold(theta)_Q = opt.update(bold(theta)_Q, J)
 ``` #pause
 
 *Question:* Will this work? #pause
 
 *Answer:* It can! But only for very simple problems #pause
 
-For harder/interesting problems, loss quickly becomes `NaN` #pause
-
-Let us investigate why
+For harder/interesting problems, loss quickly becomes `NaN`
 
 ==
 
@@ -846,7 +1060,7 @@ On assignment 2, many of you found issues with deep Q learning #pause
 
 This was not your fault, it is a known problem in RL! #pause
 
-Call it the *deadly triad*, because it is caused by combining three factors: #pause
+Called the *deadly triad*, from combining three factors: #pause
 1. Function approximation (deep neural network) #pause
 2. Recursive bootstrapping (TD, $Q(s, a) = r + gamma max Q(s, a)$) #pause
 3. Off-policy learning/limited exploration #pause
@@ -865,73 +1079,71 @@ Let us further investigate the deadly triad
 ==
 Imagine a toy MDP #pause
 
-$ S = {s} #pause quad A = {1, 2} #pause quad Q(s, a, theta_Q) = theta_Q dot a #pause quad cal(R)(s) = 0 #pause quad gamma = 1$
+$ S = {s} #pause quad A = {1, 2} #pause quad Q(s, a, bold(theta)_Q) = bold(theta)_Q dot a #pause quad cal(R)(s) = 0 #pause quad gamma = 1$
 
-Can update $theta_Q$ using simple TD update #pause
+Can update $bold(theta)_Q$ using simple TD update #pause
 
-$ theta_Q = theta_Q - underbrace([Q(s, a, theta_Q) - (r + gamma max_(a' in A) Q(s', a', theta_Q))], "Q error, can consider" nabla cal(L) )$ #pause
+$ bold(theta)_Q = bold(theta)_Q - underbrace([Q(s, a, bold(theta)_Q) - (r + gamma max_(a' in A) Q(s', a', bold(theta)_Q))], "Q error, can consider" nabla cal(L) )$ #pause
 
-$ theta_Q = theta_Q - [Q(s, a, theta_Q) - max_(a' in A) Q(s', a', theta_Q)]$ #pause
+$ bold(theta)_Q = bold(theta)_Q - [Q(s, a, bold(theta)_Q) - max_(a' in A) Q(s', a', bold(theta)_Q)]$ #pause
 
 Importantly, to simulate off-policy/offline RL, we have limited dataset #pause
 - We only have $s, a=1$ in our dataset, not $s, a=2$ #pause
 
-Let us perform some updates to $theta_Q$ and see what happens
+Let us perform some updates to $bold(theta)_Q$ and see what happens
 
-//$ Q(s, 1, theta_Q) = theta_Q dot a = 1 dot 1 = 1 $ #pause
+//$ Q(s, 1, bold(theta)_Q) = bold(theta)_Q dot a = 1 dot 1 = 1 $ #pause
 
-//Receive zero reward $cal(R)(s) = 0$, now let us update $theta_Q$
+//Receive zero reward $cal(R)(s) = 0$, now let us update $bold(theta)_Q$
 
 
 
 ==
-//$ theta_Q = Q(s, 1, theta_Q) - (0 + gamma max_(a' in A) {underbrace(1 dot 1, (a=1) \ 1), underbrace(1 dot 2, (a=2) \ 2)}) $
+//$ bold(theta)_Q = Q(s, 1, bold(theta)_Q) - (0 + gamma max_(a' in A) {underbrace(1 dot 1, (a=1) \ 1), underbrace(1 dot 2, (a=2) \ 2)}) $
 
-Initialize $theta_Q = 1$, update for $a=1$ #pause
+Initialize $bold(theta)_Q = 1$, update for $a=1$ #pause
 
 $ 
-theta_Q &= theta_Q - [Q(s, a, theta_Q) - max_(a' in A) Q(s, a', theta_Q)] \ #pause
-theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (max {Q(s, 1, theta_Q), Q(s, 2, theta_Q)}) ] \ #pause
-theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (max {theta_Q dot 1, theta_Q dot 2}) ] \ #pause
-theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (max {1 dot 1, 1 dot 2}) ] \ #pause
-theta_Q &= 1 - [1 - 2] \ #pause
-theta_Q &= 2 $
+bold(theta)_Q &= bold(theta)_Q - [Q(s, a, bold(theta)_Q) - max_(a' in A) Q(s, a', bold(theta)_Q)] \ #pause
+bold(theta)_Q &= bold(theta)_Q - [ Q(s, 1, bold(theta)_Q) - (max {Q(s, 1, bold(theta)_Q), Q(s, 2, bold(theta)_Q)}) ] \ #pause
+bold(theta)_Q &= bold(theta)_Q - [ Q(s, 1, bold(theta)_Q) - (max {bold(theta)_Q dot 1, bold(theta)_Q dot 2}) ] \ #pause
+bold(theta)_Q &= bold(theta)_Q - [ Q(s, 1, bold(theta)_Q) - (max {1 dot 1, 1 dot 2}) ] \ #pause
+bold(theta)_Q &= 1 - [1 - 2] \ #pause
+bold(theta)_Q &= 2 $
 
 ==
 
-Repeat with $theta_Q = 2$, update for $a=1$
+Repeat with $bold(theta)_Q = 2$, update for $a=1$
 
 $ 
-theta_Q &= theta_Q - [Q(s, a, theta_Q) - max_(a' in A) Q(s, a', theta_Q)] \ #pause
-theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (max {Q(s, 1, theta_Q), Q(s, 2, theta_Q)}) ] \ #pause
-theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (max {theta_Q dot 1, theta_Q dot 2}) ] \ #pause
-theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (max {2 dot 1, 2 dot 2}) ] \ #pause
-theta_Q &= 2 - [2 - 4] \ #pause
-theta_Q &= 4 $
+bold(theta)_Q &= bold(theta)_Q - [Q(s, a, bold(theta)_Q) - max_(a' in A) Q(s, a', bold(theta)_Q)] \ #pause
+bold(theta)_Q &= bold(theta)_Q - [ Q(s, 1, bold(theta)_Q) - (max {Q(s, 1, bold(theta)_Q), Q(s, 2, bold(theta)_Q)}) ] \ #pause
+bold(theta)_Q &= bold(theta)_Q - [ Q(s, 1, bold(theta)_Q) - (max {bold(theta)_Q dot 1, bold(theta)_Q dot 2}) ] \ #pause
+bold(theta)_Q &= bold(theta)_Q - [ Q(s, 1, bold(theta)_Q) - (max {2 dot 1, 2 dot 2}) ] \ #pause
+bold(theta)_Q &= 2 - [2 - 4] \ #pause
+bold(theta)_Q &= 4 $
 
 ==
 
-Repeat with $theta_Q = 4$, update for $a=1$
+Repeat with $bold(theta)_Q = 4$, update for $a=1$
 
 $ 
-theta_Q &= theta_Q - [Q(s, a, theta_Q) - max_(a' in A) Q(s, a', theta_Q)] \ #pause
-theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (max {Q(s, 1, theta_Q), Q(s, 2, theta_Q)}) ] \ #pause
-theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (max {theta_Q dot 1, theta_Q dot 2}) ] \ #pause
-theta_Q &= theta_Q - [ Q(s, 1, theta_Q) - (max {4 dot 1, 4 dot 2}) ] \ #pause
-theta_Q &= 4 - [4 - 8] \ #pause
-theta_Q &= 8 $
+bold(theta)_Q &= bold(theta)_Q - [Q(s, a, bold(theta)_Q) - max_(a' in A) Q(s, a', bold(theta)_Q)] \ #pause
+bold(theta)_Q &= bold(theta)_Q - [ Q(s, 1, bold(theta)_Q) - (max {Q(s, 1, bold(theta)_Q), Q(s, 2, bold(theta)_Q)}) ] \ #pause
+bold(theta)_Q &= bold(theta)_Q - [ Q(s, 1, bold(theta)_Q) - (max {bold(theta)_Q dot 1, bold(theta)_Q dot 2}) ] \ #pause
+bold(theta)_Q &= bold(theta)_Q - [ Q(s, 1, bold(theta)_Q) - (max {4 dot 1, 4 dot 2}) ] \ #pause
+bold(theta)_Q &= 4 - [4 - 8] \ #pause
+bold(theta)_Q &= 8 $
 
 ==
-Each time we update, $theta_Q$ increases, even if $cal(R)(s)=0$ #pause
+Each time we update, $bold(theta)_Q$ increases, even if $cal(R)(s)=0$ #pause
+- Larger $bold(theta)_Q$ means larger $Q(s,a, bold(theta)_Q)$ for both $a=1, a=2$ #pause
+- #side-by-side[Eventually $bold(theta)_Q -> oo$ #pause][$Q(s, a, bold(theta)_Q) -> oo$ #pause]
 
-Larger $theta_Q$ means larger $Q(s,a, theta_Q)$ for both $a=1, a=2$ #pause
-
-#side-by-side[Eventually $theta_Q -> oo$ #pause][$Q(s, a, theta_Q) -> oo$ #pause]
-
-*Question:* Why does $theta_Q$ keep increasing? #pause
+*Question:* Why does $bold(theta)_Q$ keep increasing? #pause
 + (Function approximation) We share parameters for $a=1$ and $a=2$ #pause
-    - Updating $theta_Q$ for $a=1$ also updates for $a=2$ #pause
-+ (Recursive bootstrap) updating $theta_Q$ for $a=1$ uses $max_(a in {1, 2})$ in label #pause
+    - Updating $bold(theta)_Q$ for $a=1$ also updates for $a=2$ #pause
++ (Recursive bootstrap) updating $bold(theta)_Q$ for $a=1$ uses $max_(a in {1, 2})$ in label #pause
 + (Off-policy) Trains on old data, does not contain $a=2$ #pause
     - Eventually, greedy policy should visit $a=2$ #pause
 
@@ -939,8 +1151,8 @@ Offline RL guarantees case 3, because we will never explore
 
 ==
 + (Function approximation) We share parameters for $a=1$ and $a=2$
-    - Updating $theta_Q$ for $a=1$ also updates for $a=2$
-+ (Recursive bootstrap) updating $theta_Q$ for $a=1$ uses $max_(a in {1, 2})$ in label
+    - Updating $bold(theta)_Q$ for $a=1$ also updates for $a=2$
++ (Recursive bootstrap) updating $bold(theta)_Q$ for $a=1$ uses $max_(a in {1, 2})$ in label
 + (Off-policy) Trains on old data, does not contain $a=2$ 
     - Eventually, greedy policy should visit $a=2$ #pause
 
@@ -986,7 +1198,7 @@ Only consider actions we have in our dataset $overline(A)(s)$ #pause
 
 $ overline(A)(s) = {a | (s, a) in bold(X) } $ #pause
 
-$ Q(s_0, a_0, theta_Q) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma max_(#redm[$a in overline(A)$]) Q(s_(1), a, theta_Q) $ #pause
+$ Q(s_0, a_0, bold(theta)_Q) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma max_(#redm[$a in overline(A)$]) Q(s_(1), a, bold(theta)_Q) $ #pause
  
 We ignore actions missing from the dataset! #pause
 - This will fix deadly triad via (2. Recursive bootstrap) #pause
@@ -1002,11 +1214,11 @@ Continuous state space means we cannot check $(s, a) in bold(X)$ #pause
 
 *Solution:* Continuous relaxation of $overline(A)$ #pause
 
-$ overline(A)(s) = {a |  pi (a | s; theta_beta) > rho} $ #pause
+$ overline(A)(s) = {a |  pi (a | s; bold(theta)_beta) > rho} $ #pause
 
 Only consider actions that our behavior policy might take #pause
 
-We can learn $theta_beta$ using behavioral cloning
+We can learn $bold(theta)_beta$ using behavioral cloning
 
 
 
@@ -1019,21 +1231,21 @@ We can learn $theta_beta$ using behavioral cloning
 
 *Step 1:* Learn the behavior policy through BC #pause
 
-$ theta_pi = argmin_(theta_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; theta_beta) log pi (a | s; theta_pi) $ #pause
+$ bold(theta)_pi = argmin_(bold(theta)_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; bold(theta)_beta) log pi (a | s; bold(theta)_pi) $ #pause
 
 *Step 2:* Learn the Q function #pause
 
-$ theta_(Q, i + 1) &= argmin_(theta_(Q, i)) (Q(s_0, a_0, theta_pi, theta_(Q, i)) - y)^2 \  #pause
-y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(#redm[$a in overline(A)$]) Q(s_1, a, theta_pi, theta_(Q, i)) $
+$ bold(theta)_(Q, i + 1) &= argmin_(bold(theta)_(Q, i)) (Q(s_0, a_0, bold(theta)_pi, bold(theta)_(Q, i)) - y)^2 \  #pause
+y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(#redm[$a in overline(A)$]) Q(s_1, a, bold(theta)_pi, bold(theta)_(Q, i)) $
 
 ==
 
-$ theta_(Q, i + 1) &= argmin_(theta_(Q, i)) (Q(s_0, a_0, theta_pi, theta_(Q, i)) - y)^2 \ 
-y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in overline(A)) Q(s_1, a, theta_pi, theta_(Q, i)) $ #pause
+$ bold(theta)_(Q, i + 1) &= argmin_(bold(theta)_(Q, i)) (Q(s_0, a_0, bold(theta)_pi, bold(theta)_(Q, i)) - y)^2 \ 
+y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in overline(A)) Q(s_1, a, bold(theta)_pi, bold(theta)_(Q, i)) $ #pause
 
 Constrain $overline(A)$ to contain actions the behavior policy would take #pause
 
-$ overline(A) = {a | pi (a | s_1; theta_pi) > rho} $ #pause
+$ overline(A) = {a | pi (a | s_1; bold(theta)_pi) > rho} $ #pause
 
 where hyperparameter $rho$ determines the level of extrapolation #pause
 - Bigger $rho$ means less extrapolation, less optimal #pause
@@ -1062,15 +1274,15 @@ Can we do this without knowing $overline(A)$?
 *Key idea:* This should force all $Q(s, a)$ to be small, unless $(s, a) in bold(X)$ #pause
 
 
-$ argmin_(theta_Q) space underbrace((Q(s_0, a_0, theta_pi, theta_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, theta_pi, theta_Q), "Minimize Q") #pause  \
+$ argmin_(bold(theta)_Q) space underbrace((Q(s_0, a_0, bold(theta)_pi, bold(theta)_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, bold(theta)_pi, bold(theta)_Q), "Minimize Q") #pause  \
 
-y = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in overline(A)) Q(s_1, a, theta_pi, theta_(Q, i)) $
+y = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in overline(A)) Q(s_1, a, bold(theta)_pi, bold(theta)_(Q, i)) $
 
 ==
 
-$ argmin_(theta_Q) space underbrace((Q(s_0, a_0, theta_pi, theta_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, theta_pi, theta_Q), "Minimize Q")  \
+$ argmin_(bold(theta)_Q) space underbrace((Q(s_0, a_0, bold(theta)_pi, bold(theta)_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, bold(theta)_pi, bold(theta)_Q), "Minimize Q")  \
 
-y = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi, theta_(Q, i)) $
+y = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, bold(theta)_pi, bold(theta)_(Q, i)) $
 
 However, the scale of TD error and Q values can be different #pause
 
@@ -1079,19 +1291,19 @@ Very sensitive to scale, we might just set all $Q(s, a) = -oo$ #pause
 We need to balance the second term a little better
 
 ==
-$ argmin_(theta_Q) space underbrace((Q(s_0, a_0, theta_pi, theta_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, theta_pi, theta_Q), "Minimize Q")  \
+$ argmin_(bold(theta)_Q) space underbrace((Q(s_0, a_0, bold(theta)_pi, bold(theta)_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, bold(theta)_pi, bold(theta)_Q), "Minimize Q")  \
 
-y = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi, theta_(Q, i)) $ #pause
+y = hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, bold(theta)_pi, bold(theta)_(Q, i)) $ #pause
 
 We can subtract $Q$ for the action we take in the dataset! #pause
 
-$ argmin_(theta_Q) space underbrace((Q(s_0, a_0, theta_pi, theta_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, theta_pi, theta_Q) - Q(s_1, a_1, theta_pi, theta_Q), "Minimize Q")
+$ argmin_(bold(theta)_Q) space underbrace((Q(s_0, a_0, bold(theta)_pi, bold(theta)_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, bold(theta)_pi, bold(theta)_Q) - Q(s_1, a_1, bold(theta)_pi, bold(theta)_Q), "Minimize Q")
 $
 
 This balances the second term to be closer to zero
 
 ==
-$ argmin_(theta_Q) space underbrace((Q(s_0, a_0, theta_pi, theta_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, theta_pi, theta_Q) - Q(s_1, a_1, theta_pi, theta_Q), "Minimize Q")
+$ argmin_(bold(theta)_Q) space underbrace((Q(s_0, a_0, bold(theta)_pi, bold(theta)_(Q)) - y)^2, "TD error") + underbrace(sum_(a in A) Q(s_1, a, bold(theta)_pi, bold(theta)_Q) - Q(s_1, a_1, bold(theta)_pi, bold(theta)_Q), "Minimize Q")
 $ #pause
 
 While minimizing all $Q$ is useful, we care most about the biggest $Q$ #pause
@@ -1100,15 +1312,15 @@ We take $max Q$, so we should emphasize minimizing $max Q$ #pause
 
 Replace sum with logsumexp, a combination of max and sum #pause
 
-$ underbrace((Q(s_0, a_0, theta_pi, theta_(Q)) - y)^2, "TD error") + underbrace(log(sum_(a in A) exp Q(s_1, a, theta_pi, theta_Q)) - Q(s_1, a_1, theta_pi, theta_Q), "Minimize Q")
+$ underbrace((Q(s_0, a_0, bold(theta)_pi, bold(theta)_(Q)) - y)^2, "TD error") + underbrace(log(sum_(a in A) exp Q(s_1, a, bold(theta)_pi, bold(theta)_Q)) - Q(s_1, a_1, bold(theta)_pi, bold(theta)_Q), "Minimize Q")
 $ 
 
 ==
 *Definition:* Conservative Q Learning (CQL) learns a Q function that minimizes $Q$ for out of distribution actions
 
-$ theta_(Q, i + 1) &= argmin_(theta_(Q, i))  underbrace((Q(s_0, a_0, theta_pi, theta_(Q, i)) - y)^2, "TD error") + z^2  \ #pause 
-y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, theta_pi, theta_(Q, i)) \ #pause
-z &= underbrace((log sum_(a in A) exp Q(s_1, a, theta_pi, theta_(Q, i))), "Minimize Q for all" a) - underbrace(Q(s_1, a_1, theta_pi, theta_(Q, i)), "Push up Q for" \ "in-distribution" a_1) 
+$ bold(theta)_(Q, i + 1) &= argmin_(bold(theta)_(Q, i))  underbrace((Q(s_0, a_0, bold(theta)_pi, bold(theta)_(Q, i)) - y)^2, "TD error") + z^2  \ #pause 
+y &= hat(bb(E))[cal(R)(s_1) | s_0, a_0] + gamma max_(a in A) Q(s_1, a, bold(theta)_pi, bold(theta)_(Q, i)) \ #pause
+z &= underbrace((log sum_(a in A) exp Q(s_1, a, bold(theta)_pi, bold(theta)_(Q, i))), "Minimize Q for all" a) - underbrace(Q(s_1, a_1, bold(theta)_pi, bold(theta)_(Q, i)), "Push up Q for" \ "in-distribution" a_1) 
 $
 
 = Conclusion
@@ -1125,3 +1337,4 @@ Two standard approaches to offline RL #pause
 - Breaking the deadly triad with Q learning #pause
     - BCQ
     - CQL
+*/

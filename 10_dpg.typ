@@ -75,7 +75,7 @@
     institution: [University of Macau],
     logo: image("fig/common/bolt-logo.png", width: 4cm)
   ),
-  //config-common(handout: true),
+  config-common(handout: true),
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
 )
@@ -227,26 +227,24 @@ Remember that the Q function and greedy policy are different #pause
 Let us quickly review the Q function and value function
 
 ==
-Start with general form of Temporal Difference Q function  #pause
 
-$ Q(s_0, a_0, bold(theta)_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(V(s_1, bold(theta)_pi), cal(G) "following" bold(theta)_pi) $ #pause
+$ Q(s_0, a_0, bold(theta)_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(bb(E)[V(s_1, bold(theta)_pi)| s_0, a_0; bold(theta)_pi], cal(G) "following" bold(theta)_pi) $ #pause
 
 #v(-0.5em)
 We can replace $V$ with $Q$ if $#redm[$a$] tilde pi (dot | s_1; bold(theta)_pi)$ #pause
 
-$ Q(s_0, a_0, bold(theta)_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(Q(s_1, #redm[$a$], bold(theta)_pi), cal(G) "following" bold(theta)_pi) $ #pause
+$ Q(s_0, a_0, bold(theta)_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + gamma underbrace(bb(E)[Q(s_1, #redm[$a$], bold(theta)_pi)| s_0, a_0; bold(theta)_pi], cal(G) "following" bold(theta)_pi) $ #pause
 
 For the greedy policy, we can reduce $Q$ further #pause
 
-$ Q(s_0, a_0, bold(theta)_pi) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + underbrace(max_(a in A) gamma Q(s_1, a, bold(theta)_pi), cal(G) "following" bold(theta)_pi) $
+$ Q(s_0, a_0) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + underbrace(gamma bb(E)[max_(a in A) Q(s_1, a, bold(theta)_pi) | s_0, a_0], cal(G) "following" bold(theta)_pi) $
 
 ==
-$ cancel(Q(s_0, a_0, bold(theta)_pi) = bb(E)[cal(R)(s_1) | s_0, a_0] + max_(a in A) gamma Q(s_1, a, bold(theta)_pi))  $ #pause
+$ cancel(Q(s_0, a_0) = underbrace(bb(E)[cal(R)(s_1) | s_0, a_0], "Reward for taking" a_0) + gamma bb(E)[max_(a in A) Q(s_1, a, bold(theta)_pi) | s_0, a_0]) $
 
-Cannot use the max Q function with BenBen #pause
 
-$
-Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[V(s_1, bold(theta)_pi) | s_0, a_0; bold(theta)_pi] \
+
+$ Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[V(s_1, bold(theta)_pi) | s_0, a_0; bold(theta)_pi] \
 Q(s_0, a_0, bold(theta)_pi) &= bb(E)[cal(R)(s_1) | s_0, a_0] + gamma underbrace(bb(E)[Q(s_1, a, bold(theta)_pi) | s_0, a_0; bold(theta)_pi], a tilde pi (dot | s_1; bold(theta)_pi))
 $ #pause
 
@@ -735,14 +733,17 @@ def mu_loss(mu, theta_Q, data):
     return -q_value
 ```
 
+= Twin Delayed DDPG
 ==
 You can also read about Twin Delayed DDPG (TD3) #pause
 - Adds some improvements to DDPG to improve performance #pause
-    - Add noise to target 
-    $ Q(s, mu(s, bold(theta)_mu) + nu, bold(theta)_mu, theta_T) $ #pause
+    - Add noise to target network action
+    $ eta = Q(s_t, mu(s_t, bold(theta)_mu)) - (r_t + gamma Q(s_(t+1), mu(s_(t+1), bold(theta)_mu) #redm[$+ nu$], bold(theta)_mu, bold(theta)_T)) $ #pause
     - Learns two Q functions, use the minimum as target
-    $ min_(i in 1, 2) Q(s, mu(s, bold(theta)_mu) + nu, bold(theta)_mu, theta_(T, i)) $ #pause
-    - Update Q functions more often than policy
+    $ eta = Q(s_t, mu(s_t, bold(theta)_mu)) - (r_t + gamma #redm[$min_(i in 1, 2)$] Q(s_(t+1), mu(s_(t+1), bold(theta)_mu) + nu, bold(theta)_mu, bold(theta)_(T, #redm[$i$]))) $ #pause
+    - Update $Q$ more often than $mu$ : `if epoch % 2 == 0; update_mu`
+
+https://younggyo.me/fast_td3/
 
 = Max Entropy RL
 // SAC is arguably the best algorithm we have today
@@ -900,11 +901,11 @@ Like PPO, there are many variants of SAC #pause
     - Reduce gradient variance #pause
 
 Like PPO, SAC is complicated -- uses many "implementation tricks" #pause
-- Often not documented #pause
 - CleanRL describes modern SAC, using tricks from 5 papers #pause
 - https://docs.cleanrl.dev/rl-algorithms/sac/#implementation-details_1 #pause
+- Coding SAC could take an entire lecture, read CleanRL #pause
 
-Coding SAC could take an entire lecture, read CleanRL
+https://younggyo.me/fastsac-humanoid/
 
 ==
 Duality between policy gradient actor critic and Q learning actor critic #pause
@@ -980,7 +981,6 @@ In supervised learning, follow MNIST tutorial and everything works #pause
 Theory is absolutely necessary to understand: #pause 
 - *Why* your policy fails #pause
 - *How* to fix it 
-
 
 
 /*

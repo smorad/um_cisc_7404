@@ -8,6 +8,9 @@
 #import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge
 #import "@preview/pinit:0.2.2": *
 
+// TODO 2026: Stress that TD error drives expectation to zero
+// Advantage is NOT expectation, it is sample minus expectation
+// TODO: Redo advantage, use better motivation
 
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
