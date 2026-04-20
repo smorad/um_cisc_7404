@@ -309,14 +309,15 @@ Last exam next lecture! #pause
 ]
 *Problem:* Your robot weighs 100 kg #pause
 - If it fails to backflip, it will break #pause
-- Must break 10M robots to learn with RL 
+- Needs 10M transitions to learn #pause
+    - Must break 10M robots to learn with RL 
 
 ==
 RL only works in simulators #pause
 
 In real scenarios, it is dangerous to explore #pause
 - Robot backflip (random action breaks robot) #pause
-- Self driving (random action kills pedestrian) #pause
+- Self driving (random action squishes pedestrian) #pause
 - Surgery (random action stabs nurse) #pause
 
 *Question:* How can we learn a policy *without* exploration? #pause
@@ -953,6 +954,37 @@ Add improvements to MARWIL to derive other offline RL algorithms #pause
 - Implicit Q learning (IQL) #pause
 - Maximum a Posteriori Optimization (MPO)
 
+= Offline Q Learning
+==
+*Question:* Q learning is off-policy, can we use it for offline RL? #pause
+
+*Answer:* Theoretically yes, only sample from replay buffer, never add new data #pause
+- This does not work in practice #pause
+
+
+$ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a in A) Q(s_1, a) | s_0, a_0] $ #pause
+
+*Question:* What happens if $a$ not in dataset? #pause
+
+*Answer:* Error propagates at each update: $lim_(i->oo) Q_(i) = oo$
+
+==
+Offline Q learning methods correct $Q$ or $mu,pi$ for $(s, a) in.not bold(X)$ #pause
+
+$ min_Q [Q(s_0, a_0) - (r + gamma max_(a in A) Q(s, a) - lambda (a in.not bold(X)))]^2 \ #pause
+max_mu bb(E)[ Q(s_0, mu(s_0)) - ||mu(s_0) -  a_0||_2 | s_0, a_0 tilde bold(X) ]
+$
+
+
+- TD3+BC
+- BCQ
+- CQL 
+- IQL #pause
+
+They work ok, but can we do better? #pause
+- Active area of research!
+
+==
 /*
 = The Deadly Triad
 // Difference between off policy and offline RL
