@@ -183,40 +183,40 @@ Remember to read the final project requirements carefully! #pause
 Deadline 21 May 
 
 ==
-Exam 3 graded #pause
-- Grades uploaded on moodle #pause
-- BC question #pause
-- DDPG question
-
-==
 All grades entered except for final project #pause
-- Mean grade is 85/100, median is A- #pause
+- Mean grade is 85/100 #pause
 - Final project worth 30%, still possible to increase grade #pause
-
-
-#table(columns: 2,
-[Grade], [Number of Students],
-[A], [12],
-[A-], [13],
-[B+], [9],
-[B], [5],
-[B-], [2],
-[C-], [1],
-[F], [Only cheaters]) #pause
-
-Did not cheat + finish final project = likely to pass
-
-==
 
 Participation scores entered #pause
 - Group is 100/100 #pause
-- Individual 50/100 unless you speak in class #pause
+- Individual #pause
 
-If you speak and have 50/100 individual, come see me after class #pause
-- If you lie, I give you 0/100 individual participation #pause
+If you reguarly speak and have 0/100 individual, come see me after class #pause
+- If you lie, I give you 0/100 group participation #pause
     - "I answered many questions" but I never saw you before
 
 ==
+Exam 3 graded #pause
+- Grades uploaded on moodle #pause
+- Mean score 70/100, ignoring missing exams #pause
+
+Some students have 0/100 for quiz 3 #pause
+- Some already had 100/100 on quiz 1 and 2 #pause
+- Some students had 0/100 until 14:30 today, issue fixed #pause
+    - Double check your score now #pause
+
+Mean over all quiz (quiz 1, quiz 2, quiz 3, drop lowest) = 77/100 
+
+==
+*Question for next year:* Quiz format? #pause
++ 3 quizzes total, 1 quizzes dropped
++ 2 quizzes total, 0 quizzes dropped 
++ 1 final exam instead of quizzes #pause
+
+*Question for next year:* Homework 2 choice #pause
++ Choose either DQN or PG
++ Complete both DQN and PG #pause
+
 *Question for next year:* Final project #pause
 + Choose your own problem
 + I give you either Atari or MuJoCo game to solve 
@@ -230,8 +230,8 @@ In my deep learning course, we viewed LLMs as deep learning #pause
 
 We will combine everything we learned to create LLMs: #pause
 - Actor critic #pause
-    - Policy gradient #pause
-    - V/Q functions #pause
+    - Policy gradient 
+    - V/Q functions 
     - Advantage #pause
 - Imitation learning #pause
 - Offline RL #pause
@@ -241,8 +241,10 @@ You are smarter than you think, we have everything to build LLMs!
 
 ==
 Let us consider the problem of language modeling #pause
-- User gives us variable-length text #pause
-- We want to reply with different text #pause
+
+User gives us variable-length text #pause
+
+We want to reply with different text #pause
 
 #base_poem
 ==
@@ -263,22 +265,27 @@ First approach, produce the entire response at once #pause
 
 Second approach, produce response one word at a time #pause
 
+*Question:* Which follows MDP definition?
+
+*Answer:* First method, one input produces one output $#pin(1)a#pin(2) tilde pi (dot | #pin(3)s#pin(4) ; bold(theta)_pi)$ #pause
+
+#pinit-highlight-equation-from((3,4), (3,4), fill: red, pos: bottom, height: 1.5em)[User input] 
+#pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: top, height: 1.5em)[Policy output] #pause
+
 $ A = {"Aardvark", "Apple",dots, "Zebra"}^n $ #pause
 
-*Question:* Any issues with this action space? #pause
-
-*Answer:* $n in (0, oo)$ so action space is infinite #pause
+*Question:* Any issues with this action space?
 
 ==
 $ A = {"Aardvark", "Apple",dots, "Zebra"}^n $ 
 
+*Answer:* $n in [0, oo]$ so action space is infinite #pause
+
 But policy gradient can represent continuous/infinite action space #pause
 
-*Question:* Can policy gradient represent this action space? #pause
+*Question:* Why does policy gradient not work here? #pause
 
-*Question:* Why not? #pause
-
-BenBen joint angles are *ordered* #pause
+BenBen joint angles are continuous and ordered #pause
 - Action $a=1.8 pi "rad"$ similar to $a=1.9 pi "rad"$, policy can generalize #pause
 
 For LLM action space, meaning of Apple $!=$ meaning of Aardvark #pause
@@ -298,9 +305,9 @@ We implement the action space as a dictionary or integer$->$token map #pause
 $ {0: "Aardvark", space 1:"Apple", space dots, space 128,000: "Zebra"} $ #pause
 
 Action 1 corresponds to the word "Apple" #pause
-- This is still a very large action space! #pause
-- DeepSeek R1 $|A| = 128,000$ #pause
-- Gemma 3 $|A| = 262,000$
+
+This is still a very large action space! #pause
+- DeepSeek R1 $|A| = 128,000$
 
 ==
 $ A = {"Aardvark", "Apple",dots, "Zebra", #text[`<EOS>`]} $ #pause
@@ -312,7 +319,8 @@ $ A = {"Aardvark", "Apple",dots, "Zebra", #text[`<EOS>`]} $ #pause
 #pinit-highlight-equation-from((5,6), (5,6), fill: orange, pos: bottom, height: 1.5em)[$a_(t+1) in A$] #pause
 
 Each token/word in the response is an action #pause
-- But MDP requires a state for every action
+
+But decision processes require a state for every action
 
 $ a_t tilde pi (dot | s_t; bold(theta)_pi) $
 
@@ -326,45 +334,27 @@ $ A = {"Aardvark", "Apple",dots, "Zebra"} $ #pause
 *Question:* What is $s_t$? ($a_t tilde pi (dot | s_t; bold(theta)_pi)$) #pause
 
 *Answer:* Everything we have #text(fill: orange)[seen], and everything we have #text(fill: purple)[done] #pause
-- State is the trajectory $s_t = bold(tau)_t$
 
-==
-Language problem is *not* an MDP, it is *partially observable*! #pause
-
-$ bold(tau) = o_1, a_1, o_2, a_2, dots $ #pause
-
-One token/word is dependent on previous words/tokens #pause
-- $Tr("blue" | "Violets are") != Tr("blue" | "are")$ #pause
-
-Let the state be the entire past #pause
-
-$ s_t = bold(tau)_t = o_1, a_1, o_2, a_2, dots a_(t-1), o_t $ #pause
-
-Now $s_t$ is conditionally independent #pause
-
-$ Tr (s_(t+1) | s_t, a_t) = Tr(s_(t+1) | s_(t), a_t, s_(t-1), dots s_0, a_0) $ #pause
-
-Hacky, but we do not have a better solution
-
+*Question:* Is this a POMDP or MDP? #pause *Answer:* POMDP!
 
 ==
 
 #poem_state #pause
 
-*Question:* What is our state space $S$? #pause
+*Question:* What is our observation space $frak(O)$? #pause
 
 #side-by-side[
-    All possible words of all lengths
+    All possible words
 ][
-$ S = {"Aardvark", dots, "Zebra", "<EOS>"}^n $ 
+$ frak(O) = {"Aardvark", "Apple", dots, "Zebra", "<EOS>"} $ 
 ] #pause
 
 #side-by-side[
-    Action space is just *next* word
+    Same as the action space!
 ][
-$ A = {"Aardvark", dots, "Zebra", "<EOS>"} $ 
-] 
-
+$ A = {"Aardvark", "Apple",dots, "Zebra", "<EOS>"} $ 
+] #pause
+This simplifies our POMDP state
 
 ==
 #poem_state #pause
@@ -392,17 +382,15 @@ $ A = {"Aardvark", dots, "Zebra", "<EOS>"} $
 
 
 #side-by-side(align: horizon)[
-    $s_t = bold(tau)_t =  #state_vec_partial$
+    $ s_t = #state_vec_partial $
 ][
-    $f(#state_vec_partial, bold(theta)_f) = f(bold(tau)_t, bold(theta)_f)$
+    $ s_t = f(#state_vec_partial, bold(theta)_f) = f(bold(tau)_t, bold(theta)_f) $
 ] #pause
 
-Define smaller latent state space using *encoder* $f: tau times Theta |-> S$ #pause
-
 *Question:* What models can we use for $f$? #pause
-- Transformer (GPT-5, Qwen, DeepSeek, LLaMA) #pause
+- Transformer (GPT-4, Qwen, DeepSeek R1, LLaMA) #pause
 - Recurrent neural network (Mamba) #pause
-- Transformer + RNN (Qwen Next, Google Gemma)
+- Transformer + RNN (Griffin, Google Gemma, Tencent Hunyuan)
 ==
 #side-by-side(align: horizon)[
     $ s_t = f(#state_vec_partial, bold(theta)_f) = f(bold(tau)_t, bold(theta)_f) $ #pause
@@ -410,9 +398,9 @@ Define smaller latent state space using *encoder* $f: tau times Theta |-> S$ #pa
     $ pi (a | s_t; bold(theta)_pi) $ #pause
 ]
 
-I like to think about LLMs like this: #pause
-- $f$ is a very large encoder (99% of parameters) #pause
-- Policy $pi$ is the final layer of the LLM (simple linear classifier) #pause
+$f$ is a very large memory model (99% of parameters) #pause
+
+The policy is the final layer of the LLM (simple linear classifier) #pause
 
 #side-by-side[
     $ pi (a | bold(s)_t; bold(bold(theta))_pi) = softmax(bold(bold(theta))_pi^top bold(s)_t) $
@@ -421,7 +409,7 @@ I like to think about LLMs like this: #pause
 ]
 
 ==
-We can imagine $s_t$ as projecting meaning into a linear space #pause
+One more example to make the decision process clear #pause
 
 $s_t = f(#redm[$bold(tau)_t$], bold(theta)_f)$ #pause
 
@@ -478,28 +466,32 @@ $#bluem[$a_t$] tilde pi (a | s_t; bold(theta)_pi)$
     ]
 ] #pause
 
-We understand the policy $bold(theta)_pi$ and encoder $bold(theta)_f$ #pause
+We understand the policy $bold(theta)_pi$ and memory $bold(theta)_f$ #pause
 
 Now how do we learn $bold(theta)_pi$ and $bold(theta)_f$?
 
 = Pretraining
 ==
 Now, we understand the decision making process #pause
-- State space $S$ #pause
+- Observation space $frak(O)$ #pause
 - Action space $A$ #pause
 - Policy $pi (a | s; bold(theta)_pi)$ #pause
-- Encoder $f(bold(tau)_t, bold(theta)_f)$ #pause
+- Memory $f(bold(tau)_t, bold(theta)_f)$ #pause
 
-*Question:* Do we understand latent $S$? #pause *Answer:* No #pause
+*Question:* Do we understand $S$? #pause *Answer:* No, using POMDP #pause
 - $S$ is the latent space learned by $bold(theta)_f$ #pause
-    - It has some meaning, but humans cannot understand it! 
+    - It has some meaning, but humans cannot understand it! #pause
+
+*Question:* Do we understand $Tr$? #pause *Answer:* No!
+- We do not know the meaning of $S$, so we cannot know $Tr$
 
 ==
 We covered:
-- State space $S$
+- Observation space $frak(O)$
 - Action space $A$
 - Policy $pi (a | s; bold(theta)_pi)$
-- Encoder $f(bold(tau)_t, bold(theta)_f)$
+- Memory $f(bold(tau)_t, bold(theta)_f)$
+- State space $S$
 - Transition function $Tr$ #pause
 
 *Question:* What are we missing? #pause
@@ -515,8 +507,10 @@ We covered:
 *Answer:* RLHF? #pause
 
 RLHF will not work yet, GPT-3 requires 45TB of data #pause
-- RLHF requires humans to annotate 40,000,000,000,000 pages of text #pause
-- Cannot use RLHF now, maybe later
+
+RLHF requires humans to annotate 40,000,000,000,000 pages of text #pause
+
+Cannot use RLHF now, maybe later
 
 ==
 
@@ -524,7 +518,7 @@ RLHF will not work yet, GPT-3 requires 45TB of data #pause
 
 Hard to write reward function for text #pause
 
-*Question:* What algorithms learn policies without reward functions? #pause 
+*Question:* What do we do when we cannot find a reward function? #pause
 
 *Answer:* Imitation learning!
 
@@ -560,22 +554,26 @@ Model learns to #text(fill: blue)[think like human ($bold(theta)_f$)] and #text(
 $ argmin_(bold(theta)_pi, bold(theta)_f) sum_(bold(tau) in bold(X)) sum_(t=0)^n sum_(a in A) - pi (a | f(bold(tau)_t, bold(theta)_f ) ; bold(theta)_beta) log pi (a | f(bold(tau)_t, bold(theta)_f ); bold(theta)_pi) $ #pause
 
 In my deep learning course, I call this *Generative PreTraining* (GPT) #pause
-- In this course, I prefer to call it imitation learning! #pause
+
+In this course, I prefer to call it imitation learning! #pause
 
 *Key idea:* GPT is imitation learning #pause
-- Objective is to speak like a human (imitate speech) #pause
-- To speak like a human, model learns to think like a human (imitate thought)
+
+Objective is to speak like a human (imitate speech) #pause
+
+To speak like a human, model learn to think like a human (imitate thought)
 
 
 ==
 $ argmin_(bold(theta)_pi, bold(theta)_f) sum_(bold(tau) in bold(X)) sum_(t=0)^n sum_(a in A) - pi (a | f(bold(tau)_t, bold(theta)_f ) ; bold(theta)_beta) log pi (a | f(bold(tau)_t, bold(theta)_f ); bold(theta)_pi) $ #pause
 
 In BC, we learn from an offline dataset $bold(X)$ collected following $bold(theta)_beta$ #pause
-- How do we get $bold(X)$ for our LLM? #pause
+
+How do we get $bold(X)$ for our LLM? #pause
 
 I don't know, this is a tech company secret! #pause
 - Crawl websites
-- Instagram/小红书 comments
+- Instagram/Little Red Book comments
 - Download books #pause
 
 I know the datasets today are very huge (petabytes!)
@@ -654,13 +652,12 @@ $ argmin_(bold(theta)_pi) sum_(s in bold(X)) sum_(a in A) - pi (a | s; bold(thet
 ==
 #side-by-side[
     Initially, we model all "experts" from a large dataset. Some experts are bad.
-    #bimodal_pi #pause
+    #bimodal_pi
 ][
     Keep training on small dataset, forget old experts and focus on better experts in small dataset.
-    #bimodal_reweight #pause
+    #bimodal_reweight
 ]
 
-Similar results to weighted imitation learning, but without rewards
 
 ==
 
@@ -681,10 +678,10 @@ Useful for specific tasks, but does not scale to general intelligence! #pause
 // Rewards are hard to create
 ==
 To use RL, we must have rewards #pause
-- Use rewards to compute the return (and we maximize the return)
+- Use rewards to compute the return (and we maximzie the return)
 
-It can be difficult to create reward functions #pause
-- With a fixed dataset, humans can specify returns for each datapoint #pause
+We already said it is very hard to create reward functions #pause
+- With a fixed dataset humans can specify returns/rewards for each datapoint #pause
 
 With rewards, humans must label each subsequence $bold(tau)_t$ #pause
 
@@ -726,9 +723,11 @@ Consider two trajectories : $bold(tau)_+, bold(tau)_-$ #pause
 #text(font: "Chalkduster", size: 22pt)[
 
     #side-by-side[
+        $ bold(tau)_+ = o_0, a_0, o_1, a_1, dots $ #pause
         $bold(tau)_+ = $ User: What is Macau?
         Agent: Macau is a Special Administrative Region (SAR) in the south of China #pause
     ][
+        $ bold(tau)_- = o_0, a_0, o_1, a_1, dots $ #pause
         $bold(tau)_- = $ User: What is Macau?
         Agent: Macau is a city in Asia near the equator #pause
     ]
@@ -836,7 +835,7 @@ Offline RL learns to think ($bold(theta)_f$) and speak $bold(theta)_pi$ *better*
 
 Most people use approaches 1 and 3 #pause
 
-*Question:* Why not approach 2? #pause *Answer:* BC pretraining does not use rewards, cannot pretrain $Q$
+*Question:* Why not approach 2? #pause *Answer:* I don't know, try it out!
 
 
 ==
@@ -919,8 +918,10 @@ $ cal(G)(bold(tau), bold(bold(theta))_cal(G)) = softmax(bold(bold(theta))_cal(G)
 #pinit-highlight-equation-from((1,2), (1,2), fill: blue, pos: top, height: 1.5em)[$s$] #pause
 
 We only learn a linear layer $bold(bold(theta))_cal(G)$, not the LLM parameters $bold(theta)_f$! #pause
-- With $cal(G), bold(theta)_cal(G)$, we can compute the return for any trajectory #pause
-- We use any online RL algorithm to learn $bold(theta)_pi$!
+
+With $cal(G), bold(theta)_cal(G)$, we can compute the return for any trajectory #pause
+
+We use any online RL algorithm to learn $bold(theta)_pi$!
 
 ==
 
@@ -1015,7 +1016,7 @@ $
 ==
 S-GRPO compare answers to the same query, reducing variance #pause
 
-$ s_q = f("What is Macau?", bold(theta)_f) $ #pause
+$ s_q = f("Where is Macau?", bold(theta)_f) $ #pause
 
 $ bold(tau)_1 &= "Macau is a Special Administrative Region (SAR) in " dots \
 bold(tau)_2 &= "Macau is a city in Asia near the equator" dots \
@@ -1023,7 +1024,7 @@ dots.v &
 $ #pause
 
 $
-nabla_bold(theta)_(pi, i) bb(E)[cal(G)(bold(tau)) | s_q; bold(theta)_(pi, i)] &= underbrace( (cal(G)(bold(tau), bold(theta)_cal(G)) - 1 / n sum_(i=1)^n cal(G)(bold(tau)_i, bold(theta)_cal(G))), "MC advantage over completions" ) nabla_bold(theta)_(pi, i) log pi (a | s; bold(theta)_(pi, i))
+nabla_bold(theta)_(pi, i) bb(E)[cal(G)(bold(tau)) | s_q; bold(theta)_(pi, i)] &= underbrace( (cal(G)(bold(tau), bold(theta)_cal(G)) - 1 / n sum_(i=1)^n cal(G)(bold(tau)_i, bold(theta)_cal(G))), "Advantage over other competions" ) nabla_bold(theta)_(pi, i) log pi (a | s; bold(theta)_(pi, i))
 $ #pause
 
 Similar to Bradley-Terry: Ranking/normalizing trajectories $bold(tau)_-, bold(tau)_+$
@@ -1089,58 +1090,13 @@ With RLHF, learn return function from human preferences #pause
 
 ==
 
-https://www.youtube.com/shorts/pXCT3Fo_xiE
+https://www.youtube.com/shorts/RSdIBZX6Adw
+
+https://www.youtube.com/watch?v=eJXDFOwJZMk #pause
 
 *Question:* What do humans do with less intelligent beings? #pause
 
 *Answer:* Eat them 
-
-= Understanding Humans through RL
-
-==
-_Getting Over It by Bennet Foddy_ #pause
-
-https://youtu.be/8qGCleYV4cw?si=ynB0Idg5-TdAiAh9&t=74
-
-==
-
-Dr. Bennet Foddy (game author) teaches at NYU #pause
-
-His research focus is on addiction and reward/punishment #pause 
-
-
-#text(size: 24pt)[
-    #quote(block: true)[
-        This chapter compares ... data on different addictions ... from drug addiction to binge-eating disorders, gambling, and videogame addiction. ... Based on these data, it is argued that *there is a hazard inherent in any rewarding operant behavior, no matter how apparently benign: that we may become genuinely "addicted" to any behavior that provides operant reward*. With this in mind, addiction is rightly seen as a possibility for any human being, not a product of the particular pharmacological or technological properties of any one particular substance or behavior.
-    ]
-]
-
-==
-
-We become addicted (gambling, drugs, etc) because of reward! #pause
-
-Drugs/gambling/etc reward overwhelms the rewards of normal life #pause
-
-$ "study" + gamma "exercise" + gamma^2 "sleep" + dots = 10 $ #pause
-
-$ "no money" + gamma "no sleep" + gamma^2 "pain" + dots + underbrace(gamma^n "addiction pleasure", "Too powerful") = 100 $ #pause
-
-If you have no addiction, then you are not following an optimal policy #pause
-
-Optimal policy in humans *will* lead to bad behavior #pause
-- Addict behavior policy maximizes the return!
-
-==
-
-_Getting Over It_ represents this addiction #pause
-
-$ "fall" + gamma "anger" + dots + gamma^n "win game" > "study" + gamma "exercise" + dots $ #pause
-
-It is always interesting to consider our own reward functions #pause
-- Humans are born with reward functions and cannot choose them #pause
-
-We can select good reward functions for artificial agents #pause
-- LLMs are patient, intelligent, helpful because of the reward function
 
 = Final Remarks
 ==
@@ -1199,7 +1155,7 @@ All of us are born with shortcomings in our reward function #pause
 - Consider your own alignment #pause
     - Try and consider the impact of your decisions on others #pause
 
-In assignments 2/3, you can created superhuman policies #pause
+From assignment 2, you can all create superhuman policies #pause
 - You have a powerful tool, you must use it for good #pause
     - Humans are already good at hurting others #pause
     - Do not train superhuman policies to hurt others
@@ -1210,8 +1166,8 @@ In assignments 2/3, you can created superhuman policies #pause
 #quote(block: true)[Gandalf: So do all who live to see such times, but that is not for them to decide. All we have to decide is what to do with the time that is given us.] #pause
 
 - We cannot choose our situation $s_0$
-- We cannot control events beyond our control $Tr$
-- Our actions $a$ are the only thing we can control
+- We cannot control circumstances beyond our control $Tr$
+- The one think we can control, are our actions $a$
 
 Make sure you choose good actions with the life you are given!
 

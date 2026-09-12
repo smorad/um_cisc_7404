@@ -11,6 +11,7 @@
 #set math.vec(delim: "[")
 #set math.mat(delim: "[")
 
+// TODO 2026: mu should rely on Q
 // TODO 2026: Add TD3
 
 #let low_ent = { 
