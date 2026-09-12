@@ -12,17 +12,18 @@
 #set math.mat(delim: "[")
 
 // TODO: Cover inverse RL better as we use it in LLM lecture
+// TODO 2026: Only ~2 hours, add back CQL etc
 
 #show: university-theme.with(
   aspect-ratio: "16-9",
   config-info(
-    title: [Offline Learning],
+    title: [Offline Decision Making],
     subtitle: [CISC 7404 - Decision Making],
     author: [Steven Morad],
     institution: [University of Macau],
     logo: image("fig/common/bolt-logo.png", width: 4cm)
   ),
-  //config-common(handout: true),
+  config-common(handout: true),
   header-right: none,
   header: self => utils.display-current-heading(level: 1)
 )
@@ -294,6 +295,8 @@ Last exam next lecture! #pause
     + DDPG (learning $mu$) #pause
     + Behavior cloning
 
+
+= Review
 
 = Learning from Offline Data
 
@@ -645,31 +648,6 @@ $ pi (a | s; bold(theta)_pi ) approx underbrace(pi (a | s; bold(theta)_beta), "H
 // Benefit of offline RL over imitation learning
     // Stitching diagram
 
-==
-
-*Review:* 
-In on-policy RL, each iteration we collect a *new* dataset using our policy #pause
-
-In off-policy RL, each iteration we *update* our dataset using our policy #pause
-
-In imitation learning, we are given a fixed *expert* dataset
-
-*Question:* Did you find imitation learning interesting? Why?
-
-==
-
-Imitation learning from a fixed dataset is attractive for many reasons #pause
-- Fixed dataset results in much simpler code #pause
-    - No need to collect new data, step environment, etc #pause
-- Easier and more stable to train (supervised learning) #pause
-
-But imitation learning (IL) also has disadvantages #pause
-- Only imitates, does not think or plan #pause
-    - Can only do as good as expert #pause
-    - Humans are usually bad "experts" #pause
-    - We want to do *better* than humans #pause
-
-*Question:* Can we learn policies from fixed datasets that do better than the experts?
 
 ==
 Unlike imitation learning, offline RL can do *better* than the expert #pause
@@ -703,7 +681,7 @@ There are two ways to approach offline RL #pause
 - Improve behavior cloning with rewards #pause
 - Off-policy RL without exploration #pause
 
-Let us begin with behavior cloning first
+Today we focus on behavior cloning 
 
 
 
@@ -823,7 +801,6 @@ We want to reweight action probabilities #pause
 *Answer:* Reward!
 
 ==
-// TODO: Return and fix
 $ argmin_(bold(theta)_pi) sum_(a in {a_+, a_-}) - pi (a | s_0; bold(theta)_beta) log pi (a | s_0; bold(theta)_pi) $ 
 
 Increase probability of $a_+$ and decrease probability of $a_-$ using reward #pause
@@ -851,8 +828,9 @@ Consider the simplified example, with rewards $r_+, r_-$ #pause
 #text(size: 24pt)[$ argmin_(bold(theta)_pi) \ - #redm[$r_+$] pi (a_+ | s_0; bold(theta)_beta) log pi (a_+ | s_0; bold(theta)_pi) - #redm[$r_-$] pi (a_- | s_0; bold(theta)_beta) log pi (a_- | s_0; bold(theta)_pi) $] #pause
 
 *Question:* Are there any problems with EMRL? #pause
-- Hint: What if $r_+, r_-$ are negative? #pause
-- EMRL only works with positive rewards!
+- Hint: What if $r_+=1, r_-=-1000$ #pause
+- EMRL only works with positive rewards! #pause
+    - $pi$ will ignore $a_+$ and try to move very far from $a_-$!
 
 ==
 
@@ -972,7 +950,7 @@ $ Q(s_0, a_0) = bb(E)[cal(R)(s_1) | s_0, a_0] + gamma bb(E)[max_(a in A) Q(s_1, 
 Offline Q learning methods correct $Q$ or $mu,pi$ for $(s, a) in.not bold(X)$ #pause
 
 $ min_Q [Q(s_0, a_0) - (r + gamma max_(a in A) Q(s, a) - lambda (a in.not bold(X)))]^2 \ #pause
-max_mu bb(E)[ Q(s_0, mu(s_0)) - ||mu(s_0) -  a_0||_2 | s_0, a_0 tilde bold(X) ]
+max_mu bb(E)[ Q(s_0, mu(s_0)) - (mu(s_0) -  a_0)^2 | s_0, a_0 tilde bold(X) ]
 $
 
 
